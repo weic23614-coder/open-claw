@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>归档 · 2026-03-25</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+    }
+    .header {
+      background: linear-gradient(135deg, #0a3d62 0%, #1e5f91 100%);
+      color: white;
+      padding: 24px 32px;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header .back {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 5px 14px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .header .back:hover { background: rgba(255,255,255,0.15); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* Section */
+    .section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: #f7f9fb; }
+    .section-header.open { border-bottom-color: #eef1f4; }
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-icon { font-size: 18px; }
+    .section-name { font-size: 15px; font-weight: 700; color: #0a3d62; }
+    .section-summary { font-size: 12px; color: #95a5a6; margin-top: 2px; }
+    .chevron {
+      font-size: 12px;
+      color: #b2bec3;
+      transition: transform 0.2s;
+    }
+    .chevron.open { transform: rotate(90deg); }
+    .section-body { padding: 0 20px 20px; display: none; }
+    .section-body.open { display: block; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th {
+      background: #f7f9fb;
+      font-size: 12px;
+      color: #7a8b99;
+      font-weight: 600;
+      padding: 9px 14px;
+      text-align: left;
+      border-bottom: 1px solid #eef1f4;
+    }
+    td {
+      padding: 11px 14px;
+      font-size: 13px;
+      border-bottom: 1px solid #f3f5f7;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.val { font-weight: 700; color: #0a3d62; }
+    td.down { color: #d63031; font-weight: 600; }
+    td.up { color: #00b894; font-weight: 600; }
+    .sub-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0a3d62;
+      margin: 16px 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #eef1f4;
+    }
+
+    /* KPI row */
+    .kpi-row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+    .kpi { background: #f7f9fb; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 120px; }
+    .kpi-l { font-size: 11px; color: #7a8b99; margin-bottom: 4px; }
+    .kpi-v { font-size: 20px; font-weight: 700; color: #0a3d62; }
+    .kpi-b { font-size: 11px; margin-top: 4px; }
+    .kpi-b .d { color: #d63031; font-weight: 600; }
+    .kpi-b .u { color: #00b894; font-weight: 600; }
+
+    /* Email list */
+    .email-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f5f7;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .email-item:last-child { border-bottom: none; }
+    .email-priority {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .p-high { background: #fff0f0; color: #d63031; }
+    .p-mid { background: #fff8e1; color: #e17055; }
+    .p-low { background: #f0f4f8; color: #636e72; }
+    .email-content { flex: 1; }
+    .email-subject { font-size: 13px; font-weight: 600; color: #2d3436; }
+    .email-meta { font-size: 11px; color: #95a5a6; margin-top: 3px; }
+
+    /* Team cards */
+    .team-list { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .team-card {
+      background: #f7f9fb;
+      border-radius: 8px;
+      padding: 14px;
+      border-left: 3px solid #1e5f91;
+    }
+    .team-card.v { border-left-color: #e17055; }
+    .team-card.f { border-left-color: #6c5ce7; }
+    .team-card.m { border-left-color: #00b894; }
+    .team-card-name { font-size: 13px; font-weight: 700; color: #0a3d62; margin-bottom: 6px; }
+    .team-card-metrics { font-size: 11px; color: #636e72; background: white; padding: 5px 8px; border-radius: 5px; margin-bottom: 8px; line-height: 1.6; }
+    .team-card ul { padding-left: 14px; }
+    .team-card li { font-size: 12px; color: #4a5568; padding: 2px 0; }
+
+    /* Notes */
+    .note-block {
+      background: #f7f9fb;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #4a5568;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 600px) {
+      .team-list { grid-template-columns: 1fr; }
+      .kpi-row { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>📋 归档 · 2026-03-25（周三）</h1>
+    </div>
+    <a href="index.html" class="back">← 返回总览</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 运营日报 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-title-row">
+        <span class="section-icon">📊</span>
+        <div>
+          <div class="section-name">运营日报（2026-03-24 数据）</div>
+          <div class="section-summary">全网 GMV 107.6万 · WoW -13.3% · 流量双降</div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-label">流量指标</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-l">UV / DAU</div>
+          <div class="kpi-v">44,728</div>
+          <div class="kpi-b"><span class="d">DoD -2.5%</span> &nbsp; <span class="d">WoW -5.0%</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l">顾客数</div>
+          <div class="kpi-v">6,110</div>
+          <div class="kpi-b"><span class="d">DoD -6.0%</span> &nbsp; <span class="d">WoW -3.8%</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-l">转化率</div>
+          <div class="kpi-v">13.7%</div>
+          <div class="kpi-b" style="color:#95a5a6">流量及转化明显下降</div>
+        </div>
+      </div>
+
+      <div class="sub-label" style="margin-top:20px">销售指标 · 全网</div>
+      <table>
+        <thead><tr><th>指标</th><th>数值</th><th>WoW</th></tr></thead>
+        <tbody>
+          <tr><td>GMV</td><td class="val">1,075,682</td><td class="down">-13.33%</td></tr>
+          <tr><td>GAAP 毛利额</td><td class="val">100,018</td><td class="down">-17.69%</td></tr>
+          <tr><td>GAAP 毛利率</td><td class="val">14.90%</td><td class="down">-0.26pp</td></tr>
+          <tr><td>订单数</td><td class="val">11,328</td><td class="down">-10.42%</td></tr>
+          <tr><td>ARPO</td><td class="val">95</td><td class="down">-3.25%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-label" style="margin-top:20px">销售指标 · 官网</div>
+      <table>
+        <thead><tr><th>指标</th><th>数值</th><th>WoW</th></tr></thead>
+        <tbody>
+          <tr><td>GMV</td><td class="val">679,808</td><td class="down">-8.1%</td></tr>
+          <tr><td>GAAP 毛利额</td><td class="val">62,537</td><td class="down">-18.1%</td></tr>
+          <tr><td>GAAP 毛利率</td><td class="val">19.48%</td><td class="down">-1.84pp</td></tr>
+          <tr><td>订单数</td><td class="val">7,145</td><td class="down">-7.1%</td></tr>
+          <tr><td>ARPO</td><td class="val">95</td><td class="down">-1.1%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-label" style="margin-top:20px">销售指标 · 三方</div>
+      <table>
+        <thead><tr><th>指标</th><th>数值</th><th>WoW</th></tr></thead>
+        <tbody>
+          <tr><td>GMV</td><td class="val">395,875</td><td class="down">-21.0%</td></tr>
+          <tr><td>GAAP 毛利额</td><td class="val">37,481</td><td class="down">-17.1%</td></tr>
+          <tr><td>GAAP 毛利率</td><td class="val">10.70%</td><td class="up">+0.51pp</td></tr>
+          <tr><td>订单数</td><td class="val">4,183</td><td class="down">-15.6%</td></tr>
+          <tr><td>ARPO</td><td class="val">84</td><td class="down">-6.4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 各团队行动计划 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-title-row">
+        <span class="section-icon">🎯</span>
+        <div>
+          <div class="section-name">各团队行动计划</div>
+          <div class="section-summary">科室一组 · Oka · 增值 · 履约 · 商管</div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="section-body">
+      <div class="team-list">
+        <div class="team-card">
+          <div class="team-card-name">科室一组</div>
+          <div class="team-card-metrics">GMV 38万 · GM 3.6万 · 顾客数 4,874<br>销售额和顾客数较低水平</div>
+          <ul>
+            <li>美团补贴品竞价</li>
+            <li>天猫好药排名竞价</li>
+            <li>第二批补贴品种复盘</li>
+            <li>九芝堂新方案测算</li>
+            <li>康恩贝来访洽谈合作</li>
+          </ul>
+        </div>
+        <div class="team-card">
+          <div class="team-card-name">Oka（官网 + 三方）</div>
+          <div class="team-card-metrics">GMV 67.3万 DoD -2% · GM 5.1万 12.1%<br>三方 Rev 35万 · GM 3.7万 · 10.7%</div>
+          <ul>
+            <li>美团补贴品竞价</li>
+            <li>天猫好药竞价</li>
+            <li>神策循环 PUSH</li>
+            <li>三方低毛产品调整</li>
+            <li>官网新客引流品提报</li>
+          </ul>
+        </div>
+        <div class="team-card v">
+          <div class="team-card-name">增值业务</div>
+          <div class="team-card-metrics">增值 GM 8,980 · MTD 217,449<br>点时 GM 8,823 · MTD 239,532</div>
+          <ul>
+            <li>月末新单客户触达，跟进复购</li>
+            <li>高周转产品制定促销方案</li>
+            <li>人员招聘跟进，带教安排</li>
+          </ul>
+        </div>
+        <div class="team-card f">
+          <div class="team-card-name">履约</div>
+          <div class="team-card-metrics">CPO 2.21% · 官网11 / 天猫10.90 / 京东7.13 / 美团10.03 / 拼多多11</div>
+          <ul>
+            <li>清理三方即将超时发票</li>
+          </ul>
+        </div>
+        <div class="team-card m" style="grid-column: 1 / -1;">
+          <div class="team-card-name">商管</div>
+          <ul>
+            <li>3月货款发票对账（第二波 3.10–3.20）</li>
+            <li>江西依药堂商贸——成人（店铺已开，辅导上品）</li>
+            <li>吉林省民朗大药房——药品（店铺已开，辅导上品）</li>
+            <li>同奥堂药业（惠州）——保健品（待商家打款，跟进开店）</li>
+            <li>商家日常维护</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 邮件总结 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-title-row">
+        <span class="section-icon">📬</span>
+        <div>
+          <div class="section-name">邮件总结（近2周）</div>
+          <div class="section-summary">452封 · 3项高优先级待处理</div>
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="section-body">
+      <div class="sub-label">🔴 高优先级 · 待处理</div>
+      <div class="email-item">
+        <span class="email-priority p-high">高</span>
+        <div class="email-content">
+          <div class="email-subject">"伟哥"商标诉讼案补充问题</div>
+          <div class="email-meta">法务部_孙保华 · 3.24</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-high">高</span>
+        <div class="email-content">
+          <div class="email-subject">C端含右美沙芬复方制剂、普瑞巴林管控通知（多人跟进）</div>
+          <div class="email-meta">质管/官网团队 · 3.24</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-high">高</span>
+        <div class="email-content">
+          <div class="email-subject">【请鹏哥审批】王佳佳&刘盈2月绩效</div>
+          <div class="email-meta">官网_何丹 · 3.24</div>
+        </div>
+      </div>
+
+      <div class="sub-label" style="margin-top:16px">🟡 中优先级</div>
+      <div class="email-item">
+        <span class="email-priority p-mid">中</span>
+        <div class="email-content">
+          <div class="email-subject">【需Ada审批】广州仓2-3月份销售部系统损溢申请</div>
+          <div class="email-meta">供应链_汪文君 · 3.25</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-mid">中</span>
+        <div class="email-content">
+          <div class="email-subject">默沙东&1药网患教合作报价0324更新</div>
+          <div class="email-meta">官网_余庆斯 · 3.24</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-mid">中</span>
+        <div class="email-content">
+          <div class="email-subject">KA客户逾期情况更新0324</div>
+          <div class="email-meta">财务_朱金霞 · 3.24</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-mid">中</span>
+        <div class="email-content">
+          <div class="email-subject">黄道益活络油仿冒商品自查（法务/商业供给多轮讨论）</div>
+          <div class="email-meta">多人 · 3.23–3.24</div>
+        </div>
+      </div>
+      <div class="email-item">
+        <span class="email-priority p-mid">中</span>
+        <div class="email-content">
+          <div class="email-subject">找药服务商品经营审批（多方讨论中）</div>
+          <div class="email-meta">质管/官网 · 3.24</div>
+        </div>
+      </div>
+
+      <div class="sub-label" style="margin-top:16px">🧾 发票（可批量处理）</div>
+      <div class="note-block">
+        12306 火车票电子发票 × 6封（3.24）<br>
+        高德打车电子发票 × 2封（3.24）
+      </div>
+
+      <div class="sub-label" style="margin-top:16px">📢 每日自动报表（无需处理）</div>
+      <div class="note-block">
+        蜂鸟智能每日发送：药网日报、负毛出库&科室TOP10、商品底价监测、三方负毛品、处方问诊日报<br>
+        系统监控每日6点：三方库存同步价格看板
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+</script>
+</body>
+</html>
