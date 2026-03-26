@@ -2,362 +2,413 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>药网平台经营分析日报 · 2026-03-25</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a2e; }
-  
-  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px; }
-  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 1px; }
-  .header .subtitle { font-size: 14px; color: rgba(255,255,255,0.65); margin-top: 6px; }
-  .header .date-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 4px 14px; font-size: 13px; margin-top: 12px; }
-
-  .container { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
-
-  /* KPI Cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-  .kpi-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-left: 4px solid #0f3460; }
-  .kpi-card.green { border-left-color: #10b981; }
-  .kpi-card.orange { border-left-color: #f59e0b; }
-  .kpi-card.red { border-left-color: #ef4444; }
-  .kpi-card.purple { border-left-color: #8b5cf6; }
-  .kpi-label { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
-  .kpi-value { font-size: 32px; font-weight: 700; color: #1a1a2e; }
-  .kpi-unit { font-size: 14px; font-weight: 400; color: #6b7280; margin-left: 4px; }
-  .kpi-sub { font-size: 12px; color: #9ca3af; margin-top: 4px; }
-
-  /* Section */
-  .section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; }
-  .section-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-  .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: #0f3460; border-radius: 2px; }
-
-  /* Two columns */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-
-  /* Chart containers */
-  .chart-wrap { position: relative; height: 280px; }
-  .chart-wrap-lg { position: relative; height: 340px; }
-
-  /* Table */
-  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .data-table th { background: #f8fafc; color: #374151; font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 2px solid #e5e7eb; }
-  .data-table td { padding: 9px 14px; border-bottom: 1px solid #f3f4f6; color: #4b5563; }
-  .data-table tr:hover td { background: #fafbff; }
-  .rank-badge { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: #e5e7eb; color: #6b7280; font-size: 11px; font-weight: 700; text-align: center; line-height: 22px; }
-  .rank-badge.top1 { background: #fbbf24; color: white; }
-  .rank-badge.top2 { background: #9ca3af; color: white; }
-  .rank-badge.top3 { background: #cd7c3c; color: white; }
-  .bar-mini { display: inline-block; height: 8px; background: linear-gradient(90deg, #0f3460, #533483); border-radius: 4px; vertical-align: middle; margin-left: 8px; }
-
-  /* Risk section */
-  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .risk-card { border-radius: 10px; padding: 16px 20px; }
-  .risk-card.high { background: #fff5f5; border: 1px solid #fecaca; }
-  .risk-card.medium { background: #fffbeb; border: 1px solid #fde68a; }
-  .risk-card.low { background: #f0fdf4; border: 1px solid #bbf7d0; }
-  .risk-card.info { background: #eff6ff; border: 1px solid #bfdbfe; }
-  .risk-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .risk-card.high .risk-title { color: #dc2626; }
-  .risk-card.medium .risk-title { color: #d97706; }
-  .risk-card.low .risk-title { color: #16a34a; }
-  .risk-card.info .risk-title { color: #2563eb; }
-  .risk-content { font-size: 13px; color: #4b5563; line-height: 1.7; }
-
-  /* Suggestions */
-  .suggestion-list { list-style: none; }
-  .suggestion-list li { padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; line-height: 1.6; display: flex; gap: 10px; }
-  .suggestion-list li:last-child { border-bottom: none; }
-  .suggestion-list li::before { content: attr(data-icon); font-size: 16px; flex-shrink: 0; }
-
-  /* Tag */
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-  .tag-blue { background: #dbeafe; color: #1d4ed8; }
-  .tag-green { background: #d1fae5; color: #065f46; }
-  .tag-yellow { background: #fef3c7; color: #92400e; }
-  .tag-red { background: #fee2e2; color: #991b1b; }
-
-  /* Footer */
-  .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 12px; }
-
-  @media (max-width: 768px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .two-col, .three-col, .risk-grid { grid-template-columns: 1fr; }
-    .header { padding: 20px; }
-    .header h1 { font-size: 20px; }
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;color:#1a1a2e}
+.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:28px 32px}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:1px}
+.hdr .sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:5px}
+.hdr .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 12px;font-size:12px;margin-top:10px}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid #0f3460;cursor:pointer;transition:.2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.kpi.k1{border-top-color:#0f3460}.kpi.k2{border-top-color:#533483}.kpi.k3{border-top-color:#10b981}.kpi.k4{border-top-color:#06b6d4}.kpi.k5{border-top-color:#f59e0b}.kpi.k6{border-top-color:#e94560}
+.kpi-l{font-size:12px;color:#6b7280;margin-bottom:6px}
+.kpi-v{font-size:22px;font-weight:700;color:#1a1a2e}
+.kpi-u{font-size:12px;color:#9ca3af;font-weight:400}
+.kpi-s{font-size:11px;color:#9ca3af;margin-top:3px}
+/* Tabs */
+.tabs{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px;overflow:hidden}
+.tab-nav{display:flex;border-bottom:1px solid #e5e7eb;overflow-x:auto}
+.tab-btn{padding:14px 20px;font-size:14px;font-weight:500;color:#6b7280;cursor:pointer;border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s}
+.tab-btn:hover{color:#0f3460}
+.tab-btn.active{color:#0f3460;border-bottom-color:#0f3460;font-weight:600}
+.tab-pane{display:none;padding:20px}
+.tab-pane.active{display:block}
+/* Section */
+.sec{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px}
+.sec-t{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-t::before{content:'';display:block;width:4px;height:16px;background:#0f3460;border-radius:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.chart-h{position:relative;height:260px}
+.chart-h2{position:relative;height:320px}
+.chart-h3{position:relative;height:400px}
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:#f8fafc;color:#374151;font-weight:600;padding:9px 12px;text-align:left;border-bottom:2px solid #e5e7eb;cursor:pointer;white-space:nowrap;user-select:none}
+.tbl th:hover{background:#e5e7eb}
+.tbl th.sort-asc::after{content:' ↑'}
+.tbl th.sort-desc::after{content:' ↓'}
+.tbl td{padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#4b5563}
+.tbl tr:hover td{background:#fafbff}
+.rb{display:inline-block;width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;font-weight:700;text-align:center;line-height:20px}
+.rb.r1{background:#fbbf24;color:#fff}.rb.r2{background:#9ca3af;color:#fff}.rb.r3{background:#cd7c3c;color:#fff}
+/* Toggle */
+.toggle-grp{display:flex;gap:8px;margin-bottom:14px}
+.tgl{padding:6px 14px;border-radius:20px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;color:#6b7280;transition:.15s}
+.tgl:hover{border-color:#0f3460;color:#0f3460}
+.tgl.active{background:#0f3460;color:#fff;border-color:#0f3460}
+/* Platform cards */
+.plat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.plat-card{background:#f8fafc;border-radius:10px;padding:14px 16px;border-left:4px solid #0f3460}
+.plat-card.p1{border-left-color:#0f3460}.plat-card.p2{border-left-color:#e94560}.plat-card.p3{border-left-color:#10b981}.plat-card.p4{border-left-color:#8b5cf6}
+.plat-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:8px}
+.plat-num{font-size:20px;font-weight:700}
+.plat-sub{font-size:11px;color:#9ca3af;margin-top:3px}
+/* Risk */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.risk{border-radius:10px;padding:16px 18px}
+.risk.r-red{background:#fff5f5;border:1px solid #fecaca}
+.risk.r-ora{background:#fffbeb;border:1px solid #fde68a}
+.risk.r-yel{background:#eff6ff;border:1px solid #bfdbfe}
+.risk.r-grn{background:#f0fdf4;border:1px solid #bbf7d0}
+.risk-t{font-size:14px;font-weight:600;margin-bottom:8px}
+.risk.r-red .risk-t{color:#dc2626}
+.risk.r-ora .risk-t{color:#d97706}
+.risk.r-yel .risk-t{color:#2563eb}
+.risk.r-grn .risk-t{color:#16a34a}
+.risk-c{font-size:13px;color:#4b5563;line-height:1.7}
+.risk-list{margin-top:8px;list-style:none}
+.risk-list li{padding:3px 0;font-size:12px;color:#374151;border-bottom:1px solid rgba(0,0,0,.05)}
+/* Weekly */
+.wk-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.up{background:#d1fae5;color:#065f46}.down{background:#fee2e2;color:#991b1b}.flat{background:#e0e7ff;color:#3730a3}
+.insight-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;font-size:13px;color:#1d4ed8;line-height:1.6;margin-bottom:10px}
+.insight-box.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.two,.three,.plat-grid,.risk-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.hdr{padding:18px}}
 </style>
 </head>
 <body>
-
-<div class="header">
+<div class="hdr">
   <h1>📊 药网平台经营分析日报</h1>
-  <div class="subtitle">出库数据综合分析 · 多维度经营洞察</div>
-  <div class="date-badge">📅 数据周期：2026年3月1日 — 3月24日 &nbsp;|&nbsp; 报告生成：2026-03-26</div>
+  <div class="sub">2026-03-25 出库数据全盘分析 · 多维度经营洞察</div>
+  <div class="badge">📅 出库日期：2026-03-25 &nbsp;|&nbsp; 生成时间：2026-03-26 &nbsp;|&nbsp; 内部参考</div>
 </div>
-
-<div class="container">
-
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card green">
-      <div class="kpi-label">出库SKU总数</div>
-      <div class="kpi-value">40,053<span class="kpi-unit">条</span></div>
-      <div class="kpi-sub">覆盖全品类出库记录</div>
-    </div>
-    <div class="kpi-card orange">
-      <div class="kpi-label">合作厂家数</div>
-      <div class="kpi-value">5,954<span class="kpi-unit">家</span></div>
-      <div class="kpi-sub">全国覆盖12+省市</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-label">品类覆盖</div>
-      <div class="kpi-value">8<span class="kpi-unit">大类</span></div>
-      <div class="kpi-sub">药品/保健/器械/护理等</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">数据统计周期</div>
-      <div class="kpi-value">24<span class="kpi-unit">天</span></div>
-      <div class="kpi-sub">2026年3月全月(截至24日)</div>
-    </div>
+<div class="wrap">
+<!-- KPI -->
+<div class="kpi-grid">
+  <div class="kpi k1"><div class="kpi-l">💰 GMV</div><div class="kpi-v">106.5<span class="kpi-u">万</span></div><div class="kpi-s">昨日出库总额</div></div>
+  <div class="kpi k2"><div class="kpi-l">📈 Revenue</div><div class="kpi-v">66.4<span class="kpi-u">万</span></div><div class="kpi-s">实收收入</div></div>
+  <div class="kpi k3"><div class="kpi-l">🛒 订单数</div><div class="kpi-v">12,815<span class="kpi-u">单</span></div><div class="kpi-s">出库订单总量</div></div>
+  <div class="kpi k4"><div class="kpi-l">👥 顾客数</div><div class="kpi-v">12,692<span class="kpi-u">人</span></div><div class="kpi-s">活跃买家数</div></div>
+  <div class="kpi k5"><div class="kpi-l">💵 GAAP毛利</div><div class="kpi-v">10.2<span class="kpi-u">万</span></div><div class="kpi-s">去税毛利额</div></div>
+  <div class="kpi k6"><div class="kpi-l">📊 毛利率</div><div class="kpi-v">15.31<span class="kpi-u">%</span></div><div class="kpi-s">整体GAAP毛利率</div></div>
+</div>
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📋 概览</button>
+    <button class="tab-btn" onclick="switchTab('dept',this)">🏥 科室分析</button>
+    <button class="tab-btn" onclick="switchTab('platform',this)">🖥️ 平台&amp;商家</button>
+    <button class="tab-btn" onclick="switchTab('mfr',this)">🏭 厂家分析</button>
+    <button class="tab-btn" onclick="switchTab('risk',this)">⚠️ 风险预警</button>
+    <button class="tab-btn" onclick="switchTab('weekly',this)">📅 周对比</button>
   </div>
-
-  <!-- 品类 + 地区 -->
-  <div class="two-col">
-    <div class="section">
-      <div class="section-title">品类分布分析</div>
-      <div class="chart-wrap">
-        <canvas id="categoryChart"></canvas>
-      </div>
+  <!-- 概览 -->
+  <div id="tab-overview" class="tab-pane active">
+    <div class="two">
+      <div class="sec"><div class="sec-t">平台GMV分布</div><div class="chart-h"><canvas id="platDonut"></canvas></div></div>
+      <div class="sec"><div class="sec-t">业务模式GMV</div><div class="chart-h"><canvas id="bizBar"></canvas></div></div>
     </div>
-    <div class="section">
-      <div class="section-title">厂家地区分布（Top 12省市）</div>
-      <div class="chart-wrap">
-        <canvas id="regionChart"></canvas>
-      </div>
+    <div class="two">
+      <div class="insight-box">💡 <strong>自营强势：</strong>自营备货 Revenue ¥54.1万 占比最高（81.6%），整体毛利率12.1%；MP模式佣金收入¥2.0万，毛利率接近100%；官网/APP渠道贡献52.6% GMV，是核心流量入口。</div>
+      <div class="insight-box warn">⚠️ <strong>三方平台毛利率偏低：</strong>三方平台GMV达¥37.8万（35.5%）但毛利率仅10.3%，低于官网渠道18.3%，建议评估三方平台成本结构，优化品类选品。</div>
     </div>
+    <div class="sec"><div class="sec-t">科室GMV Top 10 概览</div><div class="chart-h2"><canvas id="deptOverview"></canvas></div></div>
   </div>
-
-  <!-- 厂家排行 -->
-  <div class="section">
-    <div class="section-title">头部厂家出库SKU排行（Top 15）</div>
-    <div class="chart-wrap-lg">
-      <canvas id="mfrChart"></canvas>
+  <!-- 科室分析 -->
+  <div id="tab-dept" class="tab-pane">
+    <div class="toggle-grp">
+      <button class="tgl active" onclick="switchDept('gmv',this)">按GMV</button>
+      <button class="tgl" onclick="switchDept('orders',this)">按订单数</button>
+      <button class="tgl" onclick="switchDept('margin',this)">按毛利率</button>
     </div>
-  </div>
-
-  <!-- 品牌 + 品类厂家数 表格 -->
-  <div class="two-col">
-    <div class="section">
-      <div class="section-title">热门品牌 Top 15</div>
-      <table class="data-table">
-        <thead><tr><th>排名</th><th>品牌名称</th><th>SKU数量</th><th>占比</th></tr></thead>
-        <tbody id="brandTable"></tbody>
+    <div class="sec"><div class="sec-t">科室排行（Top 15）</div><div class="chart-h3"><canvas id="deptChart"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-t">科室详细数据</div>
+      <div style="overflow-x:auto">
+      <table class="tbl" id="deptTable">
+        <thead><tr><th>科室</th><th onclick="sortTable('deptTable',1)" class="sort-desc">GMV(元)</th><th onclick="sortTable('deptTable',2)">Revenue(元)</th><th onclick="sortTable('deptTable',3)">订单数</th><th onclick="sortTable('deptTable',4)">毛利率(%)</th><th onclick="sortTable('deptTable',5)">毛利额(元)</th></tr></thead>
+        <tbody id="deptTbody"></tbody>
       </table>
+      </div>
     </div>
-    <div class="section">
-      <div class="section-title">各品类厂家覆盖数</div>
-      <table class="data-table">
-        <thead><tr><th>品类</th><th>SKU数</th><th>厂家数</th><th>平均厂家SKU</th></tr></thead>
-        <tbody id="catTable"></tbody>
+  </div>
+  <!-- 平台&商家 -->
+  <div id="tab-platform" class="tab-pane">
+    <div class="plat-grid" id="platCards"></div>
+    <div class="sec">
+      <div class="sec-t">商家 Top 20（点击列标题排序）</div>
+      <div style="overflow-x:auto">
+      <table class="tbl" id="merchantTable">
+        <thead><tr><th>排名</th><th>商家名称</th><th onclick="sortTable('merchantTable',2)" class="sort-desc">GMV(元)</th><th onclick="sortTable('merchantTable',3)">订单数</th><th onclick="sortTable('merchantTable',4)">毛利率(%)</th></tr></thead>
+        <tbody id="merchantTbody"></tbody>
       </table>
+      </div>
     </div>
   </div>
-
-  <!-- 平台维度分析 -->
-  <div class="section">
-    <div class="section-title">平台维度综合分析</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-      <div style="background:#f8fafc;border-radius:10px;padding:16px;">
-        <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">🏥 医药主品类占比</div>
-        <div style="font-size:22px;font-weight:700;color:#0f3460;">27.4%</div>
-        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">中成药+化学药 = 10,704 SKU</div>
-        <div style="margin-top:10px;background:#e5e7eb;border-radius:4px;height:6px;"><div style="width:27.4%;height:100%;background:#0f3460;border-radius:4px;"></div></div>
+  <!-- 厂家分析 -->
+  <div id="tab-mfr" class="tab-pane">
+    <div class="sec"><div class="sec-t">厂家GMV Top 15</div><div class="chart-h3"><canvas id="mfrChart"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-t">厂家详细数据</div>
+      <div style="overflow-x:auto">
+      <table class="tbl" id="mfrTable">
+        <thead><tr><th>排名</th><th>厂家名称</th><th onclick="sortTable('mfrTable',2)" class="sort-desc">GMV(元)</th><th onclick="sortTable('mfrTable',3)">毛利率(%)</th></tr></thead>
+        <tbody id="mfrTbody"></tbody>
+      </table>
       </div>
-      <div style="background:#f8fafc;border-radius:10px;padding:16px;">
-        <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">💊 保健/营养品占比</div>
-        <div style="font-size:22px;font-weight:700;color:#10b981;">14.9%</div>
-        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">5,983 SKU · 高速增长品类</div>
-        <div style="margin-top:10px;background:#e5e7eb;border-radius:4px;height:6px;"><div style="width:14.9%;height:100%;background:#10b981;border-radius:4px;"></div></div>
-      </div>
-      <div style="background:#f8fafc;border-radius:10px;padding:16px;">
-        <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">🩺 器械/耗材占比</div>
-        <div style="font-size:22px;font-weight:700;color:#8b5cf6;">6.7%</div>
-        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">2,699 SKU · 潜力增长类目</div>
-        <div style="margin-top:10px;background:#e5e7eb;border-radius:4px;height:6px;"><div style="width:6.7%;height:100%;background:#8b5cf6;border-radius:4px;"></div></div>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding:14px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1d4ed8;line-height:1.7;">
-      💡 <strong>平台结构洞察：</strong>当前平台SKU中有45.3%归类为"其他"，说明商品标签/品类标注体系有待完善，建议建立更精细的药品分类标准（OTC/处方/保健/器械）以支撑精细化运营。
     </div>
   </div>
-
-  <!-- 风险提示 -->
-  <div class="section">
-    <div class="section-title">⚠️ 风险提示</div>
+  <!-- 风险预警 -->
+  <div id="tab-risk" class="tab-pane">
     <div class="risk-grid">
-      <div class="risk-card high">
-        <div class="risk-title">🔴 高风险 · 品类集中度过高</div>
-        <div class="risk-content">
-          前3品类（其他/保健品/化学药）占SKU总量的74.6%，品类结构不均衡。若头部品类需求下滑（如保健品监管收紧），整体出库量将受到较大冲击。<br><br>
-          <strong>建议：</strong>推进品类多元化，重点扶持中成药和医疗器械类目成长。
+      <div class="risk r-red">
+        <div class="risk-t">🔴 负GMV异常订单 · 67笔</div>
+        <div class="risk-c">合计异常金额 <strong>¥7,927.35</strong>，疑为退款/价格倒挂，需逐笔核查。<br><br>Top 5 异常：
+          <ul class="risk-list">
+            <li>哈药 钙铁锌口服液：GMV <strong>-¥1,445</strong> · 河南秋棠科技</li>
+            <li>同仁堂 安宫牛黄丸：GMV <strong>-¥682</strong> · 1号药网</li>
+            <li>希爱力 他达拉非片：GMV <strong>-¥367</strong> · 1号药网</li>
+            <li>百令胶囊：GMV <strong>-¥327</strong> · 吉林正益药房</li>
+            <li>养无极 补肺丸：GMV <strong>-¥283</strong> · 广州康药师</li>
+          </ul>
         </div>
       </div>
-      <div class="risk-card high">
-        <div class="risk-title">🔴 高风险 · 头部厂家依赖</div>
-        <div class="risk-content">
-          同仁堂系（两家合计540 SKU）和汤臣倍健（272 SKU）占据绝对头部位置。过度依赖少数强势厂家，存在议价空间受压、供货不稳定等风险。<br><br>
-          <strong>建议：</strong>积极发展腰部厂家，降低头部集中度至30%以下。
+      <div class="risk r-ora">
+        <div class="risk-t">🟡 商家高度集中风险</div>
+        <div class="risk-c">
+          <strong>1号药网</strong>单商家GMV ¥72万，占总GMV <strong>67.6%</strong>，集中度极高。<br><br>
+          若1号药网出现供货中断、结算纠纷或平台政策调整，将对整体营收造成重大冲击。<br><br>
+          <strong>建议：</strong>加速培育腰部商家，目标将头部集中度降至50%以下。
         </div>
       </div>
-      <div class="risk-card medium">
-        <div class="risk-title">🟡 中风险 · 商品标签缺失</div>
-        <div class="risk-content">
-          45.3%（18,161条）记录无法被有效分类，表明商品基础数据质量存在问题。这将严重影响精准营销、科室推荐和选品决策效率。<br><br>
-          <strong>建议：</strong>启动商品数据治理项目，3个月内完成核心SKU标签补全。
+      <div class="risk r-yel">
+        <div class="risk-t">🔵 进口药毛利率偏低</div>
+        <div class="risk-c">
+          辉瑞（8.6%）、阿斯利康（8-11%）、诺华（2.8%）、Menarini（3.1%）等进口品牌合计GMV超¥17万，但毛利率显著低于国产药品。<br><br>
+          <strong>建议：</strong>重新评估进口品价格策略，或适当减少低毛利进口品占比，向同仁堂（19%）等高毛利国产品倾斜。
         </div>
       </div>
-      <div class="risk-card medium">
-        <div class="risk-title">🟡 中风险 · 地区供应链集中</div>
-        <div class="risk-content">
-          广东（8%）、江苏（5.1%）两地厂家贡献了超过13%的SKU，地区集中度较高。华南/华东地区如遇自然灾害、物流中断或政策调整，供应链稳定性受威胁。<br><br>
-          <strong>建议：</strong>重点开拓西部（四川、云南）和东北（吉林）厂家资源。
-        </div>
-      </div>
-      <div class="risk-card low">
-        <div class="risk-title">🟢 低风险 · 厂家总数充足</div>
-        <div class="risk-content">
-          5,954家合作厂家覆盖全国，供应商基础较为健康，单一厂家替代性强，整体供应链抗风险能力较好。建议建立厂家分级管理机制（A/B/C级），提升核心厂家服务质量。
-        </div>
-      </div>
-      <div class="risk-card info">
-        <div class="risk-title">🔵 关注 · 个人护理占比偏低</div>
-        <div class="risk-content">
-          个人护理/化妆品仅占0.7%（290 SKU），相比头部医药电商平台该品类通常占15-20%，存在明显差距。该品类毛利率高、复购率强，是重要增长机会点。
+      <div class="risk r-grn">
+        <div class="risk-t">🟢 高毛利品类机会</div>
+        <div class="risk-c">
+          <strong>医疗器械</strong>毛利率38.1%、<strong>滋补调养</strong>30.98%、<strong>营养保健</strong>30.8%，是当前毛利最优品类。<br><br>
+          <strong>男科疾病</strong>（22%）、<strong>妇科疾病</strong>（18.1%）毛利也高于平均。<br><br>
+          <strong>建议：</strong>加大这些品类的运营资源投入，重点做医疗器械和滋补品的专题活动。
         </div>
       </div>
     </div>
+    <div class="sec" style="margin-top:16px">
+      <div class="sec-t">📋 今日行动建议</div>
+      <ul style="list-style:none">
+        <li style="padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:14px;color:#374151;display:flex;gap:10px"><span>🚨</span><div><strong>立即排查67笔负GMV订单</strong>——确认是退款还是价格倒挂，金额达¥7,927，影响当日毛利核算</div></li>
+        <li style="padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:14px;color:#374151;display:flex;gap:10px"><span>📦</span><div><strong>加强医疗器械&滋补调养选品</strong>——毛利率分别达38%/31%，重点扩充SKU深度，做专题运营</div></li>
+        <li style="padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:14px;color:#374151;display:flex;gap:10px"><span>🏪</span><div><strong>商家多元化计划</strong>——1号药网依赖度67.6%过高，本月新增目标商家5-10家</div></li>
+        <li style="padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:14px;color:#374151;display:flex;gap:10px"><span>📊</span><div><strong>三方平台成本优化</strong>——三方平台毛利率10.3% vs 官网18%+，建议评估各平台费率结构</div></li>
+        <li style="padding:10px 0;font-size:14px;color:#374151;display:flex;gap:10px"><span>💊</span><div><strong>引入出库数量维度</strong>——当前数据缺少单品数量字段，建议在下次导出时补充，以支撑更深度的商品分析</div></li>
+      </ul>
+    </div>
   </div>
-
-  <!-- 经营建议 -->
-  <div class="section">
-    <div class="section-title">📋 经营建议</div>
-    <ul class="suggestion-list">
-      <li data-icon="🏷️"><div><strong>完善商品分类体系：</strong>建立标准化的药品/保健品/器械分类标签，对现有40,053条SKU进行系统性补标，预计可将"其他"类占比从45%降至15%以内，大幅提升选品和推荐精准度。</div></li>
-      <li data-icon="🏭"><div><strong>优化厂家合作结构：</strong>针对Top 20厂家签署独家/优先供应协议，同时扶持100-500家腰部优质厂家（尤其是保健品类），建立更均衡的供应商生态。</div></li>
-      <li data-icon="💊"><div><strong>重点发展保健营养品类：</strong>当前14.9%的占比具备进一步提升空间。建议针对氨糖、维生素、鱼油、益生菌等高频复购品进行专题运营和精准推送，预计可提升10-15%转化。</div></li>
-      <li data-icon="🩺"><div><strong>医疗器械类目补强：</strong>器械耗材仅6.7%，但该品类客单价高、专业属性强。建议对接更多三类医疗器械厂家，重点布局家用监测设备（血压计、血糖仪）和康复器械。</div></li>
-      <li data-icon="🌍"><div><strong>拓展地区供应商：</strong>当前广东和江苏集中度偏高，建议积极开发西南（云南、四川）、华中（湖南、湖北）的中草药及中成药厂家，丰富供应来源多样性。</div></li>
-      <li data-icon="📊"><div><strong>引入出库数量/金额维度：</strong>当前数据仅有SKU列表，缺乏销售数量和金额，建议在下次数据导出时加入出库数量、出库金额、订单数等核心指标，以支撑更深度的经营分析。</div></li>
-    </ul>
+  <!-- 周对比 -->
+  <div id="tab-weekly" class="tab-pane">
+    <div class="insight-box">📅 <strong>对比区间：</strong>本周 2026-03-23～03-25（周一至周三）vs 上周同期 2026-03-16～03-18 &nbsp;|&nbsp; 数据来源：yw_dw.fact_b_search</div>
+    <div class="three" style="margin-bottom:16px">
+      <div class="sec"><div class="sec-t">Revenue</div><div style="font-size:28px;font-weight:700;color:#0f3460">9,940<span style="font-size:14px;color:#9ca3af">万</span></div><div style="margin-top:6px"><span class="wk-badge down">▼ -0.9%</span> <span style="font-size:12px;color:#9ca3af">上周 10,028万</span></div></div>
+      <div class="sec"><div class="sec-t">订单数</div><div style="font-size:28px;font-weight:700;color:#0f3460">81,063</div><div style="margin-top:6px"><span class="wk-badge flat">≈ 持平</span> <span style="font-size:12px;color:#9ca3af">上周 ~81,000</span></div></div>
+      <div class="sec"><div class="sec-t">毛利率</div><div style="font-size:28px;font-weight:700;color:#10b981">4.78<span style="font-size:14px;color:#9ca3af">%</span></div><div style="margin-top:6px"><span class="wk-badge flat">持平</span> <span style="font-size:12px;color:#9ca3af">上周 4.78%</span></div></div>
+    </div>
+    <div class="sec"><div class="sec-t">每日趋势（本周 3/23-25）</div><div class="chart-h2"><canvas id="weeklyTrend"></canvas></div></div>
+    <div class="two">
+      <div class="sec">
+        <div class="sec-t">🚀 品种增长 Top 10</div>
+        <table class="tbl">
+          <thead><tr><th>品种</th><th>本周Rev</th><th>增幅</th><th>GP率</th></tr></thead>
+          <tbody>
+            <tr><td>硫酸氢氯吡格雷片</td><td>76.4万</td><td><span class="wk-badge up">+100%</span></td><td>1.00%</td></tr>
+            <tr><td>苯磺酸氨氯地平片</td><td>37.2万</td><td><span class="wk-badge up">+314%</span></td><td>3.45%</td></tr>
+            <tr><td>拉米夫定片</td><td>29.5万</td><td><span class="wk-badge up">+241%</span></td><td>5.18%</td></tr>
+            <tr><td>头孢克洛缓释片(II)</td><td>29.3万</td><td><span class="wk-badge up">新品</span></td><td>2.46%</td></tr>
+            <tr><td>盐酸坦索罗辛缓释胶囊</td><td>24.2万</td><td><span class="wk-badge up">+4541%</span></td><td>2.72%</td></tr>
+            <tr><td>六味地黄丸(浓缩丸)</td><td>22.1万</td><td><span class="wk-badge up">新品爆发</span></td><td>5.42%</td></tr>
+            <tr><td>玻璃酸钠滴眼液</td><td>19.1万</td><td><span class="wk-badge up">+159%</span></td><td>11.1%</td></tr>
+            <tr><td>枯草杆菌二联活菌颗粒</td><td>17.5万</td><td><span class="wk-badge up">新品</span></td><td>3.32%</td></tr>
+            <tr><td>沙库巴曲缬沙坦钠片</td><td>16.4万</td><td><span class="wk-badge up">新品</span></td><td>3.38%</td></tr>
+            <tr><td>布洛芬缓释胶囊</td><td>14.9万</td><td><span class="wk-badge up">+181%</span></td><td>3.13%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sec">
+        <div class="sec-t">📉 品种下跌 Top 10</div>
+        <table class="tbl">
+          <thead><tr><th>品种</th><th>本周Rev</th><th>降幅</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td>硫酸氨基葡萄糖胶囊</td><td>6.0万</td><td><span class="wk-badge down">-89%</span></td><td style="color:#dc2626">断货</td></tr>
+            <tr><td>左氧氟沙星片</td><td>48.3万</td><td><span class="wk-badge down">-44%</span></td><td>价格调整?</td></tr>
+            <tr><td>尼可地尔片</td><td>41.3万</td><td><span class="wk-badge down">-44%</span></td><td style="color:#dc2626">价格倒挂!</td></tr>
+            <tr><td>金嗓子喉片</td><td>8.6万</td><td><span class="wk-badge down">-78%</span></td><td>规格切货?</td></tr>
+            <tr><td>草木犀流浸液片</td><td>0.3万</td><td><span class="wk-badge down">-99%</span></td><td style="color:#dc2626">断货</td></tr>
+            <tr><td>丁苯酞软胶囊</td><td>6.2万</td><td><span class="wk-badge down">-77%</span></td><td style="color:#dc2626">毛利转负!</td></tr>
+            <tr><td>氟哌噻吨美利曲辛片</td><td>9.3万</td><td><span class="wk-badge down">-68%</span></td><td>—</td></tr>
+            <tr><td>妇科千金片</td><td>2.4万</td><td><span class="wk-badge down">-89%</span></td><td>—</td></tr>
+            <tr><td>硝苯地平控释片</td><td>0.9万</td><td><span class="wk-badge down">-95%</span></td><td style="color:#dc2626">断货</td></tr>
+            <tr><td>复方酮康唑软膏</td><td>1.9万</td><td><span class="wk-badge down">-89%</span></td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">省份对比（本周 vs 上周）</div>
+      <div class="chart-h2"><canvas id="provinceChart"></canvas></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">供给部门对比</div>
+      <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>供给部门</th><th>业务模式</th><th>本周Rev</th><th>上周Rev</th><th>变化</th><th>本周GP率</th></tr></thead>
+        <tbody>
+          <tr><td>商业供给</td><td>自营JBP</td><td>6,347万</td><td>6,254万</td><td><span class="wk-badge up">+1.5%</span></td><td>3.96%</td></tr>
+          <tr><td>集采一部</td><td>自营备货</td><td>1,224万</td><td>1,337万</td><td><span class="wk-badge down">-8.5%</span></td><td>5.98%</td></tr>
+          <tr><td>集采二部</td><td>自营备货</td><td>924万</td><td>1,018万</td><td><span class="wk-badge down">-9.2%</span></td><td>5.73%</td></tr>
+          <tr><td>商业供给</td><td>自营备货</td><td>684万</td><td>731万</td><td><span class="wk-badge down">-6.4%</span></td><td>2.97%</td></tr>
+          <tr><td>集采三部</td><td>自营JBP</td><td>47.8万</td><td>43.6万</td><td><span class="wk-badge up">+9.7%</span></td><td>6.24%</td></tr>
+          <tr><td>商业供给</td><td>MP</td><td>32.3万</td><td>28.3万</td><td><span class="wk-badge up">+14%</span></td><td>100%</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="insight-box warn">🚨 <strong>紧急行动：</strong>①尼可地尔片毛利转负(-1.09%)立即核查价格倒挂；②草木犀流浸液片(-99%)&硫酸氨基葡萄糖胶囊(-89%)确认是否断货；③丁苯酞软胶囊(-77%&毛利-1.28%)评估是否停售</div>
   </div>
-
-</div>
-
-<div class="footer">
-  本报告由药网平台数据自动生成 · 数据周期 2026.03.01 - 2026.03.24 · 仅供内部参考
-</div>
-
+</div><!-- end tabs -->
+</div><!-- end wrap -->
+<div style="text-align:center;padding:20px;color:#9ca3af;font-size:12px">本报告由药网平台数据自动生成 · 数据仅供内部参考 · 请勿对外传播</div>
 <script>
-const CAT_LABELS = ["其他","保健品/营养品","化学药","中成药","医疗器械/耗材","食品/滋补品","消毒卫生用品","个人护理/化妆品"];
-const CAT_VALUES = [18161,5983,5748,4956,2699,1879,337,290];
-const REGION_LABELS = ["广东","江苏","江西","浙江","北京","吉林","山东","安徽","四川","上海","湖北","陕西"];
-const REGION_VALUES = [3215,2024,1915,1814,1813,1781,1776,1476,1448,1317,1073,989];
-const MFR_LABELS = ["北京同仁堂科技","汤臣倍健","北京同仁堂制药","石药集团欧意","齐鲁制药","山西华康药业","浙江华海药业","仲景宛西制药","南阳澳福来","兰州佛慈","重庆华邦制药","白云山制药","九芝堂","云南白药","广东恒健制药"];
-const MFR_FULL = ["北京同仁堂科技发展股份有限公司制药厂","汤臣倍健股份有限公司","北京同仁堂股份有限公司同仁堂制药厂","石药集团欧意药业有限公司","齐鲁制药有限公司","山西华康药业股份有限公司","浙江华海药业股份有限公司","仲景宛西制药股份有限公司","南阳市澳福来实业有限责任公司","兰州佛慈制药股份有限公司","重庆华邦制药有限公司","广州白云山医药集团股份有限公司白云山制药总厂","九芝堂股份有限公司","云南白药集团股份有限公司","广东恒健制药有限公司"];
-const MFR_VALUES = [285,272,255,217,190,145,136,130,126,124,122,121,121,117,117];
-const TOP_BRANDS = [["同仁堂",758],["修正",643],["仁和",272],["汤臣倍健",241],["北京同仁堂",219],["云南白药",208],["白云山",196],["九芝堂",121],["华康",145],["兰州佛慈",124],["华邦",122],["仲景",130],["华海",136],["齐鲁",190],["石药",217]];
-
-const CAT_MFR = {"其他":2847,"保健品/营养品":892,"化学药":741,"中成药":623,"医疗器械/耗材":512,"食品/滋补品":334,"消毒卫生用品":89,"个人护理/化妆品":76};
-
-const COLORS = ['#0f3460','#533483','#e94560','#1a6985','#10b981','#f59e0b','#8b5cf6','#06b6d4'];
-
-// Category Doughnut
-new Chart(document.getElementById('categoryChart'), {
-  type: 'doughnut',
-  data: {
-    labels: CAT_LABELS,
-    datasets: [{ data: CAT_VALUES, backgroundColor: COLORS, borderWidth: 2, borderColor: '#fff' }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'right', labels: { font: { size: 11 }, padding: 10 } },
-      tooltip: {
-        callbacks: {
-          label: (ctx) => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${(ctx.raw/40053*100).toFixed(1)}%)`
-        }
-      }
-    }
-  }
+// ===== DATA =====
+const DEPT_LABELS=["心脑血管","神经系统","男科疾病","皮肤病","内分泌","滋补调养","呼吸道疾病","肝病科","风湿骨科","消化系统疾病","营养保健","医疗器械","五官科疾病","妇科疾病","肿瘤科"];
+const DEPT_GMV=[215945.54,130266.39,112341.55,86054.65,72593.84,69237.52,66748.53,60897.58,58871.72,41795.84,35890.58,26209.04,23733.16,16064.2,14686.82];
+const DEPT_MARGIN=[11.65,10.75,22.05,12.71,9.11,30.98,14.37,12.39,14.73,17.7,30.8,38.07,14.71,18.1,11.06];
+const DEPT_ORDERS=[1947,918,937,1688,722,829,1301,391,657,751,409,493,459,235,175];
+const DEPT_PROFIT=[17114.13,9488.16,18796.97,8140.32,4443.67,12450.74,6255.81,4590.33,4973.91,3805.44,2847.38,1422.58,2013.27,1298.99,1053.73];
+const DEPT_REVENUE=[146925.77,88273.6,85259.7,64060.87,48792.19,40185.51,43529.4,37063.1,33773.77,21494.69,9243.57,3736.48,13687.83,7174.81,9525.41];
+const PLAT_LABELS=["官网/APP","三方平台","官网/H5","官网/PC"];
+const PLAT_GMV=[559916.99,378488.95,99553.93,27092.86];
+const PLAT_ORDERS=[7338,4486,869,122];
+const PLAT_MARGIN=[18.24,10.26,18.29,55.47];
+const PLAT_COLORS=["#0f3460","#e94560","#10b981","#8b5cf6"];
+const BIZ_LABELS=["自营备货","MP","自营JBP"];
+const BIZ_GMV=[611559.71,337341.67,116151.35];
+const BIZ_ORDERS=[6984,3579,2252];
+const BIZ_COLORS=["#0f3460","#10b981","#f59e0b"];
+const M_LABELS=["1号药网","惠州蓉生堂医药","瑞人堂医药集团","广东亮健好药房","国药控股国大药房沈阳","广州康药师医药","郑州壹心康新特药房","成都芯艺豪大药房","合肥元参堂大药房","徐州益药堂医药","吉林正益药房","苏州号外大药房","普宁晟康医药店","深圳济民安医药","北京长阳妇儿门诊","京东大药房(江苏)","上海乐璇康贸易","广州耀立德药业","南京上元堂医药","北京瑞一堂药房"];
+const M_GMV=[720319.19,52334.25,18249.0,18215.21,15061.05,14590.8,12007.97,11920.09,10603.9,9724.26,9694.77,9632.06,9393.18,7394.92,6450.0,6336.52,5209.0,5175.0,4468.54,4428.2];
+const M_ORDERS=[9159,478,227,199,188,173,130,151,93,55,40,77,39,22,11,48,41,13,53,31];
+const M_MARGIN=[12.63,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100];
+const MF_LABELS=["辉瑞制药","阿斯利康(IPR)","滇虹药业","阿斯利康(AZ LP)","正大天晴","白云山制药","AstraZeneca Pty","美时化学制药","Menarini-vonH","卫材中国","北京同仁堂科技","齐鲁制药","Nipro Pharma","南京正科医药","诺华制药"];
+const MF_FULL=["晖致制药(大连)有限公司(辉瑞制药有限公司)","IPR Pharmaceuticals INCORPORATED(阿斯利康药业中国分包装)","滇虹药业集团股份有限公司","AstraZeneca Pharmaceuticals LP(阿斯利康制药有限公司分包装)","正大天晴药业集团股份有限公司","广州白云山医药集团股份有限公司白云山制药总厂","AstraZeneca Pty Ltd","美时化学制药股份有限公司南投厂(重庆海默尼制药有限公司分包装)","Menarini-von Heyden GmbH","卫材(中国)药业有限公司","北京同仁堂科技发展股份有限公司制药厂","齐鲁制药有限公司","Nipro Pharma Corporation Kagamiishi Plant","南京正科医药股份有限公司","Novartis Farma S.p.A(北京诺华制药有限公司分包装)"];
+const MF_GMV=[70463.02,39046.27,38542.12,35648.83,24143.44,23404.9,22169.2,12994.7,12737.2,12102.85,10940.06,10394.8,10351.36,9931.64,9686.15];
+const MF_MARGIN=[8.64,10.86,7.73,8.13,11.04,12.28,13.02,10.05,3.05,10.28,18.95,12.55,0.73,11.74,2.81];
+const COLORS=["#0f3460","#533483","#e94560","#1a6985","#10b981","#f59e0b","#8b5cf6","#06b6d4","#84cc16","#f97316","#ec4899","#14b8a6","#6366f1","#a855f7","#eab308"];
+// ===== TAB SWITCH =====
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='dept'&&!deptChartInited){initDeptChart();deptChartInited=true}
+  if(id==='platform'&&!platInited){initPlatform();platInited=true}
+  if(id==='mfr'&&!mfrInited){initMfr();mfrInited=true}
+  if(id==='weekly'&&!weeklyInited){initWeekly();weeklyInited=true}
+}
+let deptChartInited=false,platInited=false,mfrInited=false,weeklyInited=false;
+// ===== OVERVIEW CHARTS =====
+window.addEventListener('DOMContentLoaded',()=>{
+  // Platform donut
+  new Chart(document.getElementById('platDonut'),{type:'doughnut',data:{labels:PLAT_LABELS,datasets:[{data:PLAT_GMV,backgroundColor:PLAT_COLORS,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:12},padding:12}},tooltip:{callbacks:{label:c=>` ${c.label}: ¥${(c.raw/10000).toFixed(1)}万 (${(c.raw/1065052.73*100).toFixed(1)}%)`}}}}});
+  // Biz bar
+  new Chart(document.getElementById('bizBar'),{type:'bar',data:{labels:BIZ_LABELS,datasets:[{label:'GMV(元)',data:BIZ_GMV,backgroundColor:BIZ_COLORS,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#f3f4f6'},ticks:{callback:v=>'¥'+v.toLocaleString()}},x:{grid:{display:false}}}}});
+  // Dept overview (top 10)
+  const top10i=[...Array(15).keys()].sort((a,b)=>DEPT_GMV[b]-DEPT_GMV[a]).slice(0,10);
+  new Chart(document.getElementById('deptOverview'),{type:'bar',data:{labels:top10i.map(i=>DEPT_LABELS[i]),datasets:[{label:'GMV',data:top10i.map(i=>DEPT_GMV[i]),backgroundColor:'#0f3460',borderRadius:4},{label:'毛利额',data:top10i.map(i=>DEPT_PROFIT[i]),backgroundColor:'#10b981',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#f3f4f6'},ticks:{callback:v=>'¥'+v.toLocaleString()}},x:{grid:{display:false}}}}});
 });
-
-// Region Bar
-new Chart(document.getElementById('regionChart'), {
-  type: 'bar',
-  data: {
-    labels: REGION_LABELS,
-    datasets: [{ label: 'SKU数量', data: REGION_VALUES, backgroundColor: COLORS[0], borderRadius: 4 }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { grid: { color: '#f3f4f6' } },
-      x: { grid: { display: false } }
-    }
-  }
-});
-
-// Manufacturer Horizontal Bar
-new Chart(document.getElementById('mfrChart'), {
-  type: 'bar',
-  data: {
-    labels: MFR_LABELS,
-    datasets: [{ label: 'SKU数量', data: MFR_VALUES, backgroundColor: COLORS.concat(COLORS).slice(0,15), borderRadius: 4 }]
-  },
-  options: {
-    indexAxis: 'y',
-    responsive: true, maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: { title: (items) => MFR_FULL[items[0].dataIndex] }
-      }
-    },
-    scales: {
-      x: { grid: { color: '#f3f4f6' } },
-      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
-    }
-  }
-});
-
-// Brand Table
-const brandTbody = document.getElementById('brandTable');
-const maxBrand = TOP_BRANDS[0][1];
-TOP_BRANDS.forEach(([name, cnt], i) => {
-  const pct = (cnt/40053*100).toFixed(1);
-  const barW = Math.round(cnt/maxBrand*80);
-  const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
-  brandTbody.innerHTML += `<tr>
-    <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
-    <td>${name}</td>
-    <td>${cnt.toLocaleString()}<span class="bar-mini" style="width:${barW}px"></span></td>
-    <td>${pct}%</td>
-  </tr>`;
-});
-
-// Category Mfr Table
-const catTbody = document.getElementById('catTable');
-const catOrder = ["保健品/营养品","化学药","中成药","医疗器械/耗材","食品/滋补品","消毒卫生用品","个人护理/化妆品","其他"];
-catOrder.forEach(cat => {
-  const sku = CAT_VALUES[CAT_LABELS.indexOf(cat)] || 0;
-  const mfr = CAT_MFR[cat] || 0;
-  const avg = mfr > 0 ? (sku/mfr).toFixed(1) : '-';
-  catTbody.innerHTML += `<tr><td>${cat}</td><td>${sku.toLocaleString()}</td><td>${mfr.toLocaleString()}</td><td>${avg}</td></tr>`;
-});
+// ===== DEPT CHART =====
+let deptChart=null;
+let deptMode='gmv';
+function initDeptChart(){
+  buildDeptTable();
+  renderDeptChart('gmv');
+}
+function switchDept(mode,btn){
+  document.querySelectorAll('.tgl').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  deptMode=mode;
+  renderDeptChart(mode);
+}
+function renderDeptChart(mode){
+  const data=mode==='gmv'?DEPT_GMV:mode==='orders'?DEPT_ORDERS:DEPT_MARGIN;
+  const lbl=mode==='gmv'?'GMV(元)':mode==='orders'?'订单数':'毛利率(%)';
+  const idx=[...Array(15).keys()].sort((a,b)=>data[b]-data[a]);
+  const sortedLabels=idx.map(i=>DEPT_LABELS[i]);
+  const sortedData=idx.map(i=>data[i]);
+  const colors=sortedData.map((_,i)=>COLORS[i%COLORS.length]);
+  if(deptChart)deptChart.destroy();
+  deptChart=new Chart(document.getElementById('deptChart'),{type:'bar',data:{labels:sortedLabels,datasets:[{label:lbl,data:sortedData,backgroundColor:colors,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#f3f4f6'}},y:{grid:{display:false},ticks:{font:{size:12}}}}}});
+}
+function buildDeptTable(){
+  const tb=document.getElementById('deptTbody');
+  const idx=[...Array(15).keys()].sort((a,b)=>DEPT_GMV[b]-DEPT_GMV[a]);
+  tb.innerHTML=idx.map(i=>`<tr><td>${DEPT_LABELS[i]}</td><td>¥${DEPT_GMV[i].toLocaleString()}</td><td>¥${DEPT_REVENUE[i].toLocaleString()}</td><td>${DEPT_ORDERS[i]}</td><td>${DEPT_MARGIN[i]}%</td><td>¥${DEPT_PROFIT[i].toLocaleString()}</td></tr>`).join('');
+}
+// ===== PLATFORM =====
+function initPlatform(){
+  const cards=document.getElementById('platCards');
+  const cls=['p1','p2','p3','p4'];
+  cards.innerHTML=PLAT_LABELS.map((l,i)=>`<div class="plat-card ${cls[i]}"><div class="plat-name">${l}</div><div class="plat-num" style="color:${PLAT_COLORS[i]}">¥${(PLAT_GMV[i]/10000).toFixed(1)}<span style="font-size:13px;color:#9ca3af">万</span></div><div class="plat-sub">订单 ${PLAT_ORDERS[i].toLocaleString()} · 毛利率 ${PLAT_MARGIN[i]}%</div></div>`).join('');
+  const tb=document.getElementById('merchantTbody');
+  tb.innerHTML=M_LABELS.map((m,i)=>`<tr><td><span class="rb ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</span></td><td>${m}</td><td>¥${M_GMV[i].toLocaleString()}</td><td>${M_ORDERS[i]}</td><td>${M_MARGIN[i]===100?'<span style="color:#10b981">100% (MP)</span>':M_MARGIN[i]+'%'}</td></tr>`).join('');
+}
+// ===== MFR =====
+function initMfr(){
+  const idx=[...Array(15).keys()].sort((a,b)=>MF_GMV[b]-MF_GMV[a]);
+  new Chart(document.getElementById('mfrChart'),{type:'bar',data:{labels:idx.map(i=>MF_LABELS[i]),datasets:[{label:'GMV(元)',data:idx.map(i=>MF_GMV[i]),backgroundColor:idx.map((_,j)=>COLORS[j%COLORS.length]),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>MF_FULL[idx[items[0].dataIndex]]}}},scales:{x:{grid:{color:'#f3f4f6'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+  const tb=document.getElementById('mfrTbody');
+  tb.innerHTML=idx.map((oi,rank)=>`<tr><td><span class="rb ${rank===0?'r1':rank===1?'r2':rank===2?'r3':''}">${rank+1}</span></td><td title="${MF_FULL[oi]}">${MF_LABELS[oi]}</td><td>¥${MF_GMV[oi].toLocaleString()}</td><td>${MF_MARGIN[oi]}%</td></tr>`).join('');
+}
+// ===== WEEKLY =====
+function initWeekly(){
+  new Chart(document.getElementById('weeklyTrend'),{type:'line',data:{labels:['3/23 周一','3/24 周二','3/25 周三'],datasets:[{label:'订单数',data:[27028,28169,25866],borderColor:'#0f3460',backgroundColor:'rgba(15,52,96,0.1)',tension:.3,yAxisID:'y'},{label:'买家数',data:[14087,13371,12681],borderColor:'#e94560',backgroundColor:'rgba(233,69,96,0.1)',tension:.3,yAxisID:'y'},{label:'GMV(万)',data:[3933,5563,5261],borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.1)',tension:.3,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{grid:{color:'#f3f4f6'},position:'left',title:{display:true,text:'订单/买家数'}},y2:{position:'right',grid:{display:false},title:{display:true,text:'GMV(万)'}},x:{grid:{display:false}}}}});
+  const pvLabels=["广东","湖北","浙江","江苏","云南","重庆","四川","湖南","山东","河北","福建","广西","陕西","河南","黑龙江","北京"];
+  const pvThis=[1012,710,654,628,507,495,487,437,426,426,373,339,231,310,309,127];
+  const pvLast=[969,641,581,694,509,435,521,456,477,565,326,443,337,375,251,84];
+  const pvColors=pvThis.map((v,i)=>v>=pvLast[i]?'rgba(16,185,129,0.7)':'rgba(233,69,96,0.7)');
+  new Chart(document.getElementById('provinceChart'),{type:'bar',data:{labels:pvLabels,datasets:[{label:'本周Rev(万)',data:pvThis,backgroundColor:pvColors,borderRadius:4},{label:'上周Rev(万)',data:pvLast,backgroundColor:'rgba(200,200,200,0.5)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.raw}万`}}},scales:{y:{grid:{color:'#f3f4f6'}},x:{grid:{display:false}}}}});
+}
+// ===== SORT TABLE =====
+let sortStates={};
+function sortTable(tableId,colIdx){
+  const tbl=document.getElementById(tableId);
+  const ths=tbl.querySelectorAll('th');
+  const tbody=tbl.querySelector('tbody');
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  const key=tableId+'-'+colIdx;
+  const asc=sortStates[key]!==true;
+  sortStates[key]=asc;
+  ths.forEach((th,i)=>{th.classList.remove('sort-asc','sort-desc');if(i===colIdx)th.classList.add(asc?'sort-asc':'sort-desc')});
+  rows.sort((a,b)=>{
+    let va=a.cells[colIdx]?.textContent.replace(/[¥,%万]/g,'').trim()||'';
+    let vb=b.cells[colIdx]?.textContent.replace(/[¥,%万]/g,'').trim()||'';
+    const na=parseFloat(va.replace(/,/g,'')),nb=parseFloat(vb.replace(/,/g,''));
+    if(!isNaN(na)&&!isNaN(nb))return asc?na-nb:nb-na;
+    return asc?va.localeCompare(vb):vb.localeCompare(va);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
 </script>
 </body>
 </html>
