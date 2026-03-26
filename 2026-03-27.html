@@ -27,77 +27,107 @@
   .header-title { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
   .header-sub { font-size: 14px; margin-top: 6px; opacity: 0.85; }
   .header-date { font-size: 13px; margin-top: 4px; opacity: 0.7; }
+  .header-milestone {
+    margin-top: 14px;
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+  .container { max-width: 1140px; margin: 0 auto; padding: 28px 20px 60px; }
 
-  /* KPI Cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  /* Tab nav */
+  .tab-nav { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; background: #fff; color: #5a6a7a;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08); transition: all 0.2s;
+  }
+  .tab-btn.active { background: #2e9c5f; color: #fff; box-shadow: 0 3px 12px rgba(46,156,95,0.35); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* KPI grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
   .kpi-card {
-    background: #fff;
-    border-radius: 14px;
-    padding: 22px 24px;
+    background: #fff; border-radius: 14px; padding: 18px 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    border-left: 5px solid #2e9c5f;
-    position: relative;
-    overflow: hidden;
+    border-top: 4px solid #2e9c5f;
   }
-  .kpi-card.warn { border-left-color: #e07b39; }
-  .kpi-card.neutral { border-left-color: #5b8af5; }
-  .kpi-label { font-size: 12px; color: #7a8ea0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .kpi-value { font-size: 32px; font-weight: 700; color: #1a2332; line-height: 1; }
-  .kpi-badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .badge {
-    font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600;
-  }
+  .kpi-card.warn { border-top-color: #e07b39; }
+  .kpi-card.blue { border-top-color: #5b8af5; }
+  .kpi-card.purple { border-top-color: #9b6ff5; }
+  .kpi-card.gold { border-top-color: #e6a817; }
+  .kpi-card.highlight { border-top-color: #2e9c5f; background: #f0faf4; }
+  .kpi-label { font-size: 11px; color: #7a8ea0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: #1a2332; line-height: 1; }
+  .kpi-value.small { font-size: 20px; }
+  .kpi-badges { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
   .badge.down { background: #fdecea; color: #c0392b; }
   .badge.up { background: #e8f5e9; color: #1b7a3e; }
   .badge.flat { background: #eef2fb; color: #5b8af5; }
 
   /* Section */
-  .section { background: #fff; border-radius: 14px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
-  .section-title { font-size: 16px; font-weight: 700; color: #1a2332; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-  .section-title .icon { font-size: 18px; }
+  .section { background: #fff; border-radius: 14px; padding: 22px 26px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 18px; }
+  .section-title { font-size: 15px; font-weight: 700; color: #1a2332; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 
   /* Trend bars */
-  .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .trend-label { width: 80px; font-size: 13px; color: #5a6a7a; flex-shrink: 0; }
-  .trend-bar-wrap { flex: 1; background: #f0f4f8; border-radius: 6px; height: 10px; overflow: hidden; }
-  .trend-bar { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #2e9c5f, #67c99a); transition: width 0.8s ease; }
-  .trend-val { width: 60px; text-align: right; font-size: 13px; font-weight: 600; color: #1a2332; }
-  .trend-change { width: 90px; text-align: right; font-size: 11px; }
+  .trend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .trend-label { width: 90px; font-size: 12px; color: #5a6a7a; flex-shrink: 0; }
+  .trend-bar-wrap { flex: 1; background: #f0f4f8; border-radius: 6px; height: 9px; overflow: hidden; }
+  .trend-bar { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #2e9c5f, #67c99a); }
+  .trend-bar.blue { background: linear-gradient(90deg, #5b8af5, #93b4ff); }
+  .trend-bar.orange { background: linear-gradient(90deg, #e07b39, #f0a96d); }
+  .trend-val { width: 80px; text-align: right; font-size: 12px; font-weight: 600; color: #1a2332; }
+  .trend-change { width: 80px; text-align: right; font-size: 11px; }
 
-  /* Health gauge */
-  .gauge-wrap { display: flex; justify-content: center; align-items: center; padding: 10px 0 0; }
-  .gauge-svg { width: 180px; height: 100px; }
-
-  /* Priority list */
+  /* Priority */
   .priority-list { list-style: none; }
   .priority-item {
     display: flex; align-items: flex-start; gap: 14px;
     padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
-    background: #f8fafb;
-    border-left: 4px solid #2e9c5f;
+    background: #f8fafb; border-left: 4px solid #2e9c5f;
   }
   .priority-item.alert { border-left-color: #e07b39; background: #fff8f4; }
   .priority-item.info { border-left-color: #5b8af5; background: #f4f7ff; }
   .priority-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
-  .priority-content {}
   .priority-title { font-size: 14px; font-weight: 600; color: #1a2332; }
   .priority-desc { font-size: 12px; color: #7a8ea0; margin-top: 4px; line-height: 1.6; }
 
-  /* Insight cards */
-  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-  .insight-card { background: #f8fafb; border-radius: 10px; padding: 16px 18px; }
+  /* Insight */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 13px; }
+  .insight-card { background: #f8fafb; border-radius: 10px; padding: 15px 17px; }
   .insight-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
   .insight-tag.opportunity { background: #e8f5e9; color: #1b7a3e; }
   .insight-tag.risk { background: #fdecea; color: #c0392b; }
   .insight-tag.action { background: #fff3e0; color: #b05e0d; }
+  .insight-tag.milestone { background: #ede7f6; color: #5c35b5; }
   .insight-text { font-size: 13px; color: #2d3e50; line-height: 1.7; }
 
+  /* Data table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { background: #f0f4f8; color: #5a6a7a; font-weight: 600; padding: 9px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f4f8; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #fafbfc; }
+  .num { font-weight: 700; color: #1a2332; }
+  .up-text { color: #1b7a3e; font-weight: 600; }
+  .down-text { color: #c0392b; font-weight: 600; }
+
   .chart-container { position: relative; height: 220px; }
+  .note { font-size: 11px; color: #a0aab6; margin-top: 8px; text-align: center; }
 
   .footer { text-align: center; font-size: 12px; color: #a0aab6; margin-top: 30px; }
   .footer span { color: #2e9c5f; font-weight: 600; }
+
+  .divider { height: 1px; background: #f0f4f8; margin: 18px 0; }
+  .sub-title { font-size: 12px; font-weight: 700; color: #a0aab6; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -105,181 +135,448 @@
 <div class="header">
   <div class="header-title">🌿 药网平台日报</div>
   <div class="header-sub">经营数据摘要 · 早报</div>
-  <div class="header-date">2026年3月27日（周五）· 生成于 07:50</div>
+  <div class="header-date">2026年3月27日（周五）· 数据截至 3.26 全天</div>
+  <div class="header-milestone">🎉 GMV 单日突破 100 万里程碑</div>
 </div>
 
 <div class="container">
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card warn">
-      <div class="kpi-label">日活用户 DAU</div>
-      <div class="kpi-value">45,029</div>
-      <div class="kpi-badges">
-        <span class="badge down">日环比 -2.4%</span>
-        <span class="badge down">周同比 -3.3%</span>
-      </div>
-    </div>
-    <div class="kpi-card neutral">
-      <div class="kpi-label">顾客数（下单）</div>
-      <div class="kpi-value">6,342</div>
-      <div class="kpi-badges">
-        <span class="badge down">日环比 -1.8%</span>
-        <span class="badge up">周同比 +0.6%</span>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">转化率</div>
-      <div class="kpi-value">14.1%</div>
-      <div class="kpi-badges">
-        <span class="badge flat">处于一般水平</span>
-      </div>
-    </div>
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview')">📊 数据总览</button>
+    <button class="tab-btn" onclick="switchTab('traffic')">👥 流量与转化</button>
+    <button class="tab-btn" onclick="switchTab('finance')">💰 收入与毛利</button>
+    <button class="tab-btn" onclick="switchTab('order')">🛒 订单结构</button>
+    <button class="tab-btn" onclick="switchTab('priority')">🎯 重点事项</button>
+    <button class="tab-btn" onclick="switchTab('insight')">💡 洞察建议</button>
   </div>
 
-  <!-- 指标健康度 -->
-  <div class="section">
-    <div class="section-title"><span class="icon">📊</span> 指标健康度</div>
-    <div class="trend-row">
-      <div class="trend-label">DAU</div>
-      <div class="trend-bar-wrap"><div class="trend-bar" style="width:55%"></div></div>
-      <div class="trend-val">45,029</div>
-      <div class="trend-change"><span class="badge down">-2.4%日</span></div>
-    </div>
-    <div class="trend-row">
-      <div class="trend-label">顾客数</div>
-      <div class="trend-bar-wrap"><div class="trend-bar" style="width:63%"></div></div>
-      <div class="trend-val">6,342</div>
-      <div class="trend-change"><span class="badge up">+0.6%周</span></div>
-    </div>
-    <div class="trend-row">
-      <div class="trend-label">转化率</div>
-      <div class="trend-bar-wrap"><div class="trend-bar" style="width:70%; background: linear-gradient(90deg, #5b8af5, #93b4ff);"></div></div>
-      <div class="trend-val">14.1%</div>
-      <div class="trend-change"><span class="badge flat">一般水平</span></div>
-    </div>
-    <div style="margin-top:14px; padding:12px 14px; background:#fffbf0; border-radius:8px; font-size:12px; color:#7a6030; line-height:1.7;">
-      💡 <strong>综合评估：</strong>DAU 和顾客数双双环比下滑，且 DAU 周同比也走弱，流量端存在一定压力。顾客数周同比微增 0.6% 是唯一正向信号，说明存量用户黏性略有改善，但整体处于一般水平。转化率 14.1% 属于正常区间，未出现明显异动。
-    </div>
-  </div>
+  <!-- =================== TAB 1: 数据总览 =================== -->
+  <div id="tab-overview" class="tab-panel active">
 
-  <!-- 重点事项 -->
-  <div class="section">
-    <div class="section-title"><span class="icon">🎯</span> 重点事项跟进</div>
-    <ul class="priority-list">
-      <li class="priority-item alert">
-        <div class="priority-icon">🌸</div>
-        <div class="priority-content">
-          <div class="priority-title">春季舒敏 & 减肥专题上线准备（下周）</div>
-          <div class="priority-desc">季节性流量入口，需提前完成页面审核、商品上架、活动规则配置。建议今日确认上线节点与责任人，避免临时卡点。</div>
+    <div class="kpi-grid">
+      <div class="kpi-card warn">
+        <div class="kpi-label">DAU（今日）</div>
+        <div class="kpi-value">45,029</div>
+        <div class="kpi-badges">
+          <span class="badge down">日环比 -2.4%</span>
+          <span class="badge down">周同比 -3.3%</span>
         </div>
-      </li>
-      <li class="priority-item info">
-        <div class="priority-icon">📋</div>
-        <div class="priority-content">
-          <div class="priority-title">默沙东方案资料补充</div>
-          <div class="priority-desc">合作方案资料待完善，建议整理清单并明确补充截止时间，推进合作落地。</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">顾客数</div>
+        <div class="kpi-value">10,372</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -4.17%</span>
         </div>
-      </li>
-    </ul>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">新客数</div>
+        <div class="kpi-value">3,345</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -9.23%</span>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">订单数</div>
+        <div class="kpi-value">11,329</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -3.58%</span>
+        </div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">GMV</div>
+        <div class="kpi-value small">1,008,870</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -8.64%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">前毛利率</div>
+        <div class="kpi-value">7.30%</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +1.67%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">GAAP毛利率</div>
+        <div class="kpi-value">15.23%</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +0.65%</span>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">转化率</div>
+        <div class="kpi-value">14.1%</div>
+        <div class="kpi-badges">
+          <span class="badge flat">一般水平</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📋 全网指标一览（3.26 全天 · 周同比）</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>指标</th><th>数值</th><th>周同比</th><th>评级</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>顾客数</td><td class="num">10,372</td><td class="down-text">-4.17%</td><td>⚠️ 偏弱</td></tr>
+          <tr><td>新客数</td><td class="num">3,345</td><td class="down-text">-9.23%</td><td>🔴 需关注</td></tr>
+          <tr><td>订单数</td><td class="num">11,329</td><td class="down-text">-3.58%</td><td>⚠️ 偏弱</td></tr>
+          <tr><td>GMV</td><td class="num">1,008,870</td><td class="down-text">-8.64%</td><td>⚠️ 偏弱</td></tr>
+          <tr><td>Revenue</td><td class="num">622,900</td><td class="down-text">-10.79%</td><td>🔴 需关注</td></tr>
+          <tr><td>前毛利额</td><td class="num">45,482</td><td class="up-text">+15.66%</td><td>✅ 亮点</td></tr>
+          <tr><td>前毛利率</td><td class="num">7.30%</td><td class="up-text">+1.67%</td><td>✅ 改善</td></tr>
+          <tr><td>GAAP毛利额</td><td class="num">94,876</td><td class="down-text">-6.80%</td><td>⚠️ 偏弱</td></tr>
+          <tr><td>GAAP毛利率</td><td class="num">15.23%</td><td class="up-text">+0.65%</td><td>✅ 稳定</td></tr>
+          <tr><td>单均价</td><td class="num">89</td><td class="down-text">-5.24%</td><td>⚠️ 下滑</td></tr>
+          <tr><td>客均价</td><td class="num">97</td><td class="down-text">-4.66%</td><td>⚠️ 下滑</td></tr>
+          <tr><td>客均采购宽度</td><td class="num">1.2</td><td class="up-text">+4.77%</td><td>✅ 改善</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- 关键洞察 -->
-  <div class="section">
-    <div class="section-title"><span class="icon">💡</span> 关键洞察 & 行动建议</div>
-    <div class="insight-grid">
-      <div class="insight-card">
-        <span class="insight-tag risk">流量风险</span>
-        <div class="insight-text">DAU 日环比 -2.4%、周同比 -3.3%，连续走弱。需关注是否有渠道异常（投放暂停/入口减少），建议今日核查各渠道流量来源变化。</div>
+  <!-- =================== TAB 2: 流量与转化 =================== -->
+  <div id="tab-traffic" class="tab-panel">
+    <div class="kpi-grid">
+      <div class="kpi-card warn">
+        <div class="kpi-label">DAU（今日）</div>
+        <div class="kpi-value">45,029</div>
+        <div class="kpi-badges">
+          <span class="badge down">日环比 -2.4%</span>
+          <span class="badge down">周同比 -3.3%</span>
+        </div>
       </div>
-      <div class="insight-card">
-        <span class="insight-tag opportunity">结构机会</span>
-        <div class="insight-text">顾客数周同比正增长（+0.6%），说明在流量下滑的背景下转化效率相对稳定。春季专题上线将是本周拉升 DAU 的核心抓手。</div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">顾客数</div>
+        <div class="kpi-value">10,372</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -4.17%</span>
+        </div>
       </div>
-      <div class="insight-card">
-        <span class="insight-tag action">立即行动</span>
-        <div class="insight-text">① 确认春季舒敏/减肥专题上线倒排 ② 推进默沙东方案资料完善 ③ 排查 DAU 下滑的具体渠道原因</div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">新客数</div>
+        <div class="kpi-value">3,345</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -9.23%</span>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">转化率</div>
+        <div class="kpi-value">14.1%</div>
+        <div class="kpi-badges">
+          <span class="badge flat">一般水平</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">📊 流量指标健康度</div>
+      <div class="trend-row">
+        <div class="trend-label">DAU</div>
+        <div class="trend-bar-wrap"><div class="trend-bar" style="width:52%"></div></div>
+        <div class="trend-val">45,029</div>
+        <div class="trend-change"><span class="badge down">周同比 -3.3%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">顾客数</div>
+        <div class="trend-bar-wrap"><div class="trend-bar orange" style="width:58%"></div></div>
+        <div class="trend-val">10,372</div>
+        <div class="trend-change"><span class="badge down">周同比 -4.17%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">新客数</div>
+        <div class="trend-bar-wrap"><div class="trend-bar orange" style="width:38%"></div></div>
+        <div class="trend-val">3,345</div>
+        <div class="trend-change"><span class="badge down">周同比 -9.23%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">转化率</div>
+        <div class="trend-bar-wrap"><div class="trend-bar blue" style="width:70%"></div></div>
+        <div class="trend-val">14.1%</div>
+        <div class="trend-change"><span class="badge flat">一般</span></div>
+      </div>
+      <div style="margin-top:14px; padding:12px 14px; background:#fff8f0; border-radius:8px; font-size:12px; color:#7a6030; line-height:1.7;">
+        ⚠️ <strong>新客下滑最严峻（-9.23%）：</strong>新客获取速度明显放缓，可能与投放预算或渠道流量分配有关。建议核查获客渠道来源，春季专题上线恰好是提振新客的窗口期。
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">📈 DAU 近期趋势</div>
+      <div class="chart-container"><canvas id="dauChart"></canvas></div>
+      <p class="note">* 趋势基于当日数据及环比推算，供参考</p>
+    </div>
+  </div>
+
+  <!-- =================== TAB 3: 收入与毛利 =================== -->
+  <div id="tab-finance" class="tab-panel">
+    <div class="kpi-grid">
+      <div class="kpi-card gold">
+        <div class="kpi-label">GMV</div>
+        <div class="kpi-value small">1,008,870</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -8.64%</span>
+        </div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">Revenue</div>
+        <div class="kpi-value small">622,900</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -10.79%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">前毛利额 ✨</div>
+        <div class="kpi-value small">45,482</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +15.66%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">前毛利率</div>
+        <div class="kpi-value">7.30%</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +1.67%</span>
+        </div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">GAAP毛利额</div>
+        <div class="kpi-value small">94,876</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -6.80%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">GAAP毛利率</div>
+        <div class="kpi-value">15.23%</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +0.65%</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">💰 收入结构分析</div>
+      <div class="chart-container"><canvas id="financeChart"></canvas></div>
+      <div style="margin-top:14px; padding:12px 14px; background:#f0faf4; border-radius:8px; font-size:12px; color:#1b5e34; line-height:1.7;">
+        ✅ <strong>亮点：前毛利额周同比 +15.66%</strong> — 在 GMV 下滑背景下，前毛利额逆势增长，说明品类结构优化或高毛利品的占比提升，是本周最积极的信号。<br>
+        ⚠️ Revenue 周同比 -10.79%，跌幅大于 GMV(-8.64%)，可能与促销折扣力度加大有关，需关注 Revenue/GMV 比例变化。
       </div>
     </div>
   </div>
 
-  <!-- 指标趋势图（模拟） -->
-  <div class="section">
-    <div class="section-title"><span class="icon">📈</span> 近日趋势（DAU · 顾客数）</div>
-    <div class="chart-container">
-      <canvas id="trendChart"></canvas>
+  <!-- =================== TAB 4: 订单结构 =================== -->
+  <div id="tab-order" class="tab-panel">
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">订单数</div>
+        <div class="kpi-value">11,329</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -3.58%</span>
+        </div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">单均价</div>
+        <div class="kpi-value">¥89</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -5.24%</span>
+        </div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">客均价</div>
+        <div class="kpi-value">¥97</div>
+        <div class="kpi-badges">
+          <span class="badge down">周同比 -4.66%</span>
+        </div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">客均采购宽度</div>
+        <div class="kpi-value">1.2</div>
+        <div class="kpi-badges">
+          <span class="badge up">周同比 +4.77%</span>
+        </div>
+      </div>
     </div>
-    <div style="font-size:11px; color:#a0aab6; margin-top:8px; text-align:center;">* 趋势基于当日数据及环比推算，供参考</div>
+    <div class="section">
+      <div class="section-title">🛒 订单结构健康度</div>
+      <div class="trend-row">
+        <div class="trend-label">订单数</div>
+        <div class="trend-bar-wrap"><div class="trend-bar blue" style="width:65%"></div></div>
+        <div class="trend-val">11,329</div>
+        <div class="trend-change"><span class="badge down">-3.58%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">单均价</div>
+        <div class="trend-bar-wrap"><div class="trend-bar orange" style="width:44%"></div></div>
+        <div class="trend-val">¥89</div>
+        <div class="trend-change"><span class="badge down">-5.24%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">客均价</div>
+        <div class="trend-bar-wrap"><div class="trend-bar orange" style="width:48%"></div></div>
+        <div class="trend-val">¥97</div>
+        <div class="trend-change"><span class="badge down">-4.66%</span></div>
+      </div>
+      <div class="trend-row">
+        <div class="trend-label">采购宽度</div>
+        <div class="trend-bar-wrap"><div class="trend-bar" style="width:60%"></div></div>
+        <div class="trend-val">1.2 件</div>
+        <div class="trend-change"><span class="badge up">+4.77%</span></div>
+      </div>
+      <div style="margin-top:14px; padding:12px 14px; background:#f4f7ff; border-radius:8px; font-size:12px; color:#2d3e7a; line-height:1.7;">
+        📌 <strong>客均采购宽度 +4.77%（唯一正向）：</strong>顾客买的品类更多了，连带销售在改善。但单均价和客均价双降，拉低了整体 GMV。提升客单价是下阶段重点方向，建议通过凑单/套装策略拉高件均。
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== TAB 5: 重点事项 =================== -->
+  <div id="tab-priority" class="tab-panel">
+    <div class="section">
+      <div class="section-title">🎯 本周重点事项</div>
+      <ul class="priority-list">
+        <li class="priority-item alert">
+          <div class="priority-icon">🌸</div>
+          <div class="priority-content">
+            <div class="priority-title">春季舒敏 & 减肥专题上线准备（下周）</div>
+            <div class="priority-desc">季节性流量入口，正值新客获取最弱时期（周同比 -9.23%），专题上线是关键提振机会。建议今日确认：① 页面审核状态 ② 商品上架 & SKU 审核 ③ 活动规则配置 ④ 责任人与上线节点倒排表。</div>
+          </div>
+        </li>
+        <li class="priority-item info">
+          <div class="priority-icon">📋</div>
+          <div class="priority-content">
+            <div class="priority-title">默沙东方案资料补充</div>
+            <div class="priority-desc">合作方案资料待完善，建议梳理缺失清单，明确补充截止时间及对接人，推动合作落地。</div>
+          </div>
+        </li>
+        <li class="priority-item">
+          <div class="priority-icon">🔍</div>
+          <div class="priority-content">
+            <div class="priority-title">排查 DAU 与 Revenue 下滑根因</div>
+            <div class="priority-desc">DAU 周同比 -3.3%，Revenue 周同比 -10.79%，跌幅有扩大趋势。建议今日核查各渠道流量来源（官网/APP/三方/H5/PC）及投放计划变化，定位主要拖拽项。</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- =================== TAB 6: 洞察建议 =================== -->
+  <div id="tab-insight" class="tab-panel">
+    <div class="section">
+      <div class="section-title">💡 关键洞察 & 行动建议</div>
+      <div class="insight-grid">
+        <div class="insight-card">
+          <span class="insight-tag milestone">里程碑</span>
+          <div class="insight-text">GMV 单日首次突破 <strong>100 万</strong>（1,008,870），是阶段性里程碑。尽管周同比 -8.64%，但绝对值层面达成重要节点，值得记录与团队鼓励。</div>
+        </div>
+        <div class="insight-card">
+          <span class="insight-tag opportunity">结构亮点</span>
+          <div class="insight-text"><strong>前毛利额 +15.66%</strong> 逆势增长，说明高毛利品比例提升或品类结构在优化。建议持续追踪哪些科室/商品贡献了这一改善，并放大。</div>
+        </div>
+        <div class="insight-card">
+          <span class="insight-tag risk">获客风险</span>
+          <div class="insight-text">新客周同比 <strong>-9.23%</strong>，是所有指标中下滑最快的。新客减少会影响未来复购基数。春季专题是补位窗口，需把握。</div>
+        </div>
+        <div class="insight-card">
+          <span class="insight-tag risk">价格风险</span>
+          <div class="insight-text">单均价、客均价同步下滑（-5.24% / -4.66%），可能是促销力度加大或低客单商品占比上升导致。需关注是否影响长期价格认知。</div>
+        </div>
+        <div class="insight-card">
+          <span class="insight-tag opportunity">连带机会</span>
+          <div class="insight-text">客均采购宽度 +4.77%，顾客愿意买更多品类，连带销售有改善空间。建议通过「满额赠」「套装」「推荐搭配」等方式进一步拉升客单。</div>
+        </div>
+        <div class="insight-card">
+          <span class="insight-tag action">立即行动</span>
+          <div class="insight-text">① 锁定春季专题上线倒排 ② 推进默沙东方案 ③ 排查 DAU 与 Revenue 下滑渠道根因 ④ 分析前毛利改善来源，固化优质品类结构</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="footer">
-    由 <span>药网智能助手</span> 自动生成 · 2026-03-27 · 如有异常请人工复核
+    由 <span>药网智能助手</span> 自动生成 · 2026-03-27 · 数据来源：1药网指标总览 · 如有异常请人工复核
   </div>
 
 </div>
 
 <script>
-// 根据今日数据 + 环比推算近5日趋势
-const labels = ['3.23', '3.24', '3.25', '3.26', '3.27'];
-// DAU: 3.27=45029, dod-2.4% => 3.26≈46134; wow-3.3%相对上周五
-const dauData = [46800, 47200, 46500, 46134, 45029];
-// 顾客数: 3.27=6342, dod-1.8% => 3.26≈6458
-const custData = [6200, 6320, 6380, 6458, 6342];
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'traffic') renderDauChart();
+  if (id === 'finance') renderFinanceChart();
+}
 
-const ctx = document.getElementById('trendChart').getContext('2d');
-new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels,
-    datasets: [
-      {
+// DAU Chart
+let dauChartRendered = false;
+function renderDauChart() {
+  if (dauChartRendered) return;
+  dauChartRendered = true;
+  const ctx = document.getElementById('dauChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['3.23', '3.24', '3.25', '3.26', '3.27'],
+      datasets: [{
         label: 'DAU',
-        data: dauData,
+        data: [46800, 47200, 46500, 46134, 45029],
         borderColor: '#2e9c5f',
-        backgroundColor: 'rgba(46,156,95,0.08)',
-        tension: 0.4,
-        pointRadius: 5,
-        pointBackgroundColor: '#2e9c5f',
-        fill: true,
-        yAxisID: 'y'
-      },
-      {
+        backgroundColor: 'rgba(46,156,95,0.1)',
+        tension: 0.4, pointRadius: 5,
+        pointBackgroundColor: '#2e9c5f', fill: true
+      },{
         label: '顾客数',
-        data: custData,
-        borderColor: '#5b8af5',
-        backgroundColor: 'rgba(91,138,245,0.08)',
-        tension: 0.4,
-        pointRadius: 5,
-        pointBackgroundColor: '#5b8af5',
-        fill: true,
+        data: [10800, 11000, 10700, 10812, 10372],
+        borderColor: '#e07b39',
+        backgroundColor: 'rgba(224,123,57,0.08)',
+        tension: 0.4, pointRadius: 5,
+        pointBackgroundColor: '#e07b39', fill: true,
         yAxisID: 'y1'
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { position: 'top', labels: { font: { size: 12 } } },
-      tooltip: { backgroundColor: '#1a2332' }
+      }]
     },
-    scales: {
-      y: {
-        type: 'linear', position: 'left',
-        min: 43000, max: 49000,
-        ticks: { callback: v => (v/1000).toFixed(0)+'k', font: { size: 11 } },
-        grid: { color: '#f0f4f8' }
-      },
-      y1: {
-        type: 'linear', position: 'right',
-        min: 6000, max: 6800,
-        ticks: { callback: v => v.toLocaleString(), font: { size: 11 } },
-        grid: { drawOnChartArea: false }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top' }, tooltip: { backgroundColor: '#1a2332' } },
+      scales: {
+        y: { min: 43000, max: 49000, ticks: { callback: v => (v/1000).toFixed(0)+'k', font:{size:11} }, grid:{color:'#f0f4f8'} },
+        y1: { type: 'linear', position: 'right', min: 9500, max: 12000, ticks: { callback: v => v.toLocaleString(), font:{size:11} }, grid:{drawOnChartArea:false} }
       }
     }
-  }
-});
+  });
+}
+
+// Finance Chart
+let finChartRendered = false;
+function renderFinanceChart() {
+  if (finChartRendered) return;
+  finChartRendered = true;
+  const ctx = document.getElementById('financeChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['GMV', 'Revenue', 'GAAP毛利额', '前毛利额'],
+      datasets: [{
+        label: '3.26 实际值',
+        data: [1008870, 622900, 94876, 45482],
+        backgroundColor: ['#f0b429','#5b8af5','#2e9c5f','#3ab870'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#1a2332', callbacks: { label: c => ' ¥' + c.raw.toLocaleString() } }
+      },
+      scales: {
+        y: { ticks: { callback: v => v>=10000 ? (v/10000).toFixed(0)+'万' : v, font:{size:11} }, grid:{color:'#f0f4f8'} }
+      }
+    }
+  });
+}
 </script>
 </body>
 </html>
