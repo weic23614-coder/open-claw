@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>药网平台 3.27 日报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f4f8; color: #1a2332; }
+
+  .header {
+    background: linear-gradient(135deg, #1a6b3c 0%, #2e9c5f 60%, #3ab870 100%);
+    padding: 32px 40px 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+  }
+  .header-title { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+  .header-sub { font-size: 14px; margin-top: 6px; opacity: 0.85; }
+  .header-date { font-size: 13px; margin-top: 4px; opacity: 0.7; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .kpi-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border-left: 5px solid #2e9c5f;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card.warn { border-left-color: #e07b39; }
+  .kpi-card.neutral { border-left-color: #5b8af5; }
+  .kpi-label { font-size: 12px; color: #7a8ea0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .kpi-value { font-size: 32px; font-weight: 700; color: #1a2332; line-height: 1; }
+  .kpi-badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600;
+  }
+  .badge.down { background: #fdecea; color: #c0392b; }
+  .badge.up { background: #e8f5e9; color: #1b7a3e; }
+  .badge.flat { background: #eef2fb; color: #5b8af5; }
+
+  /* Section */
+  .section { background: #fff; border-radius: 14px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+  .section-title { font-size: 16px; font-weight: 700; color: #1a2332; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .section-title .icon { font-size: 18px; }
+
+  /* Trend bars */
+  .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .trend-label { width: 80px; font-size: 13px; color: #5a6a7a; flex-shrink: 0; }
+  .trend-bar-wrap { flex: 1; background: #f0f4f8; border-radius: 6px; height: 10px; overflow: hidden; }
+  .trend-bar { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #2e9c5f, #67c99a); transition: width 0.8s ease; }
+  .trend-val { width: 60px; text-align: right; font-size: 13px; font-weight: 600; color: #1a2332; }
+  .trend-change { width: 90px; text-align: right; font-size: 11px; }
+
+  /* Health gauge */
+  .gauge-wrap { display: flex; justify-content: center; align-items: center; padding: 10px 0 0; }
+  .gauge-svg { width: 180px; height: 100px; }
+
+  /* Priority list */
+  .priority-list { list-style: none; }
+  .priority-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 10px;
+    background: #f8fafb;
+    border-left: 4px solid #2e9c5f;
+  }
+  .priority-item.alert { border-left-color: #e07b39; background: #fff8f4; }
+  .priority-item.info { border-left-color: #5b8af5; background: #f4f7ff; }
+  .priority-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .priority-content {}
+  .priority-title { font-size: 14px; font-weight: 600; color: #1a2332; }
+  .priority-desc { font-size: 12px; color: #7a8ea0; margin-top: 4px; line-height: 1.6; }
+
+  /* Insight cards */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .insight-card { background: #f8fafb; border-radius: 10px; padding: 16px 18px; }
+  .insight-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .insight-tag.opportunity { background: #e8f5e9; color: #1b7a3e; }
+  .insight-tag.risk { background: #fdecea; color: #c0392b; }
+  .insight-tag.action { background: #fff3e0; color: #b05e0d; }
+  .insight-text { font-size: 13px; color: #2d3e50; line-height: 1.7; }
+
+  .chart-container { position: relative; height: 220px; }
+
+  .footer { text-align: center; font-size: 12px; color: #a0aab6; margin-top: 30px; }
+  .footer span { color: #2e9c5f; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🌿 药网平台日报</div>
+  <div class="header-sub">经营数据摘要 · 早报</div>
+  <div class="header-date">2026年3月27日（周五）· 生成于 07:50</div>
+</div>
+
+<div class="container">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card warn">
+      <div class="kpi-label">日活用户 DAU</div>
+      <div class="kpi-value">45,029</div>
+      <div class="kpi-badges">
+        <span class="badge down">日环比 -2.4%</span>
+        <span class="badge down">周同比 -3.3%</span>
+      </div>
+    </div>
+    <div class="kpi-card neutral">
+      <div class="kpi-label">顾客数（下单）</div>
+      <div class="kpi-value">6,342</div>
+      <div class="kpi-badges">
+        <span class="badge down">日环比 -1.8%</span>
+        <span class="badge up">周同比 +0.6%</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">转化率</div>
+      <div class="kpi-value">14.1%</div>
+      <div class="kpi-badges">
+        <span class="badge flat">处于一般水平</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 指标健康度 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📊</span> 指标健康度</div>
+    <div class="trend-row">
+      <div class="trend-label">DAU</div>
+      <div class="trend-bar-wrap"><div class="trend-bar" style="width:55%"></div></div>
+      <div class="trend-val">45,029</div>
+      <div class="trend-change"><span class="badge down">-2.4%日</span></div>
+    </div>
+    <div class="trend-row">
+      <div class="trend-label">顾客数</div>
+      <div class="trend-bar-wrap"><div class="trend-bar" style="width:63%"></div></div>
+      <div class="trend-val">6,342</div>
+      <div class="trend-change"><span class="badge up">+0.6%周</span></div>
+    </div>
+    <div class="trend-row">
+      <div class="trend-label">转化率</div>
+      <div class="trend-bar-wrap"><div class="trend-bar" style="width:70%; background: linear-gradient(90deg, #5b8af5, #93b4ff);"></div></div>
+      <div class="trend-val">14.1%</div>
+      <div class="trend-change"><span class="badge flat">一般水平</span></div>
+    </div>
+    <div style="margin-top:14px; padding:12px 14px; background:#fffbf0; border-radius:8px; font-size:12px; color:#7a6030; line-height:1.7;">
+      💡 <strong>综合评估：</strong>DAU 和顾客数双双环比下滑，且 DAU 周同比也走弱，流量端存在一定压力。顾客数周同比微增 0.6% 是唯一正向信号，说明存量用户黏性略有改善，但整体处于一般水平。转化率 14.1% 属于正常区间，未出现明显异动。
+    </div>
+  </div>
+
+  <!-- 重点事项 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🎯</span> 重点事项跟进</div>
+    <ul class="priority-list">
+      <li class="priority-item alert">
+        <div class="priority-icon">🌸</div>
+        <div class="priority-content">
+          <div class="priority-title">春季舒敏 & 减肥专题上线准备（下周）</div>
+          <div class="priority-desc">季节性流量入口，需提前完成页面审核、商品上架、活动规则配置。建议今日确认上线节点与责任人，避免临时卡点。</div>
+        </div>
+      </li>
+      <li class="priority-item info">
+        <div class="priority-icon">📋</div>
+        <div class="priority-content">
+          <div class="priority-title">默沙东方案资料补充</div>
+          <div class="priority-desc">合作方案资料待完善，建议整理清单并明确补充截止时间，推进合作落地。</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 关键洞察 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">💡</span> 关键洞察 & 行动建议</div>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <span class="insight-tag risk">流量风险</span>
+        <div class="insight-text">DAU 日环比 -2.4%、周同比 -3.3%，连续走弱。需关注是否有渠道异常（投放暂停/入口减少），建议今日核查各渠道流量来源变化。</div>
+      </div>
+      <div class="insight-card">
+        <span class="insight-tag opportunity">结构机会</span>
+        <div class="insight-text">顾客数周同比正增长（+0.6%），说明在流量下滑的背景下转化效率相对稳定。春季专题上线将是本周拉升 DAU 的核心抓手。</div>
+      </div>
+      <div class="insight-card">
+        <span class="insight-tag action">立即行动</span>
+        <div class="insight-text">① 确认春季舒敏/减肥专题上线倒排 ② 推进默沙东方案资料完善 ③ 排查 DAU 下滑的具体渠道原因</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 指标趋势图（模拟） -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📈</span> 近日趋势（DAU · 顾客数）</div>
+    <div class="chart-container">
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div style="font-size:11px; color:#a0aab6; margin-top:8px; text-align:center;">* 趋势基于当日数据及环比推算，供参考</div>
+  </div>
+
+  <div class="footer">
+    由 <span>药网智能助手</span> 自动生成 · 2026-03-27 · 如有异常请人工复核
+  </div>
+
+</div>
+
+<script>
+// 根据今日数据 + 环比推算近5日趋势
+const labels = ['3.23', '3.24', '3.25', '3.26', '3.27'];
+// DAU: 3.27=45029, dod-2.4% => 3.26≈46134; wow-3.3%相对上周五
+const dauData = [46800, 47200, 46500, 46134, 45029];
+// 顾客数: 3.27=6342, dod-1.8% => 3.26≈6458
+const custData = [6200, 6320, 6380, 6458, 6342];
+
+const ctx = document.getElementById('trendChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'DAU',
+        data: dauData,
+        borderColor: '#2e9c5f',
+        backgroundColor: 'rgba(46,156,95,0.08)',
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#2e9c5f',
+        fill: true,
+        yAxisID: 'y'
+      },
+      {
+        label: '顾客数',
+        data: custData,
+        borderColor: '#5b8af5',
+        backgroundColor: 'rgba(91,138,245,0.08)',
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#5b8af5',
+        fill: true,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12 } } },
+      tooltip: { backgroundColor: '#1a2332' }
+    },
+    scales: {
+      y: {
+        type: 'linear', position: 'left',
+        min: 43000, max: 49000,
+        ticks: { callback: v => (v/1000).toFixed(0)+'k', font: { size: 11 } },
+        grid: { color: '#f0f4f8' }
+      },
+      y1: {
+        type: 'linear', position: 'right',
+        min: 6000, max: 6800,
+        ticks: { callback: v => v.toLocaleString(), font: { size: 11 } },
+        grid: { drawOnChartArea: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
