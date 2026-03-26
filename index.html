@@ -3,38 +3,365 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>药网平台经营报告</title>
+<title>3月25日 运营数据日报</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #f0f2f5; margin: 0; padding: 40px 20px; }
-  .wrap { max-width: 600px; margin: 0 auto; }
-  h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 6px; }
-  p { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
-  .card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; border-left: 4px solid #0f3460; transition: box-shadow 0.2s; }
-  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-  .card-title { font-size: 15px; font-weight: 600; color: #1a1a2e; }
-  .card-sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
-  .badge { background: #0f3460; color: white; border-radius: 20px; padding: 4px 12px; font-size: 12px; }
-  .badge.new { background: #10b981; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; letter-spacing: 1px; }
+  .header .date { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 16px; font-size: 13px; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: white; border-radius: 12px; padding: 22px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; overflow: hidden;
+  }
+  .kpi-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 12px 0 0 12px;
+  }
+  .kpi-card.blue::before { background: #4361ee; }
+  .kpi-card.green::before { background: #06d6a0; }
+  .kpi-card.orange::before { background: #f77f00; }
+  .kpi-card.purple::before { background: #7209b7; }
+  .kpi-label { font-size: 12px; color: #8c8c8c; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+  .kpi-value { font-size: 32px; font-weight: 700; margin: 8px 0 4px; color: #1a1a2e; line-height: 1; }
+  .kpi-value span { font-size: 16px; font-weight: 500; color: #666; }
+  .kpi-sub { font-size: 12px; color: #aaa; }
+  .kpi-icon { position: absolute; right: 20px; top: 20px; font-size: 28px; opacity: 0.15; }
+
+  /* Section Title */
+  .section-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: inline-block; width: 3px; height: 16px; background: #4361ee; border-radius: 2px; }
+
+  /* Charts Grid */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-container { position: relative; height: 220px; }
+
+  /* Traffic Cards */
+  .traffic-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .traffic-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
+  .traffic-metric { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+  .traffic-label { font-size: 12px; color: #8c8c8c; margin-top: 4px; letter-spacing: 0.5px; }
+  .traffic-dod { font-size: 13px; margin-top: 8px; font-weight: 500; }
+  .up { color: #06d6a0; }
+  .down { color: #ef476f; }
+  .neutral { color: #aaa; }
+
+  /* Table */
+  .table-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f7f8fc; }
+  thead th { padding: 10px 14px; text-align: left; font-weight: 600; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eee; }
+  tbody tr { border-bottom: 1px solid #f5f5f5; transition: background 0.15s; }
+  tbody tr:hover { background: #fafbff; }
+  tbody td { padding: 11px 14px; color: #1a1a2e; }
+  .rank-badge { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .rank-1 { background: #ffd700; color: #7a5500; }
+  .rank-2 { background: #c0c0c0; color: #555; }
+  .rank-3 { background: #cd7f32; color: #fff; }
+  .rank-n { background: #f0f0f0; color: #888; }
+  .gm-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .gm-bar { height: 6px; border-radius: 3px; flex-shrink: 0; }
+  .gm-good { background: #06d6a0; }
+  .gm-warn { background: #ffd166; }
+  .gm-bad { background: #ef476f; }
+
+  /* Key events */
+  .events-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .event-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .event-list { list-style: none; margin-top: 12px; }
+  .event-list li { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; color: #444; display: flex; align-items: flex-start; gap: 8px; }
+  .event-list li:last-child { border-bottom: none; }
+  .event-num { background: #4361ee; color: white; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .event-hot { background: #ef476f; }
+
+  /* Response time */
+  .resp-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+  .resp-item { background: #f7f8fc; border-radius: 8px; padding: 12px; text-align: center; }
+  .resp-platform { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .resp-value { font-size: 18px; font-weight: 700; }
+  .resp-best { color: #06d6a0; }
+  .resp-worst { color: #ef476f; }
+  .resp-normal { color: #1a1a2e; }
+
+  footer { text-align: center; padding: 20px; font-size: 12px; color: #bbb; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>📊 药网平台经营报告</h1>
-  <p>点击查看各日期经营分析报告</p>
-  <a class="card" href="2026-03-26.html">
-    <div>
-      <div class="card-title">药网平台经营分析日报</div>
-      <div class="card-sub">数据周期：2026年3月1日 — 3月24日 · 含风险提示与建议</div>
-    </div>
-    <span class="badge new">2026-03-26 NEW</span>
-  </a>
-  <a class="card" href="2026-03-25.html">
-    <div>
-      <div class="card-title">流量与转化分析报告</div>
-      <div class="card-sub">App启动用户 · 支付转化率 · 周环比数据</div>
-    </div>
-    <span class="badge">2026-03-25</span>
-  </a>
+
+<div class="header">
+  <div>
+    <h1>📊 1号药网 · 运营数据日报</h1>
+    <div class="date">数据日期：2026年3月25日（星期三）</div>
+  </div>
+  <div class="badge">共 12,815 单</div>
 </div>
+
+<div class="container">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">GMV</div>
+      <div class="kpi-value">106.51<span>万</span></div>
+      <div class="kpi-sub">DoD -4% &nbsp;|&nbsp; 系统核对 ✅</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">GAAP 毛利率</div>
+      <div class="kpi-value">15.31<span>%</span></div>
+      <div class="kpi-sub">毛利额 10.17万 &nbsp;|&nbsp; 较好水平 🟢</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-label">DAU</div>
+      <div class="kpi-value">4.61<span>万</span></div>
+      <div class="kpi-sub">DoD +3% ↑ &nbsp;|&nbsp; WoW -4.4% ↓</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-label">顾客数</div>
+      <div class="kpi-value">6,458</div>
+      <div class="kpi-sub">DoD +5.7% ↑ &nbsp;|&nbsp; 转化率 14%</div>
+    </div>
+  </div>
+
+  <!-- Traffic Cards -->
+  <div class="section-title">流量核心指标</div>
+  <div class="traffic-row" style="margin-bottom:24px;">
+    <div class="traffic-card">
+      <div class="traffic-metric">46,114</div>
+      <div class="traffic-label">DAU（日活用户）</div>
+      <div class="traffic-dod"><span class="up">▲ DoD +3%</span> &nbsp; <span class="down">▼ WoW -4.4%</span></div>
+    </div>
+    <div class="traffic-card">
+      <div class="traffic-metric">6,458</div>
+      <div class="traffic-label">顾客数</div>
+      <div class="traffic-dod"><span class="up">▲ DoD +5.7%</span> &nbsp; <span class="down">▼ WoW -3.6%</span></div>
+    </div>
+    <div class="traffic-card">
+      <div class="traffic-metric">14%</div>
+      <div class="traffic-label">转化率</div>
+      <div class="traffic-dod"><span class="neutral">— 一般水平</span></div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <!-- Platform GMV -->
+    <div class="chart-card">
+      <div class="section-title">平台 GMV 分布</div>
+      <div class="chart-container">
+        <canvas id="platformChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Business Mode -->
+    <div class="chart-card">
+      <div class="section-title">业务模式拆分</div>
+      <div class="chart-container">
+        <canvas id="modeChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Dept GMV -->
+    <div class="chart-card">
+      <div class="section-title">科室 GMV Top5</div>
+      <div class="chart-container">
+        <canvas id="deptChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Table -->
+  <div class="section-title">科室销售明细（Top 10）</div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>排名</th>
+          <th>科室</th>
+          <th>GMV</th>
+          <th>毛利率</th>
+          <th>毛利率可视化</th>
+          <th>订单数</th>
+        </tr>
+      </thead>
+      <tbody id="deptTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Events & Response -->
+  <div class="events-row">
+    <div class="event-card">
+      <div class="section-title">今日核心事项</div>
+      <ul class="event-list">
+        <li><span class="event-num event-hot">🔥</span>张雪峰热点跟进 — 科普及药品推广（重点机会）</li>
+        <li><span class="event-num">1</span>美团补贴品竞价 &amp; 天猫好药排名竞价</li>
+        <li><span class="event-num">2</span>第三批补贴品种上线</li>
+        <li><span class="event-num">3</span>神策循环 PUSH &amp; 科室补贴监控调整</li>
+        <li><span class="event-num">4</span>京新备货跟进</li>
+        <li><span class="event-num">5</span>48h 商家直流订单催发</li>
+        <li><span class="event-num">6</span>商品文描审核 110个品</li>
+      </ul>
+    </div>
+
+    <div class="event-card">
+      <div class="section-title">客服响应时效（分钟）</div>
+      <div class="resp-row">
+        <div class="resp-item">
+          <div class="resp-platform">京东</div>
+          <div class="resp-value resp-best">9.09</div>
+        </div>
+        <div class="resp-item">
+          <div class="resp-platform">美团</div>
+          <div class="resp-value resp-normal">9.76</div>
+        </div>
+        <div class="resp-item">
+          <div class="resp-platform">天猫</div>
+          <div class="resp-value resp-normal">10.23</div>
+        </div>
+        <div class="resp-item">
+          <div class="resp-platform">官网</div>
+          <div class="resp-value resp-normal">11</div>
+        </div>
+        <div class="resp-item">
+          <div class="resp-platform">拼多多</div>
+          <div class="resp-value resp-worst">12</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <div class="section-title">CPO</div>
+        <div style="font-size:28px; font-weight:700; color:#4361ee; margin-top:8px;">2.26%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insight Box -->
+  <div style="background: linear-gradient(135deg,#eef2ff,#f0fff8); border-radius:12px; padding:20px 24px; margin-bottom:24px; border-left: 4px solid #4361ee;">
+    <div class="section-title" style="margin-bottom:12px;">🎯 分析结论 & 建议</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
+      <div style="background:white; border-radius:8px; padding:12px 14px;">✅ <strong>整体平稳：</strong>GMV 106.5万，GM% 15.31%，处于近期较好水平</div>
+      <div style="background:white; border-radius:8px; padding:12px 14px;">🌟 <strong>盈利亮点：</strong>滋补调养 GM% 31%、男科 22%，建议加大流量倾斜</div>
+      <div style="background:white; border-radius:8px; padding:12px 14px;">⚠️ <strong>优化空间：</strong>内分泌 GM% 9.1%，三方 GM% 10.3%，建议优化品类结构</div>
+      <div style="background:white; border-radius:8px; padding:12px 14px;">🔥 <strong>热点机会：</strong>张雪峰借势推广，预期提升流量转化</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>1号药网 · 运营数据日报 · 2026年3月25日 · 数据来源：药网订单系统</footer>
+
+<script>
+const deptData = [
+  { rank:1, name:'心脑血管', gmv:21.59, gm:11.6, orders:1947 },
+  { rank:2, name:'神经系统', gmv:13.03, gm:10.7, orders:918 },
+  { rank:3, name:'男科疾病', gmv:11.23, gm:22.0, orders:937 },
+  { rank:4, name:'皮肤病',   gmv:8.61,  gm:12.7, orders:1688 },
+  { rank:5, name:'内分泌',   gmv:7.26,  gm:9.1,  orders:722 },
+  { rank:6, name:'滋补调养', gmv:6.92,  gm:31.0, orders:829 },
+  { rank:7, name:'呼吸道疾病', gmv:6.67, gm:14.4, orders:1301 },
+  { rank:8, name:'肝病科',   gmv:6.09,  gm:12.4, orders:391 },
+  { rank:9, name:'风湿骨科', gmv:5.89,  gm:14.7, orders:657 },
+  { rank:10,name:'消化系统', gmv:4.18,  gm:17.7, orders:751 },
+];
+
+// Table
+const tbody = document.getElementById('deptTable');
+deptData.forEach(d => {
+  const gmClass = d.gm >= 20 ? 'gm-good' : d.gm >= 12 ? 'gm-warn' : 'gm-bad';
+  const gmColor = d.gm >= 20 ? '#06d6a0' : d.gm >= 12 ? '#ffd166' : '#ef476f';
+  const rankClass = d.rank <= 3 ? `rank-${d.rank}` : 'rank-n';
+  tbody.innerHTML += `
+    <tr>
+      <td><span class="rank-badge ${rankClass}">${d.rank}</span></td>
+      <td><strong>${d.name}</strong></td>
+      <td>${d.gmv}万</td>
+      <td style="color:${gmColor}; font-weight:600;">${d.gm}%</td>
+      <td>
+        <div class="gm-bar-wrap">
+          <div class="gm-bar ${gmClass}" style="width:${Math.min(d.gm*2.5,100)}px;"></div>
+          <span style="font-size:11px;color:#aaa;">${d.gm}%</span>
+        </div>
+      </td>
+      <td>${d.orders.toLocaleString()}</td>
+    </tr>`;
+});
+
+// Platform Doughnut
+new Chart(document.getElementById('platformChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['官网/APP', '三方平台', '官网/H5', '官网/PC'],
+    datasets: [{
+      data: [55.99, 37.85, 9.96, 2.71],
+      backgroundColor: ['#4361ee','#7209b7','#f77f00','#06d6a0'],
+      borderWidth: 0, hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      legend: { position:'right', labels:{ font:{size:11}, boxWidth:10, padding:8 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}万` } }
+    }
+  }
+});
+
+// Mode Bar
+new Chart(document.getElementById('modeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['自营备货', 'MP三方', '自营JBP'],
+    datasets: [{
+      data: [61.16, 33.73, 11.62],
+      backgroundColor: ['#4361ee','#7209b7','#f77f00'],
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y}万`}} },
+    scales: {
+      x: { grid:{display:false} },
+      y: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>v+'万'} }
+    }
+  }
+});
+
+// Dept Horizontal Bar
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: {
+    labels: deptData.slice(0,5).map(d=>d.name),
+    datasets: [{
+      data: deptData.slice(0,5).map(d=>d.gmv),
+      backgroundColor: ['#4361ee','#7209b7','#f77f00','#06d6a0','#ef476f'],
+      borderRadius: 6, borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x}万`}} },
+    scales: {
+      x: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>v+'万'} },
+      y: { grid:{display:false} }
+    }
+  }
+});
+</script>
 </body>
 </html>
