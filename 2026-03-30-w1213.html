@@ -3,794 +3,453 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>W12 vs W13 出库对比报告 | 药网</title>
+<title>W12 vs W13 出库全维分析 | 药网</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #1a1a2e; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#1a1a2e}
 
-  .header { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); color: white; padding: 32px 40px 28px; }
-  .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
-  .header .meta { font-size: 13px; opacity: 0.65; margin-top: 4px; }
-  .badges { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge.blue { background: rgba(99,179,237,0.2); border: 1px solid rgba(99,179,237,0.4); color: #90cdf4; }
-  .badge.green { background: rgba(72,187,120,0.2); border: 1px solid rgba(72,187,120,0.4); color: #9ae6b4; }
-  .badge.yellow { background: rgba(246,173,85,0.2); border: 1px solid rgba(246,173,85,0.4); color: #fbd38d; }
+  .header{background:linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%);color:#fff;padding:28px 36px 24px}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+  .header .meta{font-size:12px;opacity:.65;margin-top:3px}
+  .badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge.b{background:rgba(99,179,237,.2);border:1px solid rgba(99,179,237,.4);color:#90cdf4}
+  .badge.g{background:rgba(72,187,120,.2);border:1px solid rgba(72,187,120,.4);color:#9ae6b4}
+  .badge.y{background:rgba(246,173,85,.2);border:1px solid rgba(246,173,85,.4);color:#fbd38d}
+  .badge.r{background:rgba(245,101,101,.2);border:1px solid rgba(245,101,101,.4);color:#feb2b2}
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 40px; }
+  .container{max-width:1200px;margin:0 auto;padding:20px 16px 40px}
 
-  /* Tab nav */
-  .tabs { display: flex; gap: 4px; background: white; border-radius: 12px; padding: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; overflow-x: auto; }
-  .tab { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: #6b7280; transition: all .2s; border: none; background: transparent; }
-  .tab.active { background: #0f3460; color: white; }
-  .tab:hover:not(.active) { background: #f3f4f6; color: #374151; }
+  .tabs{display:flex;gap:3px;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px;overflow-x:auto;white-space:nowrap}
+  .tab{padding:8px 15px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#6b7280;border:none;background:transparent;transition:all .15s}
+  .tab.active{background:#0f3460;color:#fff}
+  .tab:hover:not(.active){background:#f3f4f6;color:#374151}
+  .panel{display:none}
+  .panel.active{display:block}
 
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-bottom:16px}
+  .kpi{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 2px 6px rgba(0,0,0,.05);position:relative;overflow:hidden}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .kpi.kblue::before{background:#3b82f6}.kpi.kgreen::before{background:#10b981}
+  .kpi.korange::before{background:#f59e0b}.kpi.kred::before{background:#ef4444}
+  .kpi.kpurple::before{background:#8b5cf6}.kpi.kgray::before{background:#9ca3af}
+  .kpi-lbl{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .kpi-row{display:flex;justify-content:space-between;align-items:flex-end}
+  .kpi-val{font-size:20px;font-weight:700;color:#111}
+  .ch{font-size:11px;font-weight:700;padding:2px 6px;border-radius:7px}
+  .ch.up{background:#d1fae5;color:#065f46}.ch.down{background:#fee2e2;color:#991b1b}.ch.flat{background:#f3f4f6;color:#6b7280}
+  .kpi-sub{font-size:10px;color:#9ca3af;margin-top:4px}
 
-  /* KPI Cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px; }
-  .kpi-card { background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-  .kpi-card.blue::before { background: #3b82f6; }
-  .kpi-card.green::before { background: #10b981; }
-  .kpi-card.orange::before { background: #f59e0b; }
-  .kpi-card.red::before { background: #ef4444; }
-  .kpi-card.purple::before { background: #8b5cf6; }
-  .kpi-card.gray::before { background: #6b7280; }
-  .kpi-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
-  .kpi-row { display: flex; justify-content: space-between; align-items: flex-end; }
-  .kpi-val { font-size: 22px; font-weight: 700; color: #111827; }
-  .kpi-change { font-size: 12px; font-weight: 600; padding: 2px 7px; border-radius: 8px; }
-  .kpi-change.up { background: #d1fae5; color: #065f46; }
-  .kpi-change.down { background: #fee2e2; color: #991b1b; }
-  .kpi-change.flat { background: #f3f4f6; color: #6b7280; }
-  .kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+  .sec{background:#fff;border-radius:10px;padding:20px 22px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+  .sec-title{font-size:14px;font-weight:700;color:#111;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+  .sec-title .dot{display:inline-block;width:3px;height:15px;border-radius:2px;background:#0f3460;flex-shrink:0}
 
-  /* Sections */
-  .section { background: white; border-radius: 12px; padding: 22px 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .section-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .section-title span.dot { display: inline-block; width: 4px; height: 16px; border-radius: 2px; background: #0f3460; }
+  .cw{position:relative;height:250px}
+  .cw.tall{height:290px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.two-col{grid-template-columns:1fr}}
 
-  .chart-wrap { position: relative; height: 260px; }
-  .chart-wrap.tall { height: 300px; }
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead tr{background:#f8fafc}
+  th{padding:9px 10px;text-align:right;color:#6b7280;font-weight:600;font-size:10px;text-transform:uppercase;border-bottom:2px solid #e5e7eb}
+  th:first-child{text-align:left}
+  td{padding:8px 10px;text-align:right;border-bottom:1px solid #f3f4f6;font-size:12px}
+  td:first-child{text-align:left;font-weight:600;max-width:260px}
+  tr:hover{background:#fafbff}
+  .tg{display:inline-block;padding:2px 6px;border-radius:7px;font-size:10px;font-weight:700}
+  .tg.up{background:#d1fae5;color:#065f46}.tg.down{background:#fee2e2;color:#991b1b}.tg.flat{background:#f3f4f6;color:#6b7280}
 
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+  .ilist{list-style:none}
+  .ilist li{padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:13px;line-height:1.65;display:flex;gap:9px;align-items:flex-start}
+  .ilist li:last-child{border-bottom:none}
+  .iico{font-size:16px;flex-shrink:0;margin-top:1px}
+  .itxt strong{display:block;font-size:12px;color:#374151;margin-bottom:2px}
+  .itxt p{font-size:12px;color:#6b7280}
 
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { background: #f8fafc; }
-  th { padding: 10px 12px; text-align: right; color: #6b7280; font-weight: 600; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; }
-  th:first-child { text-align: left; }
-  td { padding: 9px 12px; text-align: right; border-bottom: 1px solid #f3f4f6; }
-  td:first-child { text-align: left; font-weight: 600; }
-  tr:hover { background: #fafbff; }
-  .tag { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 600; }
-  .tag.up { background: #d1fae5; color: #065f46; }
-  .tag.down { background: #fee2e2; color: #991b1b; }
-  .tag.flat { background: #f3f4f6; color: #6b7280; }
+  .abox{border-radius:8px;padding:12px 14px;margin-top:12px;font-size:12px}
+  .abox.warn{background:#fff7ed;border:1px solid #fed7aa;color:#92400e}
+  .abox.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+  .abox strong{display:block;font-size:11px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
 
-  /* Insights */
-  .insight-list { list-style: none; }
-  .insight-list li { padding: 11px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; line-height: 1.65; display: flex; gap: 10px; align-items: flex-start; }
-  .insight-list li:last-child { border-bottom: none; }
-  .insight-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
-  .insight-text strong { display: block; font-size: 13px; color: #374151; margin-bottom: 3px; }
-  .insight-text p { font-size: 13px; color: #6b7280; }
+  .legend{display:flex;gap:14px;justify-content:flex-end;margin-bottom:8px}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#6b7280}
+  .ldot{width:9px;height:9px;border-radius:2px}
 
-  .alert-box { border-radius: 10px; padding: 14px 16px; margin-top: 14px; font-size: 13px; }
-  .alert-box.warn { background: #fff7ed; border: 1px solid #fed7aa; color: #92400e; }
-  .alert-box.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-  .alert-box strong { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .bar-mini-wrap{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+  .bmi{text-align:center}
+  .bmi-bars{height:70px;display:flex;align-items:flex-end;justify-content:center;gap:2px}
+  .bbar{width:13px;border-radius:3px 3px 0 0}
+  .bbar.bw12{background:#93c5fd}.bbar.bw13{background:#0f3460}
+  .bmi-lbl{font-size:9px;color:#9ca3af;margin-top:3px}
+  .bmi-val{font-size:10px;font-weight:600;color:#374151}
 
-  /* Daily bars */
-  .daily-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 4px; }
-  .daily-item { text-align: center; }
-  .daily-bar-wrap { height: 80px; display: flex; align-items: flex-end; justify-content: center; gap: 3px; }
-  .bar { width: 14px; border-radius: 3px 3px 0 0; transition: opacity .2s; }
-  .bar:hover { opacity: 0.8; }
-  .bar.w12 { background: #93c5fd; }
-  .bar.w13 { background: #0f3460; }
-  .daily-label { font-size: 10px; color: #9ca3af; margin-top: 5px; }
-  .daily-val { font-size: 11px; font-weight: 600; color: #374151; }
-
-  .legend { display: flex; gap: 16px; justify-content: flex-end; margin-bottom: 10px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #6b7280; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
-
-  .footer { text-align: center; color: #9ca3af; font-size: 11px; padding: 20px 0 0; }
+  .footer{text-align:center;color:#9ca3af;font-size:11px;padding:16px 0 0}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>📦 W12 vs W13 出库对比报告</h1>
-  <div class="meta">药网 · 2026-03-16 至 2026-03-29 · 共 77,440 条出库记录</div>
+  <h1>📦 W12 vs W13 出库全维分析报告</h1>
+  <div class="meta">药网 · 2026-03-16 至 2026-03-29 · 77,440 条出库记录 · 生成：2026-03-30</div>
   <div class="badges">
-    <span class="badge blue">W12: 03/16–03/22</span>
-    <span class="badge yellow">W13: 03/23–03/29</span>
-    <span class="badge green">GAAP GM% W13 ▲ +1.03ppt</span>
+    <span class="badge b">W12: 03/16–03/22</span>
+    <span class="badge y">W13: 03/23–03/29</span>
+    <span class="badge r">GMV ▼11.8%</span>
+    <span class="badge g">GM% ▲+1.03ppt</span>
   </div>
 </div>
 
 <div class="container">
 
-  <!-- Tab Nav -->
   <div class="tabs">
-    <button class="tab active" onclick="showTab('overview')">📊 总览</button>
-    <button class="tab" onclick="showTab('platform')">🌐 渠道</button>
-    <button class="tab" onclick="showTab('bizmodel')">💼 业务模式</button>
-    <button class="tab" onclick="showTab('dept')">🏥 科室</button>
-    <button class="tab" onclick="showTab('daily')">📅 每日趋势</button>
-    <button class="tab" onclick="showTab('insight')">💡 洞察建议</button>
+    <button class="tab active" onclick="ST('overview',this)">📊 总览</button>
+    <button class="tab" onclick="ST('platform',this)">🌐 渠道</button>
+    <button class="tab" onclick="ST('bizmodel',this)">💼 业务模式</button>
+    <button class="tab" onclick="ST('dept',this)">🏥 科室</button>
+    <button class="tab" onclick="ST('mfr',this)">🏭 厂家</button>
+    <button class="tab" onclick="ST('sku',this)">💊 品种</button>
+    <button class="tab" onclick="ST('daily',this)">📅 每日</button>
+    <button class="tab" onclick="ST('insight',this)">💡 洞察</button>
   </div>
 
-  <!-- ==================== 总览 ==================== -->
-  <div id="tab-overview" class="tab-panel active">
+  <!-- ===== 总览 ===== -->
+  <div id="p-overview" class="panel active">
     <div class="kpi-grid">
-      <div class="kpi-card blue">
-        <div class="kpi-label">周 GMV</div>
-        <div class="kpi-row">
-          <div class="kpi-val">702.1万</div>
-          <div class="kpi-change down">▼ 11.8%</div>
-        </div>
-        <div class="kpi-sub">W12：796.5万</div>
-      </div>
-      <div class="kpi-card gray">
-        <div class="kpi-label">日均 GMV</div>
-        <div class="kpi-row">
-          <div class="kpi-val">100.3万</div>
-          <div class="kpi-change down">▼ 11.8%</div>
-        </div>
-        <div class="kpi-sub">W12日均：113.8万</div>
-      </div>
-      <div class="kpi-card gray">
-        <div class="kpi-label">Revenue</div>
-        <div class="kpi-row">
-          <div class="kpi-val">435.8万</div>
-          <div class="kpi-change down">▼ 15.7%</div>
-        </div>
-        <div class="kpi-sub">W12：517.0万</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">GAAP GM%</div>
-        <div class="kpi-row">
-          <div class="kpi-val">15.24%</div>
-          <div class="kpi-change up">▲ +1.03ppt</div>
-        </div>
-        <div class="kpi-sub">W12：14.21%</div>
-      </div>
-      <div class="kpi-card orange">
-        <div class="kpi-label">毛利额</div>
-        <div class="kpi-row">
-          <div class="kpi-val">66.4万</div>
-          <div class="kpi-change down">▼ 9.7%</div>
-        </div>
-        <div class="kpi-sub">W12：73.5万</div>
-      </div>
-      <div class="kpi-card purple">
-        <div class="kpi-label">订单数</div>
-        <div class="kpi-row">
-          <div class="kpi-val">86,286</div>
-          <div class="kpi-change down">▼ 7.4%</div>
-        </div>
-        <div class="kpi-sub">W12：93,210</div>
-      </div>
+      <div class="kpi kblue"><div class="kpi-lbl">周 GMV</div><div class="kpi-row"><div class="kpi-val">702.1万</div><div class="ch down">▼11.8%</div></div><div class="kpi-sub">W12：796.5万</div></div>
+      <div class="kpi kgray"><div class="kpi-lbl">日均 GMV</div><div class="kpi-row"><div class="kpi-val">100.3万</div><div class="ch down">▼11.8%</div></div><div class="kpi-sub">W12：113.8万</div></div>
+      <div class="kpi kgray"><div class="kpi-lbl">Revenue</div><div class="kpi-row"><div class="kpi-val">435.8万</div><div class="ch down">▼15.7%</div></div><div class="kpi-sub">W12：517.0万</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">GAAP GM%</div><div class="kpi-row"><div class="kpi-val">15.24%</div><div class="ch up">▲+1.03ppt</div></div><div class="kpi-sub">W12：14.21%</div></div>
+      <div class="kpi korange"><div class="kpi-lbl">毛利额</div><div class="kpi-row"><div class="kpi-val">66.4万</div><div class="ch down">▼9.7%</div></div><div class="kpi-sub">W12：73.5万</div></div>
+      <div class="kpi kpurple"><div class="kpi-lbl">订单数</div><div class="kpi-row"><div class="kpi-val">86,286</div><div class="ch down">▼7.4%</div></div><div class="kpi-sub">W12：93,210</div></div>
     </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>GMV & 毛利率对比（W12 vs W13）</div>
-      <div class="chart-wrap">
-        <canvas id="overviewChart"></canvas>
-      </div>
-    </div>
-
     <div class="two-col">
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>GMV 下滑归因</div>
-        <div class="chart-wrap">
-          <canvas id="waterfallChart"></canvas>
-        </div>
-      </div>
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>业务模式 GMV 占比（W13）</div>
-        <div class="chart-wrap">
-          <canvas id="bizPieChart"></canvas>
-        </div>
-      </div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>各渠道 GMV 对比</div><div class="cw"><canvas id="c-ov-plat"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>GMV 下滑归因（绝对值，万）</div><div class="cw"><canvas id="c-ov-attr"></canvas></div></div>
     </div>
-  </div>
-
-  <!-- ==================== 渠道 ==================== -->
-  <div id="tab-platform" class="tab-panel">
-    <div class="kpi-grid">
-      <div class="kpi-card blue">
-        <div class="kpi-label">官网/APP</div>
-        <div class="kpi-row"><div class="kpi-val">383.0万</div><div class="kpi-change down">▼ 1.6%</div></div>
-        <div class="kpi-sub">W12：389.1万 | GM% 16.32%↑</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">三方平台 ⚠️</div>
-        <div class="kpi-row"><div class="kpi-val">236.9万</div><div class="kpi-change down">▼ 27.4%</div></div>
-        <div class="kpi-sub">W12：326.5万 | 拖累 89.6万</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">官网/H5</div>
-        <div class="kpi-row"><div class="kpi-val">60.7万</div><div class="kpi-change flat">≈ 0.3%</div></div>
-        <div class="kpi-sub">W12：60.5万 | GM% 18.01%</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">官网/PC</div>
-        <div class="kpi-row"><div class="kpi-val">21.5万</div><div class="kpi-change up">▲ 6.1%</div></div>
-        <div class="kpi-sub">W12：20.3万 | GM% 49.96%</div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>各渠道 GMV 对比（W12 vs W13）</div>
-      <div class="chart-wrap">
-        <canvas id="platformBarChart"></canvas>
-      </div>
-    </div>
-
     <div class="two-col">
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>渠道 GMV 占比 W12</div>
-        <div class="chart-wrap">
-          <canvas id="platPie12"></canvas>
-        </div>
-      </div>
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>渠道 GMV 占比 W13</div>
-        <div class="chart-wrap">
-          <canvas id="platPie13"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>渠道 GM% 对比</div>
-      <div class="chart-wrap">
-        <canvas id="platGmChart"></canvas>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>渠道明细数据</div>
-      <table>
-        <thead><tr><th>渠道</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>GM%变化</th><th>W13订单数</th></tr></thead>
-        <tbody>
-          <tr><td>官网/APP</td><td>389.1万</td><td>383.0万</td><td><span class="tag down">▼1.6%</span></td><td>16.12%</td><td>16.32%</td><td><span class="tag up">+0.20ppt</span></td><td>51,593</td></tr>
-          <tr><td>三方平台</td><td>326.5万</td><td>236.9万</td><td><span class="tag down">▼27.4%</span></td><td>10.33%</td><td>11.05%</td><td><span class="tag up">+0.72ppt</span></td><td>27,987</td></tr>
-          <tr><td>官网/H5</td><td>60.5万</td><td>60.7万</td><td><span class="tag flat">≈+0.3%</span></td><td>19.87%</td><td>18.01%</td><td><span class="tag down">-1.86ppt</span></td><td>5,806</td></tr>
-          <tr><td>官网/PC</td><td>20.3万</td><td>21.5万</td><td><span class="tag up">▲6.1%</span></td><td>50.73%</td><td>49.96%</td><td><span class="tag flat">-0.77ppt</span></td><td>900</td></tr>
-        </tbody>
-      </table>
-      <div class="alert-box warn">
-        <strong>⚠️ 重点关注</strong>
-        三方平台 W13 GMV 仅 236.9万，较 W12 暴跌 89.6万（-27.4%），占本周总跌幅的 <strong>95%</strong>。建议复盘本周三方平台竞价/活动/流量变化，排查是否有运营操作缺失。
-      </div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>W12 GMV 业务模式占比</div><div class="cw"><canvas id="c-ov-pie12"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>W13 GMV 业务模式占比</div><div class="cw"><canvas id="c-ov-pie13"></canvas></div></div>
     </div>
   </div>
 
-  <!-- ==================== 业务模式 ==================== -->
-  <div id="tab-bizmodel" class="tab-panel">
+  <!-- ===== 渠道 ===== -->
+  <div id="p-platform" class="panel">
     <div class="kpi-grid">
-      <div class="kpi-card red">
-        <div class="kpi-label">自营备货</div>
-        <div class="kpi-row"><div class="kpi-val">402.2万</div><div class="kpi-change down">▼ 17.9%</div></div>
-        <div class="kpi-sub">W12：489.6万 | GM% 12.21%</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">MP（纯佣）</div>
-        <div class="kpi-row"><div class="kpi-val">225.0万</div><div class="kpi-change flat">▼ 1.3%</div></div>
-        <div class="kpi-sub">W12：228.0万 | GM% ~100%</div>
-      </div>
-      <div class="kpi-card orange">
-        <div class="kpi-label">自营JBP</div>
-        <div class="kpi-row"><div class="kpi-val">75.0万</div><div class="kpi-change down">▼ 5.0%</div></div>
-        <div class="kpi-sub">W12：78.9万 | GM% 14.18%</div>
-      </div>
+      <div class="kpi kblue"><div class="kpi-lbl">官网/APP</div><div class="kpi-row"><div class="kpi-val">383.0万</div><div class="ch flat">▼1.6%</div></div><div class="kpi-sub">W12：389.1万 | GM% 16.32%↑</div></div>
+      <div class="kpi kred"><div class="kpi-lbl">三方平台 ⚠️</div><div class="kpi-row"><div class="kpi-val">236.9万</div><div class="ch down">▼27.4%</div></div><div class="kpi-sub">W12：326.5万 | 拖累89.6万</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">官网/H5</div><div class="kpi-row"><div class="kpi-val">60.7万</div><div class="ch flat">≈0.3%</div></div><div class="kpi-sub">W12：60.5万 | GM%18.01%</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">官网/PC</div><div class="kpi-row"><div class="kpi-val">21.5万</div><div class="ch up">▲6.1%</div></div><div class="kpi-sub">W12：20.3万 | GM%49.96%</div></div>
     </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>业务模式 GMV 对比</div>
-      <div class="chart-wrap">
-        <canvas id="bizBarChart"></canvas>
-      </div>
-    </div>
-
+    <div class="sec"><div class="sec-title"><span class="dot"></span>渠道 GMV W12 vs W13</div><div class="cw"><canvas id="c-plat-bar"></canvas></div></div>
     <div class="two-col">
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>W12 模式占比</div>
-        <div class="chart-wrap"><canvas id="bizPie12"></canvas></div>
-      </div>
-      <div class="section">
-        <div class="section-title"><span class="dot"></span>W13 模式占比</div>
-        <div class="chart-wrap"><canvas id="bizPie13"></canvas></div>
-      </div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>W12 渠道占比</div><div class="cw"><canvas id="c-plat-p12"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>W13 渠道占比</div><div class="cw"><canvas id="c-plat-p13"></canvas></div></div>
     </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>业务模式毛利率对比</div>
-      <div class="chart-wrap">
-        <canvas id="bizGmChart"></canvas>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>模式明细数据</div>
-      <table>
-        <thead><tr><th>业务模式</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>W12订单</th><th>W13订单</th></tr></thead>
-        <tbody>
-          <tr><td>自营备货</td><td>489.6万</td><td>402.2万</td><td><span class="tag down">▼17.9%</span></td><td>11.44%</td><td>12.21%</td><td>51,714</td><td>46,317</td></tr>
-          <tr><td>MP（纯佣）</td><td>228.0万</td><td>225.0万</td><td><span class="tag flat">▼1.3%</span></td><td>~100%</td><td>~100%</td><td>24,971</td><td>23,865</td></tr>
-          <tr><td>自营JBP</td><td>78.9万</td><td>75.0万</td><td><span class="tag down">▼5.0%</span></td><td>14.41%</td><td>14.18%</td><td>16,525</td><td>16,104</td></tr>
-        </tbody>
-      </table>
-      <div class="alert-box info">
-        <strong>💡 说明</strong>
-        MP 模式 GMV 是实收金额（佣金），Revenue 远低于 GMV；自营备货/JBP 的 Revenue 接近 GMV（含 VAT 调整）。MP 的 GM% 接近 100% 是正常的——它几乎全是毛利。本周 MP 稳定是 GM% 整体提升的关键支撑。
-      </div>
+    <div class="sec"><div class="sec-title"><span class="dot"></span>渠道 GM% 对比</div><div class="cw"><canvas id="c-plat-gm"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>渠道明细</div>
+      <table><thead><tr><th>渠道</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>W13订单</th></tr></thead>
+      <tbody>
+        <tr><td>官网/APP</td><td>389.1万</td><td>383.0万</td><td><span class="tg flat">▼1.6%</span></td><td>16.12%</td><td>16.32%</td><td>51,593</td></tr>
+        <tr><td>三方平台</td><td>326.5万</td><td>236.9万</td><td><span class="tg down">▼27.4%</span></td><td>10.33%</td><td>11.05%</td><td>27,987</td></tr>
+        <tr><td>官网/H5</td><td>60.5万</td><td>60.7万</td><td><span class="tg flat">≈+0.3%</span></td><td>19.87%</td><td>18.01%</td><td>5,806</td></tr>
+        <tr><td>官网/PC</td><td>20.3万</td><td>21.5万</td><td><span class="tg up">▲6.1%</span></td><td>50.73%</td><td>49.96%</td><td>900</td></tr>
+      </tbody></table>
+      <div class="abox warn"><strong>⚠️ 重点</strong>三方平台跌幅贡献了总跌幅的 95%。建议立即复盘美团/京东/阿里/拼多多竞价策略与活动档期。</div>
     </div>
   </div>
 
-  <!-- ==================== 科室 ==================== -->
-  <div id="tab-dept" class="tab-panel">
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>科室 GMV 对比（W12 vs W13，Top 12）</div>
-      <div class="chart-wrap tall">
-        <canvas id="deptBarChart"></canvas>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>科室明细数据</div>
-      <table>
-        <thead><tr><th>科室</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>GM%变化</th></tr></thead>
-        <tbody>
-          <tr><td>心脑血管</td><td>173.9万</td><td>135.4万</td><td><span class="tag down">▼22.1%</span></td><td>11.10%</td><td>11.96%</td><td><span class="tag up">+0.86ppt</span></td></tr>
-          <tr><td>男科疾病</td><td>89.7万</td><td>81.4万</td><td><span class="tag down">▼9.3%</span></td><td>18.93%</td><td>20.25%</td><td><span class="tag up">+1.32ppt</span></td></tr>
-          <tr><td>神经系统</td><td>76.7万</td><td>77.9万</td><td><span class="tag up">▲1.6%</span></td><td>10.58%</td><td>10.34%</td><td><span class="tag flat">-0.24ppt</span></td></tr>
-          <tr><td>肝病科</td><td>55.8万</td><td>46.7万</td><td><span class="tag down">▼16.3%</span></td><td>10.58%</td><td>11.71%</td><td><span class="tag up">+1.13ppt</span></td></tr>
-          <tr><td>皮肤病</td><td>55.2万</td><td>47.1万</td><td><span class="tag down">▼14.7%</span></td><td>13.65%</td><td>13.26%</td><td><span class="tag flat">-0.39ppt</span></td></tr>
-          <tr><td>内分泌</td><td>52.8万</td><td>43.6万</td><td><span class="tag down">▼17.4%</span></td><td>9.64%</td><td>9.06%</td><td><span class="tag down">-0.58ppt</span></td></tr>
-          <tr><td>风湿骨科</td><td>51.5万</td><td>43.7万</td><td><span class="tag down">▼15.2%</span></td><td>13.59%</td><td>14.33%</td><td><span class="tag up">+0.74ppt</span></td></tr>
-          <tr><td>滋补调养</td><td>51.3万</td><td>47.5万</td><td><span class="tag down">▼7.4%</span></td><td>26.01%</td><td>30.63%</td><td><span class="tag up">+4.62ppt ✨</span></td></tr>
-          <tr><td>呼吸道疾病</td><td>49.9万</td><td>46.7万</td><td><span class="tag down">▼6.4%</span></td><td>12.70%</td><td>13.96%</td><td><span class="tag up">+1.26ppt</span></td></tr>
-          <tr><td>消化系统疾病</td><td>30.0万</td><td>26.5万</td><td><span class="tag down">▼11.7%</span></td><td>16.69%</td><td>17.78%</td><td><span class="tag up">+1.09ppt</span></td></tr>
-          <tr><td>营养保健</td><td>26.6万</td><td>24.8万</td><td><span class="tag down">▼6.8%</span></td><td>24.69%</td><td>27.48%</td><td><span class="tag up">+2.79ppt</span></td></tr>
-          <tr><td>医疗器械</td><td>18.5万</td><td>17.2万</td><td><span class="tag down">▼7.0%</span></td><td>33.60%</td><td>35.12%</td><td><span class="tag up">+1.52ppt</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>各科室 GM% 对比</div>
-      <div class="chart-wrap tall">
-        <canvas id="deptGmChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== 每日趋势 ==================== -->
-  <div id="tab-daily" class="tab-panel">
+  <!-- ===== 业务模式 ===== -->
+  <div id="p-bizmodel" class="panel">
     <div class="kpi-grid">
-      <div class="kpi-card blue">
-        <div class="kpi-label">W13 日均 GMV</div>
-        <div class="kpi-row"><div class="kpi-val">100.3万</div><div class="kpi-change down">▼ vs W12</div></div>
-        <div class="kpi-sub">W12日均：113.8万</div>
-      </div>
-      <div class="kpi-card red">
-        <div class="kpi-label">最低单日 (03/28)</div>
-        <div class="kpi-row"><div class="kpi-val">87.0万</div><div class="kpi-change down">▼13.0%</div></div>
-        <div class="kpi-sub">vs W12同位：99.9万</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">最高单日 (03/23)</div>
-        <div class="kpi-row"><div class="kpi-val">114.3万</div><div class="kpi-change down">▼13.0%</div></div>
-        <div class="kpi-sub">vs W12同位：131.4万</div>
+      <div class="kpi kred"><div class="kpi-lbl">自营备货</div><div class="kpi-row"><div class="kpi-val">402.2万</div><div class="ch down">▼17.9%</div></div><div class="kpi-sub">W12：489.6万 | GM%12.21%</div></div>
+      <div class="kpi kgreen"><div class="kpi-lbl">MP（纯佣）</div><div class="kpi-row"><div class="kpi-val">225.0万</div><div class="ch flat">▼1.3%</div></div><div class="kpi-sub">W12：228.0万 | GM%≈100%</div></div>
+      <div class="kpi korange"><div class="kpi-lbl">自营JBP</div><div class="kpi-row"><div class="kpi-val">75.0万</div><div class="ch flat">▼5.0%</div></div><div class="kpi-sub">W12：78.9万 | GM%14.18%</div></div>
+    </div>
+    <div class="two-col">
+      <div class="sec"><div class="sec-title"><span class="dot"></span>模式 GMV 对比</div><div class="cw"><canvas id="c-biz-bar"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>自营 GM% 对比（MP≈100%不含）</div><div class="cw"><canvas id="c-biz-gm"></canvas></div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>模式明细</div>
+      <table><thead><tr><th>业务模式</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>W12订单</th><th>W13订单</th></tr></thead>
+      <tbody>
+        <tr><td>自营备货</td><td>489.6万</td><td>402.2万</td><td><span class="tg down">▼17.9%</span></td><td>11.44%</td><td>12.21%</td><td>51,714</td><td>46,317</td></tr>
+        <tr><td>MP（纯佣）</td><td>228.0万</td><td>225.0万</td><td><span class="tg flat">▼1.3%</span></td><td>~100%</td><td>~100%</td><td>24,971</td><td>23,865</td></tr>
+        <tr><td>自营JBP</td><td>78.9万</td><td>75.0万</td><td><span class="tg flat">▼5.0%</span></td><td>14.41%</td><td>14.18%</td><td>16,525</td><td>16,104</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ===== 科室 ===== -->
+  <div id="p-dept" class="panel">
+    <div class="sec"><div class="sec-title"><span class="dot"></span>科室 GMV 对比（Top 12）</div><div class="cw tall"><canvas id="c-dept-bar"></canvas></div></div>
+    <div class="sec"><div class="sec-title"><span class="dot"></span>科室 GM% 对比</div><div class="cw tall"><canvas id="c-dept-gm"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>科室明细</div>
+      <div style="overflow-x:auto">
+      <table><thead><tr><th>科室</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th><th>GM%变化</th></tr></thead>
+      <tbody>
+        <tr><td>心脑血管</td><td>173.9万</td><td>135.4万</td><td><span class="tg down">▼22.1%</span></td><td>11.10%</td><td>11.96%</td><td><span class="tg up">+0.86ppt</span></td></tr>
+        <tr><td>男科疾病</td><td>89.7万</td><td>81.4万</td><td><span class="tg down">▼9.3%</span></td><td>18.93%</td><td>20.25%</td><td><span class="tg up">+1.32ppt</span></td></tr>
+        <tr><td>神经系统</td><td>76.7万</td><td>77.9万</td><td><span class="tg up">▲1.6%</span></td><td>10.58%</td><td>10.34%</td><td><span class="tg flat">-0.24ppt</span></td></tr>
+        <tr><td>肝病科</td><td>55.8万</td><td>46.7万</td><td><span class="tg down">▼16.3%</span></td><td>10.58%</td><td>11.71%</td><td><span class="tg up">+1.13ppt</span></td></tr>
+        <tr><td>皮肤病</td><td>55.2万</td><td>47.1万</td><td><span class="tg down">▼14.7%</span></td><td>13.65%</td><td>13.26%</td><td><span class="tg flat">-0.39ppt</span></td></tr>
+        <tr><td>内分泌</td><td>52.8万</td><td>43.6万</td><td><span class="tg down">▼17.4%</span></td><td>9.64%</td><td>9.06%</td><td><span class="tg down">-0.58ppt</span></td></tr>
+        <tr><td>风湿骨科</td><td>51.5万</td><td>43.7万</td><td><span class="tg down">▼15.2%</span></td><td>13.59%</td><td>14.33%</td><td><span class="tg up">+0.74ppt</span></td></tr>
+        <tr><td>滋补调养</td><td>51.3万</td><td>47.5万</td><td><span class="tg down">▼7.4%</span></td><td>26.01%</td><td>30.63%</td><td><span class="tg up">+4.62ppt ✨</span></td></tr>
+        <tr><td>呼吸道疾病</td><td>49.9万</td><td>46.7万</td><td><span class="tg down">▼6.4%</span></td><td>12.70%</td><td>13.96%</td><td><span class="tg up">+1.26ppt</span></td></tr>
+        <tr><td>消化系统疾病</td><td>30.0万</td><td>26.5万</td><td><span class="tg down">▼11.7%</span></td><td>16.69%</td><td>17.78%</td><td><span class="tg up">+1.09ppt</span></td></tr>
+        <tr><td>营养保健</td><td>26.6万</td><td>24.8万</td><td><span class="tg down">▼6.8%</span></td><td>24.69%</td><td>27.48%</td><td><span class="tg up">+2.79ppt</span></td></tr>
+        <tr><td>医疗器械</td><td>18.5万</td><td>17.2万</td><td><span class="tg down">▼7.0%</span></td><td>33.60%</td><td>35.12%</td><td><span class="tg up">+1.52ppt</span></td></tr>
+      </tbody></table>
       </div>
     </div>
+  </div>
 
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>每日 GMV 趋势（W12 vs W13 同位对比）</div>
+  <!-- ===== 厂家 ===== -->
+  <div id="p-mfr" class="panel">
+    <div class="sec"><div class="sec-title"><span class="dot"></span>Top 15 厂家 GMV 对比（按两周合计）</div><div class="cw tall"><canvas id="c-mfr-bar"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>厂家明细（Top 15，两周合计排序）</div>
+      <div style="overflow-x:auto">
+      <table><thead><tr><th>厂家</th><th>W12 GMV</th><th>W13 GMV</th><th>环比</th><th>W12 GM%</th><th>W13 GM%</th></tr></thead>
+      <tbody>
+        <tr><td>晖致(辉瑞)</td><td>76.17万</td><td>34.96万</td><td><span class="tg down">▼54.1%</span></td><td>9.3%</td><td>7.3%</td></tr>
+        <tr><td>正大天晴</td><td>27.58万</td><td>20.39万</td><td><span class="tg down">▼26.1%</span></td><td>10.0%</td><td>11.2%</td></tr>
+        <tr><td>IPR Pharmaceuticals</td><td>19.82万</td><td>26.51万</td><td><span class="tg up">▲33.8%</span></td><td>10.4%</td><td>12.0%</td></tr>
+        <tr><td>AstraZeneca LP</td><td>24.11万</td><td>17.51万</td><td><span class="tg down">▼27.4%</span></td><td>8.4%</td><td>8.1%</td></tr>
+        <tr><td>广州白云山</td><td>17.28万</td><td>19.11万</td><td><span class="tg up">▲10.6%</span></td><td>13.9%</td><td>13.8%</td></tr>
+        <tr><td>Menarini-von Heyden</td><td>16.58万</td><td>11.22万</td><td><span class="tg down">▼32.3%</span></td><td>3.0%</td><td>2.3%</td></tr>
+        <tr><td>AstraZeneca Pty Ltd</td><td>14.20万</td><td>13.30万</td><td><span class="tg flat">▼6.3%</span></td><td>12.9%</td><td>13.1%</td></tr>
+        <tr><td>滇虹药业</td><td>11.39万</td><td>12.11万</td><td><span class="tg up">▲6.3%</span></td><td>7.1%</td><td>8.1%</td></tr>
+        <tr><td>美时化学制药(海默尼)</td><td>10.66万</td><td>9.98万</td><td><span class="tg flat">▼6.4%</span></td><td>10.4%</td><td>9.9%</td></tr>
+        <tr><td>北京同仁堂科技</td><td>10.91万</td><td>8.07万</td><td><span class="tg down">▼26.0%</span></td><td>3.6%</td><td>11.7%</td></tr>
+        <tr><td>海南先声药业</td><td>10.95万</td><td>7.03万</td><td><span class="tg down">▼35.8%</span></td><td>8.3%</td><td>7.9%</td></tr>
+        <tr><td>Nipro Pharma</td><td>8.81万</td><td>8.34万</td><td><span class="tg flat">▼5.3%</span></td><td>9.6%</td><td>8.3%</td></tr>
+        <tr><td>南京正科医药</td><td>6.16万</td><td>5.81万</td><td><span class="tg flat">▼5.7%</span></td><td>6.9%</td><td>12.7%</td></tr>
+        <tr><td>重庆药友制药</td><td>6.26万</td><td>5.15万</td><td><span class="tg down">▼17.8%</span></td><td>20.4%</td><td>19.9%</td></tr>
+        <tr><td>浙江京新药业</td><td>7.24万</td><td>4.08万</td><td><span class="tg down">▼43.7%</span></td><td>6.1%</td><td>4.1%</td></tr>
+      </tbody></table>
+      </div>
+      <div class="abox warn"><strong>⚠️ 重点关注</strong>晖致（辉瑞）W13 跌幅 54.1%，绝对跌幅 41.2万，是最大单一厂家拖累，主要品种立普妥(阿托伐他汀钙片)28片装暴跌约80%，需核查供货/价格/竞价原因。</div>
+    </div>
+  </div>
+
+  <!-- ===== 品种 ===== -->
+  <div id="p-sku" class="panel">
+    <div class="sec"><div class="sec-title"><span class="dot"></span>Top 15 品种 GMV（W13，万元）</div><div class="cw tall"><canvas id="c-sku-top"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>最大下滑品种（W12→W13，绝对跌幅）</div>
+      <div style="overflow-x:auto">
+      <table><thead><tr><th>品种</th><th>W12 GMV</th><th>W13 GMV</th><th>绝对跌幅</th><th>环比%</th><th>W13 GM%</th></tr></thead>
+      <tbody>
+        <tr><td>立普妥 阿托伐他汀钙片 20mg*28片</td><td>36.50万</td><td>7.75万</td><td>-28.74万</td><td><span class="tg down">▼78.8%</span></td><td>8.4%</td></tr>
+        <tr><td>络活喜 苯磺酸氨氯地平片 5mg*28片</td><td>15.44万</td><td>3.28万</td><td>-12.16万</td><td><span class="tg down">▼78.8%</span></td><td>11.6%</td></tr>
+        <tr><td>安达释 达格列净二甲双胍缓释片 28片</td><td>22.99万</td><td>16.37万</td><td>-6.62万</td><td><span class="tg down">▼28.8%</span></td><td>8.3%</td></tr>
+        <tr><td>润众 恩替卡韦分散片 0.5mg*28片</td><td>23.56万</td><td>17.09万</td><td>-6.47万</td><td><span class="tg down">▼27.5%</span></td><td>10.9%</td></tr>
+        <tr><td>立普妥 阿托伐他汀钙片 20mg*7片</td><td>7.50万</td><td>2.75万</td><td>-4.75万</td><td><span class="tg down">▼63.3%</span></td><td>6.5%</td></tr>
+        <tr><td>信必可都保 布地奈德福莫特罗吸入剂 60吸</td><td>4.62万</td><td>0.03万</td><td>-4.58万</td><td><span class="tg down">▼99.3%</span></td><td>8.4%</td></tr>
+        <tr><td>希爱力/Cialis 他达拉非片 5mg*28片</td><td>14.36万</td><td>9.80万</td><td>-4.56万</td><td><span class="tg down">▼31.8%</span></td><td>1.0%</td></tr>
+        <tr><td>吉易克 左乙拉西坦片 0.25g*30片</td><td>4.83万</td><td>2.15万</td><td>-2.68万</td><td><span class="tg down">▼55.5%</span></td><td>—</td></tr>
+        <tr><td>立普妥 阿托伐他汀钙片 10mg*28片</td><td>7.94万</td><td>5.81万</td><td>-2.13万</td><td><span class="tg down">▼26.8%</span></td><td>7.7%</td></tr>
+        <tr><td>纷乐 硫酸羟氯喹片 0.1g*14片</td><td>5.05万</td><td>3.07万</td><td>-1.98万</td><td><span class="tg down">▼39.2%</span></td><td>5.1%</td></tr>
+      </tbody></table>
+      </div>
+      <div class="abox warn"><strong>⚠️ 立普妥+络活喜（辉瑞系）合计跌幅 45.8万</strong>这两个品种是心脑血管科室和整体 GMV 暴跌的核心。28片大包装跌幅显著大于7片小包装，疑似三方平台竞价或库存问题。</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>最大增长品种（W12→W13，绝对增量）</div>
+      <div style="overflow-x:auto">
+      <table><thead><tr><th>品种</th><th>W12 GMV</th><th>W13 GMV</th><th>增量</th><th>环比%</th><th>W13 GM%</th></tr></thead>
+      <tbody>
+        <tr><td>可定 瑞舒伐他汀钙片 5mg*7片</td><td>17.80万</td><td>24.55万</td><td>+6.75万</td><td><span class="tg up">▲37.9%</span></td><td>13.1%</td></tr>
+        <tr><td>左洛复 盐酸舍曲林片 50mg*14片</td><td>1.22万</td><td>5.71万</td><td>+4.49万</td><td><span class="tg up">▲368%</span></td><td>7.6%</td></tr>
+        <tr><td>倍择瑞/令畅 布地格福吸入气雾剂 120揿</td><td>1.67万</td><td>5.46万</td><td>+3.78万</td><td><span class="tg up">▲226%</span></td><td>3.4%</td></tr>
+        <tr><td>妙纳 盐酸乙哌立松片 50mg*20片</td><td>2.00万</td><td>4.19万</td><td>+2.19万</td><td><span class="tg up">▲110%</span></td><td>12.1%</td></tr>
+        <tr><td>络活喜 苯磺酸氨氯地平片 5mg*7片</td><td>0.81万</td><td>2.81万</td><td>+2.00万</td><td><span class="tg up">▲247%</span></td><td>8.6%</td></tr>
+        <tr><td>康王 复方酮康唑发用洗剂 50ml</td><td>1.26万</td><td>2.86万</td><td>+1.60万</td><td><span class="tg up">▲126%</span></td><td>8.3%</td></tr>
+        <tr><td>白云山/金戈 枸橼酸西地那非片 50mg*20片</td><td>7.87万</td><td>9.34万</td><td>+1.46万</td><td><span class="tg up">▲18.6%</span></td><td>6.5%</td></tr>
+        <tr><td>德巴金 丙戊酸钠缓释片 0.5g*30片</td><td>0.94万</td><td>1.75万</td><td>+0.81万</td><td><span class="tg up">▲86.5%</span></td><td>—</td></tr>
+        <tr><td>立普妥 阿托伐他汀钙片 10mg*7片</td><td>2.71万</td><td>3.35万</td><td>+0.64万</td><td><span class="tg up">▲23.7%</span></td><td>6.0%</td></tr>
+      </tbody></table>
+      </div>
+      <div class="abox info"><strong>💡 规格迁移现象</strong>络活喜 5mg*28片 大跌 78.8%（-12.2万），但 5mg*7片 暴增 247%（+2万）；立普妥类似。说明可能存在用户向小规格迁移或大规格断货/价格问题，值得关注。</div>
+    </div>
+  </div>
+
+  <!-- ===== 每日 ===== -->
+  <div id="p-daily" class="panel">
+    <div class="kpi-grid">
+      <div class="kpi kblue"><div class="kpi-lbl">W13 日均</div><div class="kpi-row"><div class="kpi-val">100.3万</div><div class="ch down">▼11.8%</div></div><div class="kpi-sub">W12日均：113.8万</div></div>
+      <div class="kpi kred"><div class="kpi-lbl">最低单日(03/28)</div><div class="kpi-row"><div class="kpi-val">87.0万</div><div class="ch down">▼13.0%</div></div><div class="kpi-sub">vs W12同位：99.9万</div></div>
+      <div class="kpi korange"><div class="kpi-lbl">最高单日(03/23)</div><div class="kpi-row"><div class="kpi-val">114.3万</div><div class="ch down">▼13.0%</div></div><div class="kpi-sub">vs W12同位：131.4万</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>每日 GMV（W12 vs W13 同位）</div>
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#93c5fd"></div>W12</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#0f3460"></div>W13</div>
+        <div class="legend-item"><div class="ldot" style="background:#93c5fd"></div>W12</div>
+        <div class="legend-item"><div class="ldot" style="background:#0f3460"></div>W13</div>
       </div>
-      <div class="daily-grid">
-        <!-- Day 1 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:80px" title="W12 03/16: 131.4万"></div>
-            <div class="bar w13" style="height:70px" title="W13 03/23: 114.3万"></div>
-          </div>
-          <div class="daily-val">114.3万</div>
-          <div class="daily-label">周一</div>
-        </div>
-        <!-- Day 2 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:76px"></div>
-            <div class="bar w13" style="height:66px"></div>
-          </div>
-          <div class="daily-val">107.6万</div>
-          <div class="daily-label">周二</div>
-        </div>
-        <!-- Day 3 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:70px"></div>
-            <div class="bar w13" style="height:65px"></div>
-          </div>
-          <div class="daily-val">106.5万</div>
-          <div class="daily-label">周三</div>
-        </div>
-        <!-- Day 4 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:67px"></div>
-            <div class="bar w13" style="height:62px"></div>
-          </div>
-          <div class="daily-val">100.9万</div>
-          <div class="daily-label">周四</div>
-        </div>
-        <!-- Day 5 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:67px"></div>
-            <div class="bar w13" style="height:58px"></div>
-          </div>
-          <div class="daily-val">95.1万</div>
-          <div class="daily-label">周五</div>
-        </div>
-        <!-- Day 6 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:61px"></div>
-            <div class="bar w13" style="height:53px"></div>
-          </div>
-          <div class="daily-val">87.0万</div>
-          <div class="daily-label">周六</div>
-        </div>
-        <!-- Day 7 -->
-        <div class="daily-item">
-          <div class="daily-bar-wrap">
-            <div class="bar w12" style="height:65px"></div>
-            <div class="bar w13" style="height:55px"></div>
-          </div>
-          <div class="daily-val">90.8万</div>
-          <div class="daily-label">周日</div>
-        </div>
+      <div class="bar-mini-wrap">
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:80px"></div><div class="bbar bw13" style="height:70px"></div></div><div class="bmi-val">114.3</div><div class="bmi-lbl">周一<br>03/23</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:76px"></div><div class="bbar bw13" style="height:65px"></div></div><div class="bmi-val">107.6</div><div class="bmi-lbl">周二<br>03/24</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:70px"></div><div class="bbar bw13" style="height:65px"></div></div><div class="bmi-val">106.5</div><div class="bmi-lbl">周三<br>03/25</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:67px"></div><div class="bbar bw13" style="height:61px"></div></div><div class="bmi-val">100.9</div><div class="bmi-lbl">周四<br>03/26</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:67px"></div><div class="bbar bw13" style="height:58px"></div></div><div class="bmi-val">95.1</div><div class="bmi-lbl">周五<br>03/27</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:61px"></div><div class="bbar bw13" style="height:53px"></div></div><div class="bmi-val">87.0</div><div class="bmi-lbl">周六<br>03/28</div></div>
+        <div class="bmi"><div class="bmi-bars"><div class="bbar bw12" style="height:64px"></div><div class="bbar bw13" style="height:55px"></div></div><div class="bmi-val">90.8</div><div class="bmi-lbl">周日<br>03/29</div></div>
       </div>
     </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>每日 GMV 折线图</div>
-      <div class="chart-wrap">
-        <canvas id="dailyLineChart"></canvas>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>每日明细</div>
-      <table>
-        <thead><tr><th>日期</th><th>星期</th><th>周次</th><th>GMV</th><th>Revenue</th><th>订单数</th><th>vs同周位W12</th></tr></thead>
-        <tbody>
-          <tr><td>03/16</td><td>周一</td><td>W12</td><td>131.4万</td><td>88.1万</td><td>14,492</td><td>-</td></tr>
-          <tr><td>03/17</td><td>周二</td><td>W12</td><td>124.1万</td><td>80.2万</td><td>14,077</td><td>-</td></tr>
-          <tr><td>03/18</td><td>周三</td><td>W12</td><td>114.6万</td><td>75.3万</td><td>13,775</td><td>-</td></tr>
-          <tr><td>03/19</td><td>周四</td><td>W12</td><td>110.4万</td><td>69.8万</td><td>12,591</td><td>-</td></tr>
-          <tr><td>03/20</td><td>周五</td><td>W12</td><td>110.2万</td><td>70.2万</td><td>13,972</td><td>-</td></tr>
-          <tr><td>03/21</td><td>周六</td><td>W12</td><td>99.9万</td><td>62.9万</td><td>11,919</td><td>-</td></tr>
-          <tr><td>03/22</td><td>周日</td><td>W12</td><td>105.8万</td><td>70.5万</td><td>12,384</td><td>-</td></tr>
-          <tr style="background:#f0f9ff"><td>03/23</td><td>周一</td><td>W13</td><td>114.3万</td><td>71.4万</td><td>14,027</td><td><span class="tag down">▼13.0%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/24</td><td>周二</td><td>W13</td><td>107.6万</td><td>67.1万</td><td>12,565</td><td><span class="tag down">▼13.3%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/25</td><td>周三</td><td>W13</td><td>106.5万</td><td>66.4万</td><td>12,817</td><td><span class="tag down">▼7.1%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/26</td><td>周四</td><td>W13</td><td>100.9万</td><td>62.3万</td><td>12,706</td><td><span class="tag down">▼8.6%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/27</td><td>周五</td><td>W13</td><td>95.1万</td><td>59.4万</td><td>12,334</td><td><span class="tag down">▼13.7%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/28</td><td>周六</td><td>W13</td><td>87.0万</td><td>52.5万</td><td>10,696</td><td><span class="tag down">▼13.0%</span></td></tr>
-          <tr style="background:#f0f9ff"><td>03/29</td><td>周日</td><td>W13</td><td>90.8万</td><td>56.7万</td><td>11,141</td><td><span class="tag down">▼14.2%</span></td></tr>
-        </tbody>
-      </table>
+    <div class="sec"><div class="sec-title"><span class="dot"></span>每日 GMV 折线</div><div class="cw"><canvas id="c-daily-line"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>每日明细</div>
+      <table><thead><tr><th>日期</th><th>星期</th><th>周次</th><th>GMV</th><th>Revenue</th><th>订单数</th><th>vs W12同位</th></tr></thead>
+      <tbody>
+        <tr><td>03/16</td><td>一</td><td>W12</td><td>131.4万</td><td>88.1万</td><td>14,492</td><td>—</td></tr>
+        <tr><td>03/17</td><td>二</td><td>W12</td><td>124.1万</td><td>80.2万</td><td>14,077</td><td>—</td></tr>
+        <tr><td>03/18</td><td>三</td><td>W12</td><td>114.6万</td><td>75.3万</td><td>13,775</td><td>—</td></tr>
+        <tr><td>03/19</td><td>四</td><td>W12</td><td>110.4万</td><td>69.8万</td><td>12,591</td><td>—</td></tr>
+        <tr><td>03/20</td><td>五</td><td>W12</td><td>110.2万</td><td>70.2万</td><td>13,972</td><td>—</td></tr>
+        <tr><td>03/21</td><td>六</td><td>W12</td><td>99.9万</td><td>62.9万</td><td>11,919</td><td>—</td></tr>
+        <tr><td>03/22</td><td>日</td><td>W12</td><td>105.8万</td><td>70.5万</td><td>12,384</td><td>—</td></tr>
+        <tr style="background:#f0f9ff"><td>03/23</td><td>一</td><td>W13</td><td>114.3万</td><td>71.4万</td><td>14,027</td><td><span class="tg down">▼13.0%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/24</td><td>二</td><td>W13</td><td>107.6万</td><td>67.1万</td><td>12,565</td><td><span class="tg down">▼13.3%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/25</td><td>三</td><td>W13</td><td>106.5万</td><td>66.4万</td><td>12,817</td><td><span class="tg down">▼7.1%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/26</td><td>四</td><td>W13</td><td>100.9万</td><td>62.3万</td><td>12,706</td><td><span class="tg down">▼8.6%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/27</td><td>五</td><td>W13</td><td>95.1万</td><td>59.4万</td><td>12,334</td><td><span class="tg down">▼13.7%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/28</td><td>六</td><td>W13</td><td>87.0万</td><td>52.5万</td><td>10,696</td><td><span class="tg down">▼13.0%</span></td></tr>
+        <tr style="background:#f0f9ff"><td>03/29</td><td>日</td><td>W13</td><td>90.8万</td><td>56.7万</td><td>11,141</td><td><span class="tg down">▼14.2%</span></td></tr>
+      </tbody></table>
     </div>
   </div>
 
-  <!-- ==================== 洞察 ==================== -->
-  <div id="tab-insight" class="tab-panel">
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>核心洞察（5条）</div>
-      <ul class="insight-list">
-        <li>
-          <div class="insight-icon">🔥</div>
-          <div class="insight-text">
-            <strong>三方平台是本周下滑的单一最大原因</strong>
-            <p>W13 三方平台 GMV 236.9万，较 W12 跌 89.6万（-27.4%），占本周总跌幅 94.4万 的 95%。官网 APP 仅跌 6.2万（-1.6%），基本稳住。建议立即核查三方平台本周竞价策略、活动档期、店铺扣分等异常。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">✅</div>
-          <div class="insight-text">
-            <strong>毛利率逆势提升是结构性亮点</strong>
-            <p>W13 GAAP GM% 15.24%，环比提升 1.03ppt。主要驱动：①MP 模式稳定（GMV 占比 32%，GM% ~100%）；②滋补调养科室 GM% 大涨 4.62ppt（26%→30.6%）；③男科高毛利品类 GM% 继续走高（+1.32ppt）。方向正确。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">⚠️</div>
-          <div class="insight-text">
-            <strong>心脑血管科室暴跌 22%，需重点复盘</strong>
-            <p>心脑血管 W13 GMV 仅 135.4万，较 W12 跌 38.5万，是跌幅最大的科室（绝对值）。心脑血管是全站第一大科室（占 GMV 约 19%），单科室下滑会对整体造成显著拖累。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">📉</div>
-          <div class="insight-text">
-            <strong>自营备货跌幅最深（-17.9%），需关注库存与促销策略</strong>
-            <p>自营备货 W13 仅 402.2万（W12：489.6万），跌幅远超 MP 和 JBP。自营备货主要走三方平台，三方平台萎缩直接传导到自营备货，两者相互印证。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">📅</div>
-          <div class="insight-text">
-            <strong>W13 每天都低于 W12，周五至周日连续三天跌幅扩大</strong>
-            <p>W13 周一至周四跌幅在 7%~13% 之间，但周五（-13.7%）、周六（-13.0%）、周日（-14.2%）连续扩大。周末通常是消费类平台高峰，这周末的走弱值得深查。</p>
-          </div>
-        </li>
+  <!-- ===== 洞察 ===== -->
+  <div id="p-insight" class="panel">
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>核心洞察（6条）</div>
+      <ul class="ilist">
+        <li><div class="iico">🔥</div><div class="itxt"><strong>三方平台是本周下滑的单一最大原因（贡献95%跌幅）</strong><p>三方平台 W13 GMV 236.9万，较 W12 跌 89.6万（-27.4%）。官网 APP 仅跌 6.2万（-1.6%），基本稳住。需立即复盘各平台竞价/活动/扣分情况。</p></div></li>
+        <li><div class="iico">💊</div><div class="itxt"><strong>辉瑞系（立普妥+络活喜）暴跌是品种端最大问题</strong><p>立普妥(20mg*28片)跌78.8%(-28.7万)、络活喜(5mg*28片)跌78.8%(-12.2万)，两款合计拖累40.9万。同时大包装暴跌而小包装反涨，疑似规格迁移或三方平台价格/库存问题，需立即排查晖致厂家合作状态。</p></div></li>
+        <li><div class="iico">✅</div><div class="itxt"><strong>毛利率逆势提升，结构性改善</strong><p>W13 GM% 15.24%，环比+1.03ppt。MP模式稳定贡献（占GMV 32%，GM%≈100%）、滋补调养科室GM%大涨4.62ppt、男科GM%提升1.32ppt是三大驱动。</p></div></li>
+        <li><div class="iico">🌟</div><div class="itxt"><strong>可定（瑞舒伐他汀）逆势增长，值得放量</strong><p>可定 W13 GMV 24.55万，环比+37.9%(+6.75万)，订单量2055单，是本周增量最大品种。在同类他汀类立普妥大跌背景下逆势增长，建议加大库存和推广力度。</p></div></li>
+        <li><div class="iico">⚠️</div><div class="itxt"><strong>心脑血管科室下滑22%，是最大科室拖累</strong><p>心脑血管 W13 GMV 135.4万，绝对跌幅38.5万，直接关联品种：立普妥、络活喜（均为辉瑞品牌），归根结底是供货/竞价问题而非需求问题。</p></div></li>
+        <li><div class="iico">📅</div><div class="itxt"><strong>W13每天均低于W12同位，后三天跌幅持续扩大</strong><p>周五(-13.7%)→周六(-13.0%)→周日(-14.2%)，周末跌幅最深。医药平台周末本应是高峰，建议检查是否有周末促活动缺失。</p></div></li>
       </ul>
     </div>
-
-    <div class="section">
-      <div class="section-title"><span class="dot"></span>W14 行动建议</div>
-      <ul class="insight-list">
-        <li>
-          <div class="insight-icon">1️⃣</div>
-          <div class="insight-text">
-            <strong>三方平台专项恢复</strong>
-            <p>复盘美团/京东/阿里/拼多多各平台上周具体下滑原因，针对性恢复竞价或活动投入。目标：W14 三方平台 GMV 回升至 280万+。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">2️⃣</div>
-          <div class="insight-text">
-            <strong>心脑血管品类紧急排查</strong>
-            <p>梳理心脑血管 Top 20 SKU 的库存状态、价格竞争力、评分变化，判断是供应问题、竞争问题还是流量问题。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">3️⃣</div>
-          <div class="insight-text">
-            <strong>维持并扩大 MP 模式及高毛利科室占比</strong>
-            <p>滋补调养、医疗器械、男科 GM% 均在提升，继续加大这三个科室的 MP 引入力度，对冲自营备货的毛利压力。</p>
-          </div>
-        </li>
-        <li>
-          <div class="insight-icon">4️⃣</div>
-          <div class="insight-text">
-            <strong>日均 GMV 目标：回到 110万+</strong>
-            <p>W13 日均 100.3万 明显低于 W12 的 113.8万。W14 目标应设定为日均 110万+，重点靠三方平台和心脑血管品类恢复来支撑。</p>
-          </div>
-        </li>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>W14 优先行动清单</div>
+      <ul class="ilist">
+        <li><div class="iico">1️⃣</div><div class="itxt"><strong>紧急排查辉瑞系品种（立普妥/络活喜）</strong><p>确认库存状态、三方平台价格竞争力、竞价出价是否正常。目标：W14 两品种恢复至合计 40万+。</p></div></li>
+        <li><div class="iico">2️⃣</div><div class="itxt"><strong>三方平台专项恢复</strong><p>复盘美团/京东/阿里/拼多多各自下滑原因，针对性恢复投入。目标：W14 三方平台 GMV 回升至 280万+。</p></div></li>
+        <li><div class="iico">3️⃣</div><div class="itxt"><strong>可定加仓+放量</strong><p>可定逆势大增，订单量充足，建议补充库存、提升曝光位权重。</p></div></li>
+        <li><div class="iico">4️⃣</div><div class="itxt"><strong>维持MP&高毛利科室占比</strong><p>滋补调养、医疗器械、男科 GM% 均在提升，继续扩大 MP 引入，对冲自营备货压力。</p></div></li>
+        <li><div class="iico">5️⃣</div><div class="itxt"><strong>日均 GMV 目标 110万+</strong><p>W13 日均仅 100.3万，靠三方平台+心脑血管品种恢复，W14 应争取回到 110万+ 水平。</p></div></li>
       </ul>
     </div>
   </div>
 
 </div>
-
-<div class="footer">药网出库分析 · W12&W13 对比 · 2026-03-30 · AI 自动生成</div>
+<div class="footer">药网出库分析 · W12&W13 全维对比 · 2026-03-30 · AI 自动生成</div>
 
 <script>
-function showTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+function ST(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  el.classList.add('active');
 }
 
-const BLUE = '#3b82f6';
-const DARK = '#0f3460';
-const LIGHT_BLUE = '#93c5fd';
-const GREEN = '#10b981';
-const ORANGE = '#f59e0b';
-const RED = '#ef4444';
+const C1='rgba(147,197,253,0.85)', C2='rgba(15,52,96,0.88)';
+const platL=['官网/APP','三方平台','官网/H5','官网/PC'];
+const platC=['#3b82f6','#f59e0b','#10b981','#8b5cf6'];
 
-// Overview Chart
-new Chart(document.getElementById('overviewChart').getContext('2d'), {
-  data: {
-    labels: ['官网/APP','三方平台','官网/H5','官网/PC'],
-    datasets: [
-      { type:'bar', label:'W12 GMV（万）', data:[389.1,326.5,60.5,20.3], backgroundColor:'rgba(147,197,253,0.8)', yAxisID:'y' },
-      { type:'bar', label:'W13 GMV（万）', data:[383.0,236.9,60.7,21.5], backgroundColor:'rgba(15,52,96,0.85)', yAxisID:'y' }
-    ]
-  },
-  options: { responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ beginAtZero:true, title:{ display:true, text:'万元' } } }
-  }
-});
+// Overview platform bar
+new Chart(document.getElementById('c-ov-plat'),{data:{labels:platL,datasets:[
+  {type:'bar',label:'W12 GMV（万）',data:[389.1,326.5,60.5,20.3],backgroundColor:C1},
+  {type:'bar',label:'W13 GMV（万）',data:[383.0,236.9,60.7,21.5],backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true}}}});
 
-// Waterfall-style: GMV change by source
-new Chart(document.getElementById('waterfallChart').getContext('2d'), {
-  type:'bar',
-  data: {
-    labels: ['三方平台','心脑血管','自营备货\n（非三方）','其他'],
-    datasets:[{
-      label:'GMV 下滑（万）',
-      data:[-89.6,-38.5,-15.0,-12.3],
-      backgroundColor:['#ef4444','#f97316','#fbbf24','#d1d5db']
-    }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
-    plugins:{ legend:{ display:false }, title:{ display:true, text:'各因素拖累 GMV 估算（万元）' } },
-    scales:{ x:{ title:{ display:true, text:'万元' } } }
-  }
-});
+// Waterfall
+new Chart(document.getElementById('c-ov-attr'),{type:'bar',data:{labels:['三方平台','心脑血管\n品种','自营备货\n其他','其他'],
+datasets:[{label:'拖累（万）',data:[-89.6,-40.9,-8.3,-5.5],backgroundColor:['#ef4444','#f97316','#fbbf24','#d1d5db']}]},
+options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'万元'}}}}});
 
-// Biz Pie W13
-new Chart(document.getElementById('bizPieChart').getContext('2d'), {
-  type:'doughnut',
-  data:{
-    labels:['自营备货','MP','自营JBP'],
-    datasets:[{ data:[402.2,225.0,75.0], backgroundColor:['#3b82f6','#10b981','#f59e0b'], borderWidth:2 }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-});
+// Biz Pie W12/W13
+new Chart(document.getElementById('c-ov-pie12'),{type:'doughnut',data:{labels:['自营备货','MP','自营JBP'],
+datasets:[{data:[489.6,228.0,78.9],backgroundColor:['#3b82f6','#10b981','#f59e0b'],borderWidth:2}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+new Chart(document.getElementById('c-ov-pie13'),{type:'doughnut',data:{labels:['自营备货','MP','自营JBP'],
+datasets:[{data:[402.2,225.0,75.0],backgroundColor:['#3b82f6','#10b981','#f59e0b'],borderWidth:2}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
 
-// Platform Bar
-new Chart(document.getElementById('platformBarChart').getContext('2d'), {
-  data:{
-    labels:['官网/APP','三方平台','官网/H5','官网/PC'],
-    datasets:[
-      { type:'bar', label:'W12 GMV', data:[389.1,326.5,60.5,20.3], backgroundColor:'rgba(147,197,253,0.8)' },
-      { type:'bar', label:'W13 GMV', data:[383.0,236.9,60.7,21.5], backgroundColor:'rgba(15,52,96,0.85)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ beginAtZero:true } }
-  }
-});
+// Platform bar
+new Chart(document.getElementById('c-plat-bar'),{data:{labels:platL,datasets:[
+  {type:'bar',label:'W12',data:[389.1,326.5,60.5,20.3],backgroundColor:C1},
+  {type:'bar',label:'W13',data:[383.0,236.9,60.7,21.5],backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}}}});
 
-// Platform Pie W12
-new Chart(document.getElementById('platPie12').getContext('2d'), {
-  type:'doughnut',
-  data:{
-    labels:['官网/APP','三方平台','官网/H5','官网/PC'],
-    datasets:[{ data:[389.1,326.5,60.5,20.3], backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6'], borderWidth:2 }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-});
+new Chart(document.getElementById('c-plat-p12'),{type:'doughnut',data:{labels:platL,datasets:[{data:[389.1,326.5,60.5,20.3],backgroundColor:platC,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+new Chart(document.getElementById('c-plat-p13'),{type:'doughnut',data:{labels:platL,datasets:[{data:[383.0,236.9,60.7,21.5],backgroundColor:platC,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
 
-// Platform Pie W13
-new Chart(document.getElementById('platPie13').getContext('2d'), {
-  type:'doughnut',
-  data:{
-    labels:['官网/APP','三方平台','官网/H5','官网/PC'],
-    datasets:[{ data:[383.0,236.9,60.7,21.5], backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6'], borderWidth:2 }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-});
+new Chart(document.getElementById('c-plat-gm'),{data:{labels:platL,datasets:[
+  {type:'bar',label:'W12 GM%',data:[16.12,10.33,19.87,50.73],backgroundColor:C1},
+  {type:'bar',label:'W13 GM%',data:[16.32,11.05,18.01,49.96],backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'%'}}}}});
 
-// Platform GM%
-new Chart(document.getElementById('platGmChart').getContext('2d'), {
-  type:'bar',
-  data:{
-    labels:['官网/APP','三方平台','官网/H5','官网/PC'],
-    datasets:[
-      { label:'W12 GM%', data:[16.12,10.33,19.87,50.73], backgroundColor:'rgba(147,197,253,0.8)' },
-      { label:'W13 GM%', data:[16.32,11.05,18.01,49.96], backgroundColor:'rgba(15,52,96,0.85)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ title:{ display:true, text:'%' } } }
-  }
-});
+// Biz bar & gm
+new Chart(document.getElementById('c-biz-bar'),{data:{labels:['自营备货','MP','自营JBP'],datasets:[
+  {type:'bar',label:'W12',data:[489.6,228.0,78.9],backgroundColor:C1},
+  {type:'bar',label:'W13',data:[402.2,225.0,75.0],backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}}}});
 
-// Biz Bar
-new Chart(document.getElementById('bizBarChart').getContext('2d'), {
-  data:{
-    labels:['自营备货','MP','自营JBP'],
-    datasets:[
-      { type:'bar', label:'W12 GMV', data:[489.6,228.0,78.9], backgroundColor:'rgba(147,197,253,0.8)' },
-      { type:'bar', label:'W13 GMV', data:[402.2,225.0,75.0], backgroundColor:'rgba(15,52,96,0.85)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'top' } } }
-});
+new Chart(document.getElementById('c-biz-gm'),{data:{labels:['自营备货','自营JBP'],datasets:[
+  {type:'bar',label:'W12 GM%',data:[11.44,14.41],backgroundColor:C1},
+  {type:'bar',label:'W13 GM%',data:[12.21,14.18],backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{min:0,max:20,title:{display:true,text:'%'}}}}});
 
-// Biz Pie W12
-new Chart(document.getElementById('bizPie12').getContext('2d'), {
-  type:'doughnut',
-  data:{
-    labels:['自营备货','MP','自营JBP'],
-    datasets:[{ data:[489.6,228.0,78.9], backgroundColor:['#3b82f6','#10b981','#f59e0b'], borderWidth:2 }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-});
+// Dept bar & gm
+const depts=['心脑血管','男科疾病','神经系统','肝病科','皮肤病','内分泌','风湿骨科','滋补调养','呼吸道疾病','消化系统','营养保健','医疗器械'];
+const dw12=[173.9,89.7,76.7,55.8,55.2,52.8,51.5,51.3,49.9,30.0,26.6,18.5];
+const dw13=[135.4,81.4,77.9,46.7,47.1,43.6,43.7,47.5,46.7,26.5,24.8,17.2];
+new Chart(document.getElementById('c-dept-bar'),{data:{labels:depts,datasets:[
+  {type:'bar',label:'W12',data:dw12,backgroundColor:C1},
+  {type:'bar',label:'W13',data:dw13,backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'万元'}}}}});
 
-// Biz Pie W13
-new Chart(document.getElementById('bizPie13').getContext('2d'), {
-  type:'doughnut',
-  data:{
-    labels:['自营备货','MP','自营JBP'],
-    datasets:[{ data:[402.2,225.0,75.0], backgroundColor:['#3b82f6','#10b981','#f59e0b'], borderWidth:2 }]
-  },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-});
+const gm12=[11.10,18.93,10.58,10.58,13.65,9.64,13.59,26.01,12.70,16.69,24.69,33.60];
+const gm13=[11.96,20.25,10.34,11.71,13.26,9.06,14.33,30.63,13.96,17.78,27.48,35.12];
+new Chart(document.getElementById('c-dept-gm'),{data:{labels:depts,datasets:[
+  {type:'bar',label:'W12 GM%',data:gm12,backgroundColor:C1},
+  {type:'bar',label:'W13 GM%',data:gm13,backgroundColor:'rgba(16,185,129,0.8)'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'%'}}}}});
 
-// Biz GM%
-new Chart(document.getElementById('bizGmChart').getContext('2d'), {
-  type:'bar',
-  data:{
-    labels:['自营备货','自营JBP'],
-    datasets:[
-      { label:'W12 GM%', data:[11.44,14.41], backgroundColor:'rgba(147,197,253,0.8)' },
-      { label:'W13 GM%', data:[12.21,14.18], backgroundColor:'rgba(15,52,96,0.85)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' }, title:{ display:true, text:'（MP 约100%，不含在图中）' } },
-    scales:{ y:{ min:0, max:20, title:{ display:true, text:'%' } } }
-  }
-});
+// Manufacturer bar
+const mfrL=['晖致(辉瑞)','正大天晴','IPR Pharma','AZ LP','白云山','Menarini','AZ Pty','滇虹药业','美时(海默尼)','同仁堂科技','先声药业','Nipro','南京正科','药友制药','京新药业'];
+const mw12=[76.17,27.58,19.82,24.11,17.28,16.58,14.20,11.39,10.66,10.91,10.95,8.81,6.16,6.26,7.24];
+const mw13=[34.96,20.39,26.51,17.51,19.11,11.22,13.30,12.11,9.98,8.07,7.03,8.34,5.81,5.15,4.08];
+new Chart(document.getElementById('c-mfr-bar'),{data:{labels:mfrL,datasets:[
+  {type:'bar',label:'W12',data:mw12,backgroundColor:C1},
+  {type:'bar',label:'W13',data:mw13,backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'万元'}}}}});
 
-// Dept Bar
-const depts = ['心脑血管','男科疾病','神经系统','肝病科','皮肤病','内分泌','风湿骨科','滋补调养','呼吸道疾病','消化系统','营养保健','医疗器械'];
-const deptW12 = [173.9,89.7,76.7,55.8,55.2,52.8,51.5,51.3,49.9,30.0,26.6,18.5];
-const deptW13 = [135.4,81.4,77.9,46.7,47.1,43.6,43.7,47.5,46.7,26.5,24.8,17.2];
-new Chart(document.getElementById('deptBarChart').getContext('2d'), {
-  data:{
-    labels: depts,
-    datasets:[
-      { type:'bar', label:'W12 GMV', data:deptW12, backgroundColor:'rgba(147,197,253,0.8)' },
-      { type:'bar', label:'W13 GMV', data:deptW13, backgroundColor:'rgba(15,52,96,0.85)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ beginAtZero:true, title:{ display:true, text:'万元' } } }
-  }
-});
+// SKU Top 15
+const skuL=['可定 瑞舒伐他汀\n5mg*7片','润众 恩替卡韦\n0.5mg*28片','安达释 达格列净\n二甲双胍28片','普米克令舒\n布地奈德2ml*5','海默尼 盐酸曲唑酮\n50mg*20片','希爱力 他达拉非\n5mg*28片','白云山/金戈\n西地那非50mg*20','康王 复方酮康唑\n100ml','立普妥 阿托伐\n20mg*28片','立普妥 阿托伐\n10mg*28片','左洛复 舍曲林\n50mg*14片','倍择瑞 布地格福\n120揿','喜格迈 尼可地尔\n5mg*100片','瑞复舒 吗替麦考酚\n胶囊','妙纳 乙哌立松\n50mg*20片'];
+const sw12=[17.80,23.56,22.99,14.20,10.66,14.36,7.87,10.08,36.50,7.94,1.22,1.67,4.35,6.16,2.00];
+const sw13=[24.55,17.09,16.37,13.22,9.98,9.80,9.34,9.18,7.75,5.81,5.71,5.46,4.61,4.55,4.19];
+new Chart(document.getElementById('c-sku-top'),{data:{labels:skuL,datasets:[
+  {type:'bar',label:'W12',data:sw12,backgroundColor:C1},
+  {type:'bar',label:'W13',data:sw13,backgroundColor:C2}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'万元'}}}}});
 
-// Dept GM% chart
-const gmW12 = [11.10,18.93,10.58,10.58,13.65,9.64,13.59,26.01,12.70,16.69,24.69,33.60];
-const gmW13 = [11.96,20.25,10.34,11.71,13.26,9.06,14.33,30.63,13.96,17.78,27.48,35.12];
-new Chart(document.getElementById('deptGmChart').getContext('2d'), {
-  data:{
-    labels: depts,
-    datasets:[
-      { type:'bar', label:'W12 GM%', data:gmW12, backgroundColor:'rgba(147,197,253,0.8)' },
-      { type:'bar', label:'W13 GM%', data:gmW13, backgroundColor:'rgba(16,185,129,0.8)' }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ title:{ display:true, text:'%' } } }
-  }
-});
-
-// Daily Line
-new Chart(document.getElementById('dailyLineChart').getContext('2d'), {
-  type:'line',
-  data:{
-    labels:['周一','周二','周三','周四','周五','周六','周日'],
-    datasets:[
-      { label:'W12', data:[131.4,124.1,114.6,110.4,110.2,99.9,105.8],
-        borderColor:'#93c5fd', backgroundColor:'rgba(147,197,253,0.1)',
-        tension:0.3, fill:true, pointRadius:5 },
-      { label:'W13', data:[114.3,107.6,106.5,100.9,95.1,87.0,90.8],
-        borderColor:'#0f3460', backgroundColor:'rgba(15,52,96,0.1)',
-        tension:0.3, fill:true, pointRadius:5, borderWidth:2.5 }
-    ]
-  },
-  options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top' } },
-    scales:{ y:{ min:80, max:140, title:{ display:true, text:'万元' } } }
-  }
-});
+// Daily line
+new Chart(document.getElementById('c-daily-line'),{type:'line',data:{labels:['周一','周二','周三','周四','周五','周六','周日'],
+datasets:[
+  {label:'W12',data:[131.4,124.1,114.6,110.4,110.2,99.9,105.8],borderColor:'#93c5fd',backgroundColor:'rgba(147,197,253,0.1)',tension:.3,fill:true,pointRadius:5},
+  {label:'W13',data:[114.3,107.6,106.5,100.9,95.1,87.0,90.8],borderColor:'#0f3460',backgroundColor:'rgba(15,52,96,0.1)',tension:.3,fill:true,pointRadius:5,borderWidth:2.5}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{min:80,max:140,title:{display:true,text:'万元'}}}}});
 </script>
 </body>
 </html>
