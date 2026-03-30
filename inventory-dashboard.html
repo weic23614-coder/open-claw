@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>库存监控看板 | 1药网重点清单 W13</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px}
+
+.header{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;padding:24px 32px 20px}
+.header h1{font-size:20px;font-weight:700;margin-bottom:4px}
+.header .meta{font-size:11px;opacity:.6;margin-top:2px}
+.badges{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.badge.r{background:rgba(245,101,101,.25);border:1px solid rgba(245,101,101,.5);color:#feb2b2}
+.badge.y{background:rgba(246,173,85,.2);border:1px solid rgba(246,173,85,.4);color:#fbd38d}
+.badge.g{background:rgba(72,187,120,.2);border:1px solid rgba(72,187,120,.4);color:#9ae6b4}
+.badge.b{background:rgba(99,179,237,.2);border:1px solid rgba(99,179,237,.4);color:#90cdf4}
+
+.container{max-width:1280px;margin:0 auto;padding:16px 14px 40px}
+
+.tabs{display:flex;gap:3px;background:#fff;border-radius:10px;padding:4px;box-shadow:0 2px 6px rgba(0,0,0,.06);margin-bottom:14px;overflow-x:auto}
+.tab{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:#6b7280;border:none;background:transparent;white-space:nowrap;transition:all .15s}
+.tab.active{background:#dc2626;color:#fff}
+.tab:hover:not(.active){background:#f3f4f6}
+.panel{display:none}.panel.active{display:block}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border-radius:9px;padding:14px 16px;box-shadow:0 2px 5px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.kr::before{background:#ef4444}.kpi.ky::before{background:#f59e0b}.kpi.kg::before{background:#10b981}.kpi.kb::before{background:#3b82f6}.kpi.kp::before{background:#8b5cf6}.kpi.kgr::before{background:#6b7280}
+.kpi-lbl{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.kpi-row{display:flex;justify-content:space-between;align-items:flex-end}
+.kpi-val{font-size:19px;font-weight:700;color:#111}
+.kpi-val.red{color:#ef4444}.kpi-val.orange{color:#f59e0b}.kpi-val.green{color:#10b981}
+.ch{font-size:10px;font-weight:700;padding:2px 5px;border-radius:6px}
+.ch.danger{background:#fee2e2;color:#991b1b}.ch.warn{background:#fef3c7;color:#92400e}.ch.ok{background:#d1fae5;color:#065f46}
+.kpi-sub{font-size:10px;color:#9ca3af;margin-top:3px}
+
+.sec{background:#fff;border-radius:9px;padding:18px 20px;margin-bottom:12px;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+.sec-title{font-size:13px;font-weight:700;color:#111;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sec-title .dot{width:3px;height:14px;border-radius:2px;background:#dc2626;flex-shrink:0}
+.cw{position:relative;height:230px}.cw.tall{height:280px}.cw.sm{height:180px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead tr{background:#fafafa}
+th{padding:8px 9px;text-align:right;color:#9ca3af;font-weight:600;font-size:10px;text-transform:uppercase;border-bottom:2px solid #f0f0f0;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:7px 9px;text-align:right;border-bottom:1px solid #f7f7f7}
+td:first-child{text-align:left;max-width:220px;word-break:break-all}
+tr:hover{background:#fafbff}
+.tg{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:700}
+.tg.danger{background:#fee2e2;color:#991b1b}.tg.warn{background:#fef3c7;color:#92400e}.tg.ok{background:#d1fae5;color:#065f46}.tg.info{background:#eff6ff;color:#1e40af}
+
+.alert-row{background:#fff5f5!important}
+.warn-row{background:#fffbeb!important}
+
+.progress-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-top:3px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+
+.ilist{list-style:none}
+.ilist li{padding:9px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:8px;align-items:flex-start}
+.ilist li:last-child{border-bottom:none}
+.iico{font-size:14px;flex-shrink:0;margin-top:1px}
+.itxt strong{display:block;font-size:12px;color:#374151;margin-bottom:2px}
+.itxt p{font-size:11px;color:#6b7280;line-height:1.6}
+.abox{border-radius:7px;padding:10px 13px;margin-top:10px;font-size:11px}
+.abox.warn{background:#fff7ed;border:1px solid #fed7aa;color:#92400e}
+.abox.danger{background:#fff5f5;border:1px solid #fecaca;color:#991b1b}
+.abox.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.abox strong{display:block;font-size:10px;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.status-dot.red{background:#ef4444}.status-dot.orange{background:#f59e0b}.status-dot.green{background:#10b981}.status-dot.gray{background:#9ca3af}
+
+.search-bar{width:100%;padding:7px 12px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;margin-bottom:12px;outline:none}
+.search-bar:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.1)}
+
+.footer{text-align:center;color:#9ca3af;font-size:10px;padding:14px 0 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏥 库存监控看板 · 1药网重点清单</h1>
+  <div class="meta">数据截至 W13（2026-03-29）· 772个重点SKU · 生成：2026-03-30</div>
+  <div class="badges">
+    <span class="badge r">⚠️ 缺货 138 SKU</span>
+    <span class="badge y">🔴 周转&lt;15天 192 SKU</span>
+    <span class="badge b">📦 可售库存 9,893万件</span>
+    <span class="badge g">YTD GMV 1.21亿</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab active" onclick="ST('overview',this)">🔴 预警总览</button>
+    <button class="tab" onclick="ST('lowstock',this)">⚡ 急补货清单</button>
+    <button class="tab" onclick="ST('oos',this)">🚫 缺货清单</button>
+    <button class="tab" onclick="ST('overstock',this)">📦 积压清单</button>
+    <button class="tab" onclick="ST('dept',this)">🏥 科室分析</button>
+    <button class="tab" onclick="ST('tag',this)">🏷️ 产品标签</button>
+    <button class="tab" onclick="ST('buyer',this)">👤 采购员</button>
+    <button class="tab" onclick="ST('allsku',this)">📋 全部SKU</button>
+  </div>
+
+  <!-- ===== 预警总览 ===== -->
+  <div id="p-overview" class="panel active">
+    <div class="kpi-grid">
+      <div class="kpi kr"><div class="kpi-lbl">总 SKU 数</div><div class="kpi-row"><div class="kpi-val">772</div></div><div class="kpi-sub">重点清单覆盖品种</div></div>
+      <div class="kpi kr"><div class="kpi-lbl">缺货 SKU</div><div class="kpi-row"><div class="kpi-val red">138</div><div class="ch danger">17.9%</div></div><div class="kpi-sub">占总SKU比例</div></div>
+      <div class="kpi ky"><div class="kpi-lbl">周转&lt;15天</div><div class="kpi-row"><div class="kpi-val orange">192</div><div class="ch warn">24.9%</div></div><div class="kpi-sub">紧急补货风险</div></div>
+      <div class="kpi kr"><div class="kpi-lbl">周转&gt;90天</div><div class="kpi-row"><div class="kpi-val">174</div><div class="ch warn">22.5%</div></div><div class="kpi-sub">积压风险品种</div></div>
+      <div class="kpi kb"><div class="kpi-lbl">上月 GMV</div><div class="kpi-row"><div class="kpi-val">1,228万</div></div><div class="kpi-sub">YTD：1.21亿</div></div>
+      <div class="kpi kg"><div class="kpi-lbl">YTD GM%</div><div class="kpi-row"><div class="kpi-val green">11.80%</div></div><div class="kpi-sub">YTD毛利额 1,433万</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="sec">
+        <div class="sec-title"><span class="dot"></span>周转天数分布（SKU数）</div>
+        <div class="cw"><canvas id="c-turnover-pie"></canvas></div>
+      </div>
+      <div class="sec">
+        <div class="sec-title"><span class="dot"></span>库存健康状态（SKU数）</div>
+        <div class="cw"><canvas id="c-health-bar"></canvas></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="sec">
+        <div class="sec-title"><span class="dot"></span>各科室缺货率</div>
+        <div class="cw tall"><canvas id="c-dept-oos"></canvas></div>
+      </div>
+      <div class="sec">
+        <div class="sec-title"><span class="dot"></span>各科室低周转SKU数</div>
+        <div class="cw tall"><canvas id="c-dept-low"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>🚨 高优先级预警（上月GMV Top 缺货/低周转品种）</div>
+      <table>
+        <thead><tr><th>品种</th><th>科室</th><th>状态</th><th>可售库存</th><th>周转天数</th><th>在途量</th><th>上月GMV</th><th>YTD GMV</th></tr></thead>
+        <tbody>
+          <tr class="alert-row"><td>普米克令舒 吸入用布地奈德混悬液 2ml:0.5mg*5支</td><td>呼吸道</td><td><span class="tg warn">低周转</span></td><td>9,320</td><td>14.9天</td><td>0</td><td>68.2万</td><td>487.4万</td></tr>
+          <tr class="alert-row"><td>络活喜 苯磺酸氨氯地平片 5mg*28片</td><td>心脑血管</td><td><span class="tg danger">极低</span></td><td>44</td><td>0.5天</td><td>0</td><td>21.8万</td><td>—</td></tr>
+          <tr class="alert-row"><td>喜格迈 尼可地尔片 5mg*10片*10板</td><td>心脑血管</td><td><span class="tg warn">低周转</span></td><td>303</td><td>10.2天</td><td>0</td><td>16.4万</td><td>—</td></tr>
+          <tr class="alert-row"><td>立普妥 阿托伐他汀钙片 20mg*28片</td><td>心脑血管</td><td><span class="tg warn">低周转</span></td><td>384</td><td>12.3天</td><td>0</td><td>14.7万</td><td>—</td></tr>
+          <tr class="alert-row"><td>希爱力/Cialis 他达拉非片 5mg*28片</td><td>男科</td><td><span class="tg danger">积压</span></td><td>42,884</td><td>1,361天</td><td>0</td><td>38.3万</td><td>—</td></tr>
+          <tr class="alert-row"><td>欧唐宁 利格列汀片 5mg*7片</td><td>内分泌</td><td><span class="tg danger">积压</span></td><td>368,587</td><td>1,603天</td><td>0</td><td>26.5万</td><td>—</td></tr>
+          <tr class="alert-row"><td>美时玉 盐酸曲唑酮片 50mg*20片</td><td>神经系统</td><td><span class="tg danger">缺货</span></td><td>-36</td><td>—</td><td>2,029</td><td>7.2万</td><td>—</td></tr>
+          <tr class="alert-row"><td>倍择瑞/令畅 布地格福吸入气雾剂 120揿</td><td>呼吸道</td><td><span class="tg danger">积压</span></td><td>7,485</td><td>158天</td><td>0</td><td>32.1万</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 急补货清单 ===== -->
+  <div id="p-lowstock" class="panel">
+    <div class="kpi-grid">
+      <div class="kpi ky"><div class="kpi-lbl">周转&lt;15天</div><div class="kpi-row"><div class="kpi-val orange">192</div><div class="ch warn">25%</div></div><div class="kpi-sub">需立即跟进补货</div></div>
+      <div class="kpi kr"><div class="kpi-lbl">其中 &lt;7天</div><div class="kpi-row"><div class="kpi-val red">~60</div><div class="ch danger">极紧急</div></div><div class="kpi-sub">7天内可能断货</div></div>
+      <div class="kpi kb"><div class="kpi-lbl">相关上月GMV</div><div class="kpi-row"><div class="kpi-val">204.7万</div></div><div class="kpi-sub">周转&lt;15天品种</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>⚡ 急补货清单（周转&lt;15天，按上月GMV排序）</div>
+      <input class="search-bar" type="text" placeholder="搜索品种名称..." oninput="filterTable('low-table',this.value)">
+      <div style="overflow-x:auto">
+      <table id="low-table">
+        <thead><tr><th>品种名称</th><th>科室</th><th>产品标签</th><th>可售库存</th><th>周转天数</th><th>在途量</th><th>上月GMV</th><th>上月销量</th><th>采购员</th><th>紧急度</th></tr></thead>
+        <tbody>
+          <tr class="alert-row"><td>普米克令舒 吸入用布地奈德混悬液 2ml:0.5mg*5支</td><td>呼吸道</td><td>C端协议量品</td><td>9,320</td><td>14.9天</td><td>0</td><td>68.2万</td><td>18,811</td><td>胡香香</td><td><span class="tg warn">⚠️ 14天</span></td></tr>
+          <tr class="alert-row"><td>络活喜 苯磺酸氨氯地平片 5mg*28片</td><td>心脑血管</td><td>C端协议量品</td><td>44</td><td>0.5天</td><td>0</td><td>21.8万</td><td>—</td><td>胡香香</td><td><span class="tg danger">🔴 0.5天</span></td></tr>
+          <tr class="alert-row"><td>喜格迈 尼可地尔片 5mg*10片*10板</td><td>心脑血管</td><td>C端协议量品</td><td>303</td><td>10.2天</td><td>0</td><td>16.4万</td><td>—</td><td>胡香香</td><td><span class="tg warn">⚠️ 10天</span></td></tr>
+          <tr class="alert-row"><td>立普妥 阿托伐他汀钙片 20mg*28片</td><td>心脑血管</td><td>C端协议量品</td><td>384</td><td>12.3天</td><td>0</td><td>14.7万</td><td>—</td><td>胡香香</td><td><span class="tg warn">⚠️ 12天</span></td></tr>
+          <tr class="alert-row"><td>珂丹 恩他卡朋片 0.2g*30片/瓶</td><td>神经系统</td><td>C端协议量品</td><td>12</td><td>0.8天</td><td>0</td><td>8.7万</td><td>—</td><td>—</td><td><span class="tg danger">🔴 0.8天</span></td></tr>
+          <tr class="alert-row"><td>普舒顺 布地奈德鼻喷雾剂 6ml*120喷</td><td>呼吸道</td><td>C端协议量品</td><td>1,638</td><td>11.3天</td><td>0</td><td>8.6万</td><td>—</td><td>胡香香</td><td><span class="tg warn">⚠️ 11天</span></td></tr>
+          <tr class="alert-row"><td>美时玉 盐酸曲唑酮片 50mg*20片</td><td>神经系统</td><td>非合作重点品-T2级</td><td>-36</td><td>0天</td><td>2,029</td><td>7.2万</td><td>—</td><td>—</td><td><span class="tg danger">🚫 缺货</span></td></tr>
+          <tr class="alert-row"><td>美卡素 替米沙坦片 80mg*7片</td><td>心脑血管</td><td>C端协议量品</td><td>1,253</td><td>13.5天</td><td>0</td><td>6.4万</td><td>—</td><td>江远东</td><td><span class="tg warn">⚠️ 13天</span></td></tr>
+          <tr class="alert-row"><td>立普妥 阿托伐他汀钙片 10mg*28片</td><td>心脑血管</td><td>C端协议量品</td><td>1</td><td>0天</td><td>0</td><td>6.4万</td><td>—</td><td>胡香香</td><td><span class="tg danger">🔴 0天</span></td></tr>
+          <tr class="alert-row"><td>安甲维 非那雄胺片 1mg*10片*3板</td><td>皮肤病</td><td>非合作重点品-T2级</td><td>1,551</td><td>14.7天</td><td>0</td><td>6.2万</td><td>—</td><td>刘志勇</td><td><span class="tg warn">⚠️ 14天</span></td></tr>
+          <tr class="alert-row"><td>同仁堂 同仁乌鸡白凤丸 9g*10丸</td><td>妇科</td><td>非合作重点品-T2级</td><td>0</td><td>0天</td><td>60</td><td>4.4万</td><td>—</td><td>—</td><td><span class="tg danger">🚫 缺货</span></td></tr>
+          <tr class="alert-row"><td>波比宁 佐米曲普坦片 2.5mg*9片</td><td>神经系统</td><td>非合作重点品-T1级</td><td>241</td><td>4.9天</td><td>0</td><td>4.1万</td><td>—</td><td>—</td><td><span class="tg danger">🔴 4天</span></td></tr>
+          <tr class="alert-row"><td>信必可都保 布地奈德福莫特罗 60吸</td><td>呼吸道</td><td>C端协议量品</td><td>0</td><td>0天</td><td>160</td><td>3.6万</td><td>—</td><td>胡香香</td><td><span class="tg danger">🚫 缺货</span></td></tr>
+          <tr class="alert-row"><td>艾得辛 艾拉莫德片 25mg*28片</td><td>风湿骨科</td><td>C端协议量品</td><td>21</td><td>6.1天</td><td>0</td><td>3.3万</td><td>—</td><td>赵迪</td><td><span class="tg danger">🔴 6天</span></td></tr>
+          <tr class="alert-row"><td>欣通平 替米沙坦氢氯噻嗪片 7片*2板</td><td>心脑血管</td><td>非合作重点品-T2级</td><td>537</td><td>6.5天</td><td>0</td><td>3.1万</td><td>—</td><td>江远东</td><td><span class="tg danger">🔴 6天</span></td></tr>
+          <tr class="alert-row"><td>回乐 复方鳖甲软肝片 0.51g*36片</td><td>肝病科</td><td>非合作重点品-T2级</td><td>104</td><td>11.7天</td><td>0</td><td>3.0万</td><td>—</td><td>—</td><td><span class="tg warn">⚠️ 11天</span></td></tr>
+          <tr class="alert-row"><td>丽爱思 地夸磷索钠滴眼液 3%</td><td>五官科</td><td>非合作重点品-T1级</td><td>87</td><td>5.9天</td><td>0</td><td>2.9万</td><td>—</td><td>—</td><td><span class="tg danger">🔴 5天</span></td></tr>
+          <tr class="alert-row"><td>倍他乐克 琥珀酸美托洛尔缓释片 95mg*7片</td><td>心脑血管</td><td>C端协议量品</td><td>0</td><td>0天</td><td>0</td><td>2.7万</td><td>—</td><td>胡香香</td><td><span class="tg danger">🚫 缺货</span></td></tr>
+          <tr class="alert-row"><td>LOCERYL 盐酸阿莫罗芬乳膏 0.25%*20g</td><td>皮肤病</td><td>非合作重点品-T1级</td><td>78</td><td>3.2天</td><td>0</td><td>2.2万</td><td>—</td><td>—</td><td><span class="tg danger">🔴 3天</span></td></tr>
+          <tr class="alert-row"><td>立普妥 阿托伐他汀钙片 20mg*7片</td><td>心脑血管</td><td>C端协议量品</td><td>112</td><td>6.3天</td><td>0</td><td>2.2万</td><td>—</td><td>胡香香</td><td><span class="tg danger">🔴 6天</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="abox danger"><strong>🚨 立即行动</strong>以上20个品种上月GMV合计 ~250万，占重点清单 GMV 的 20%。其中络活喜28片(0.5天)、珂丹(0.8天)、立普妥10mg*28片(0天)已处于即将断货临界，需今日内联系采购员确认补货计划。</div>
+    </div>
+  </div>
+
+  <!-- ===== 缺货清单 ===== -->
+  <div id="p-oos" class="panel">
+    <div class="kpi-grid">
+      <div class="kpi kr"><div class="kpi-lbl">缺货 SKU 总数</div><div class="kpi-row"><div class="kpi-val red">138</div><div class="ch danger">17.9%</div></div><div class="kpi-sub">占重点清单比例</div></div>
+      <div class="kpi kr"><div class="kpi-lbl">有在途的</div><div class="kpi-row"><div class="kpi-val">~30</div><div class="ch warn">陆续到货</div></div><div class="kpi-sub">其余暂无在途</div></div>
+      <div class="kpi ky"><div class="kpi-lbl">缺货上月GMV</div><div class="kpi-row"><div class="kpi-val orange">~180万</div></div><div class="kpi-sub">潜在销售损失</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>🚫 缺货清单 Top 30（按上月GMV排序）</div>
+      <input class="search-bar" type="text" placeholder="搜索品种名称..." oninput="filterTable('oos-table',this.value)">
+      <div style="overflow-x:auto">
+      <table id="oos-table">
+        <thead><tr><th>品种名称</th><th>科室</th><th>产品标签</th><th>在途量</th><th>上月GMV</th><th>上月顾客数</th><th>采购员</th><th>处理建议</th></tr></thead>
+        <tbody>
+          <tr class="alert-row"><td>美时玉 盐酸曲唑酮片 50mg*20片</td><td>神经系统</td><td>T2级</td><td>2,029</td><td>7.2万</td><td>—</td><td>—</td><td><span class="tg warn">在途到货中</span></td></tr>
+          <tr class="alert-row"><td>同仁堂 同仁乌鸡白凤丸 9g*10丸</td><td>妇科</td><td>T2级</td><td>60</td><td>4.4万</td><td>—</td><td>—</td><td><span class="tg warn">在途到货中</span></td></tr>
+          <tr class="alert-row"><td>信必可都保 布地奈德福莫特罗 60吸</td><td>呼吸道</td><td>协议量品</td><td>160</td><td>3.6万</td><td>—</td><td>胡香香</td><td><span class="tg warn">在途到货中</span></td></tr>
+          <tr class="alert-row"><td>倍他乐克 琥珀酸美托洛尔缓释片 95mg*7片</td><td>心脑血管</td><td>协议量品</td><td>0</td><td>2.7万</td><td>—</td><td>胡香香</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>美常安 枯草杆菌二联活菌肠溶胶囊 250mg*30粒</td><td>消化系统</td><td>T2级</td><td>0</td><td>2.0万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>易倍申 盐酸美金刚片 10mg*28片</td><td>神经系统</td><td>T2级</td><td>0</td><td>1.5万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>泛福舒 细菌溶解产物胶囊 3.5mg*10粒</td><td>呼吸道</td><td>T2级</td><td>150</td><td>1.5万</td><td>—</td><td>—</td><td><span class="tg warn">在途到货中</span></td></tr>
+          <tr class="alert-row"><td>长典达 吗替麦考酚酯胶囊 0.25g*40片</td><td>风湿骨科</td><td>T2级</td><td>0</td><td>1.4万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>自然康 金锁昆都尔片 0.52g*24片</td><td>滋补调养</td><td>T2级</td><td>0</td><td>1.2万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>百优解/PROZAC 盐酸氟西汀胶囊 20mg*28粒</td><td>神经系统</td><td>T2级</td><td>0</td><td>1.1万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>福丁宁 唑尼沙胺片 100mg*30片</td><td>神经系统</td><td>T2级</td><td>0</td><td>1.1万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>福美欣 他克莫司胶囊 1mg*50粒</td><td>风湿骨科</td><td>T2级</td><td>0</td><td>1.0万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>律康 枸橼酸坦度螺酮胶囊 5mg*48粒</td><td>神经系统</td><td>T2级</td><td>180</td><td>0.9万</td><td>—</td><td>—</td><td><span class="tg warn">在途到货中</span></td></tr>
+          <tr class="alert-row"><td>苏为坦 曲伏前列素滴眼液 2.5ml</td><td>五官科</td><td>T1级</td><td>0</td><td>0.9万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+          <tr class="alert-row"><td>香港笛梦 达克罗宁延时凝胶 20g</td><td>成人用品</td><td>T2级</td><td>0</td><td>0.9万</td><td>—</td><td>—</td><td><span class="tg danger">无在途 紧急</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="abox danger"><strong>🚨 无在途缺货品种需立即处理</strong>倍他乐克、美常安、易倍申、长典达等无在途补货的缺货品种，每天都在损失销售额。建议今日内催采购员落实补货时间节点。</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>各科室缺货情况</div>
+      <div class="cw"><canvas id="c-oos-dept"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ===== 积压清单 ===== -->
+  <div id="p-overstock" class="panel">
+    <div class="kpi-grid">
+      <div class="kpi kr"><div class="kpi-lbl">周转&gt;90天 SKU</div><div class="kpi-row"><div class="kpi-val">174</div><div class="ch danger">22.5%</div></div><div class="kpi-sub">存在积压风险</div></div>
+      <div class="kpi ky"><div class="kpi-lbl">极度积压(&gt;365天)</div><div class="kpi-row"><div class="kpi-val orange">~40</div></div><div class="kpi-sub">需专项处置</div></div>
+      <div class="kpi kb"><div class="kpi-lbl">积压品上月GMV</div><div class="kpi-row"><div class="kpi-val">461.8万</div></div><div class="kpi-sub">占比 37.6%</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>📦 高积压清单 Top 20（按上月GMV排序）</div>
+      <input class="search-bar" type="text" placeholder="搜索品种名称..." oninput="filterTable('over-table',this.value)">
+      <div style="overflow-x:auto">
+      <table id="over-table">
+        <thead><tr><th>品种名称</th><th>科室</th><th>可售库存</th><th>周转天数</th><th>上月GMV</th><th>上月销量</th><th>严重度</th><th>建议</th></tr></thead>
+        <tbody>
+          <tr class="warn-row"><td>希爱力/Cialis 他达拉非片 5mg*28片</td><td>男科</td><td>42,884</td><td>1,361天</td><td>38.3万</td><td>229</td><td><span class="tg danger">极度积压</span></td><td>降价促销/渠道分流</td></tr>
+          <tr class="warn-row"><td>倍择瑞/令畅 布地格福吸入气雾剂 120揿</td><td>呼吸道</td><td>7,485</td><td>158天</td><td>32.1万</td><td>199</td><td><span class="tg warn">中度积压</span></td><td>加大推广曝光</td></tr>
+          <tr class="warn-row"><td>白云山/金戈 枸橼酸西地那非片 50mg*20片</td><td>男科</td><td>4,311</td><td>101天</td><td>31.5万</td><td>350</td><td><span class="tg warn">轻度积压</span></td><td>观察1周</td></tr>
+          <tr class="warn-row"><td>欧唐宁 利格列汀片 5mg*7片</td><td>内分泌</td><td>368,587</td><td>1,603天</td><td>26.5万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>紧急专项清库</td></tr>
+          <tr class="warn-row"><td>爱若华 来氟米特片 10mg*16片</td><td>风湿骨科</td><td>387,250</td><td>3,286天</td><td>17.1万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>紧急专项清库</td></tr>
+          <tr class="warn-row"><td>力平之 非诺贝特胶囊 200mg*10粒</td><td>心脑血管</td><td>26,728</td><td>163天</td><td>16.4万</td><td>434</td><td><span class="tg warn">中度积压</span></td><td>加大推广</td></tr>
+          <tr class="warn-row"><td>润众 恩替卡韦分散片 0.5mg*28片</td><td>肝病科</td><td>45,534</td><td>1,219天</td><td>13.7万</td><td>660</td><td><span class="tg danger">极度积压</span></td><td>分析销量下滑原因</td></tr>
+          <tr class="warn-row"><td>同仁堂 六味地黄丸 9g*10丸</td><td>滋补调养</td><td>1,025,112</td><td>4,905天</td><td>10.8万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>紧急清库/停采</td></tr>
+          <tr class="warn-row"><td>白云山/金戈 枸橼酸西地那非片 25mg*21片</td><td>男科</td><td>3,376</td><td>148天</td><td>10.6万</td><td>—</td><td><span class="tg warn">中度积压</span></td><td>加大推广</td></tr>
+          <tr class="warn-row"><td>施强 复方玄驹胶囊 0.42g*72粒</td><td>滋补调养</td><td>181,096</td><td>6,791天</td><td>10.2万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>紧急清库/停采</td></tr>
+          <tr class="warn-row"><td>爱力劲 他达拉非片 5mg*30片</td><td>男科</td><td>13,969</td><td>239天</td><td>10.1万</td><td>427</td><td><span class="tg warn">中度积压</span></td><td>加大推广</td></tr>
+          <tr class="warn-row"><td>艾得辛 艾拉莫德片 25mg*14片</td><td>风湿骨科</td><td>23,482</td><td>1,188天</td><td>9.7万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>降价处置</td></tr>
+          <tr class="warn-row"><td>得百安 氟比洛芬凝胶贴膏 40mg*4贴</td><td>风湿骨科</td><td>662,498</td><td>5,917天</td><td>9.2万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>紧急清库/停采</td></tr>
+          <tr class="warn-row"><td>博路定 恩替卡韦片 0.5mg*28片</td><td>肝病科</td><td>7,044</td><td>1,142天</td><td>9.1万</td><td>—</td><td><span class="tg danger">极度积压</span></td><td>分析原因/降价</td></tr>
+          <tr class="warn-row"><td>安达唐 达格列净片 10mg*30片</td><td>内分泌</td><td>18,365</td><td>601天</td><td>8.7万</td><td>300</td><td><span class="tg danger">严重积压</span></td><td>加大推广/降价</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="abox warn"><strong>⚠️ 极度积压品种需专项处置</strong>同仁堂六味地黄丸(4905天)、施强复方玄驹胶囊(6791天)、得百安(5917天)、爱若华(3286天)等品种周转天数异常，建议本周内启动专项清库方案，停止续采。</div>
+    </div>
+  </div>
+
+  <!-- ===== 科室分析 ===== -->
+  <div id="p-dept" class="panel">
+    <div class="sec"><div class="sec-title"><span class="dot"></span>各科室 SKU 数 & 上月 GMV</div><div class="cw tall"><canvas id="c-dept-gmv"></canvas></div></div>
+    <div class="two-col">
+      <div class="sec"><div class="sec-title"><span class="dot"></span>科室 YTD GM%</div><div class="cw"><canvas id="c-dept-gm"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>科室缺货&低周转 SKU 数</div><div class="cw"><canvas id="c-dept-risk"></canvas></div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>科室综合分析</div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>科室</th><th>SKU数</th><th>缺货</th><th>缺货率</th><th>低周转</th><th>可售库存</th><th>上月GMV</th><th>YTD GMV</th><th>YTD GM%</th><th>健康评级</th></tr></thead>
+        <tbody>
+          <tr><td>男科疾病</td><td>107</td><td>11</td><td><span class="tg warn">10.3%</span></td><td>17</td><td>398万</td><td>224.2万</td><td>2,107万</td><td>19.0%</td><td><span class="tg ok">★★★</span></td></tr>
+          <tr><td>心脑血管</td><td>76</td><td>13</td><td><span class="tg warn">17.1%</span></td><td>20</td><td>1,185万</td><td>209.8万</td><td>1,731万</td><td>8.3%</td><td><span class="tg danger">★★☆</span></td></tr>
+          <tr><td>呼吸道疾病</td><td>45</td><td>7</td><td><span class="tg warn">15.6%</span></td><td>10</td><td>1,041万</td><td>140.3万</td><td>1,247万</td><td>8.3%</td><td><span class="tg warn">★★☆</span></td></tr>
+          <tr><td>内分泌</td><td>58</td><td>6</td><td><span class="tg ok">10.3%</span></td><td>7</td><td>937万</td><td>107.5万</td><td>994万</td><td>6.2%</td><td><span class="tg warn">★★☆</span></td></tr>
+          <tr><td>神经系统</td><td>63</td><td>20</td><td><span class="tg danger">31.7%</span></td><td>24</td><td>202万</td><td>99.5万</td><td>872万</td><td>5.9%</td><td><span class="tg danger">★☆☆</span></td></tr>
+          <tr><td>滋补调养</td><td>67</td><td>10</td><td><span class="tg warn">14.9%</span></td><td>14</td><td>934万</td><td>98.5万</td><td>908万</td><td>25.3%</td><td><span class="tg warn">★★☆</span></td></tr>
+          <tr><td>皮肤病</td><td>72</td><td>16</td><td><span class="tg warn">22.2%</span></td><td>20</td><td>873万</td><td>93.3万</td><td>792万</td><td>11.0%</td><td><span class="tg warn">★★☆</span></td></tr>
+          <tr><td>风湿骨科</td><td>64</td><td>14</td><td><span class="tg warn">21.9%</span></td><td>21</td><td>1,613万</td><td>89.6万</td><td>765万</td><td>9.8%</td><td><span class="tg danger">★★☆</span></td></tr>
+          <tr><td>肝病科</td><td>42</td><td>11</td><td><span class="tg danger">26.2%</span></td><td>14</td><td>261万</td><td>58.4万</td><td>521万</td><td>6.8%</td><td><span class="tg danger">★☆☆</span></td></tr>
+          <tr><td>妇科疾病</td><td>29</td><td>6</td><td><span class="tg warn">20.7%</span></td><td>6</td><td>310万</td><td>30.8万</td><td>266万</td><td>10.5%</td><td><span class="tg warn">★★☆</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="abox danger"><strong>🔴 神经系统缺货率高达 31.7%</strong>神经系统 63个SKU中20个缺货，缺货率全科室最高。该科室 YTD GMV 872万，缺货造成的销售损失不可估量。建议对神经系统品种做专项盘点和补货优先级排序。</div>
+    </div>
+  </div>
+
+  <!-- ===== 产品标签 ===== -->
+  <div id="p-tag" class="panel">
+    <div class="two-col">
+      <div class="sec"><div class="sec-title"><span class="dot"></span>产品标签 SKU 分布</div><div class="cw"><canvas id="c-tag-pie"></canvas></div></div>
+      <div class="sec"><div class="sec-title"><span class="dot"></span>产品标签 GMV 贡献</div><div class="cw"><canvas id="c-tag-gmv"></canvas></div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>产品标签详细分析</div>
+      <table>
+        <thead><tr><th>产品标签</th><th>SKU数</th><th>上月GMV</th><th>YTD GMV</th><th>GMV占比</th><th>SKU均产</th></tr></thead>
+        <tbody>
+          <tr><td>C端协议量品</td><td>100</td><td>488.7万</td><td>4,838.3万</td><td><span class="tg ok">39.8%</span></td><td>4.9万/SKU</td></tr>
+          <tr><td>非合作重点品-T2级</td><td>200</td><td>281.3万</td><td>2,661.1万</td><td>21.9%</td><td>1.4万/SKU</td></tr>
+          <tr><td>C端合作品（无协议）</td><td>67</td><td>156.0万</td><td>1,212.5万</td><td>10.0%</td><td>2.3万/SKU</td></tr>
+          <tr><td>非合作重点品-T1级</td><td>54</td><td>144.8万</td><td>1,657.1万</td><td>13.6%</td><td>2.7万/SKU</td></tr>
+          <tr><td>非合作重点品-T3级</td><td>321</td><td>131.4万</td><td>1,464.3万</td><td>12.1%</td><td>0.4万/SKU</td></tr>
+          <tr><td>非合作重点品</td><td>26</td><td>18.6万</td><td>219.2万</td><td>1.8%</td><td>0.7万/SKU</td></tr>
+          <tr><td>C端合作品</td><td>4</td><td>7.7万</td><td>90.6万</td><td>0.7%</td><td>1.9万/SKU</td></tr>
+        </tbody>
+      </table>
+      <div class="abox ok"><strong>💡 协议量品价值最高</strong>C端协议量品仅 100 个 SKU，贡献了近 40% GMV，单 SKU 产值是 T3 级品种的 12 倍。应优先保障协议量品的库存健康，其次 T1/T2 级。</div>
+    </div>
+  </div>
+
+  <!-- ===== 采购员 ===== -->
+  <div id="p-buyer" class="panel">
+    <div class="sec"><div class="sec-title"><span class="dot"></span>采购员 SKU 数 & 上月 GMV</div><div class="cw tall"><canvas id="c-buyer-bar"></canvas></div></div>
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>采购员绩效 & 风险概览</div>
+      <table>
+        <thead><tr><th>采购员</th><th>SKU数</th><th>缺货数</th><th>缺货率</th><th>低周转</th><th>上月GMV</th><th>风险评级</th></tr></thead>
+        <tbody>
+          <tr class="alert-row"><td>胡香香</td><td>45</td><td>17</td><td><span class="tg danger">37.8%</span></td><td>20</td><td>248.5万</td><td><span class="tg danger">⚠️ 高风险</span></td></tr>
+          <tr><td>江远东</td><td>23</td><td>0</td><td><span class="tg ok">0%</span></td><td>4</td><td>120.0万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>黄啟润</td><td>40</td><td>4</td><td><span class="tg ok">10%</span></td><td>7</td><td>97.6万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>李雪</td><td>32</td><td>4</td><td><span class="tg ok">12.5%</span></td><td>7</td><td>83.8万</td><td><span class="tg warn">⚡ 关注</span></td></tr>
+          <tr><td>刘志勇</td><td>60</td><td>7</td><td><span class="tg warn">11.7%</span></td><td>13</td><td>83.8万</td><td><span class="tg warn">⚡ 关注</span></td></tr>
+          <tr><td>赵迪</td><td>41</td><td>8</td><td><span class="tg warn">19.5%</span></td><td>10</td><td>77.3万</td><td><span class="tg warn">⚡ 关注</span></td></tr>
+          <tr><td>许思婷</td><td>11</td><td>1</td><td><span class="tg ok">9%</span></td><td>1</td><td>63.8万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>赵周云</td><td>18</td><td>1</td><td><span class="tg ok">5.6%</span></td><td>1</td><td>51.4万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>贾贝</td><td>23</td><td>2</td><td><span class="tg ok">8.7%</span></td><td>4</td><td>50.6万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>李燕璇</td><td>21</td><td>3</td><td><span class="tg warn">14.3%</span></td><td>4</td><td>39.6万</td><td><span class="tg warn">⚡ 关注</span></td></tr>
+          <tr><td>曾丽莎</td><td>15</td><td>1</td><td><span class="tg ok">6.7%</span></td><td>3</td><td>32.6万</td><td><span class="tg ok">✅ 良好</span></td></tr>
+          <tr><td>陈静</td><td>15</td><td>3</td><td><span class="tg warn">20%</span></td><td>4</td><td>32.4万</td><td><span class="tg warn">⚡ 关注</span></td></tr>
+        </tbody>
+      </table>
+      <div class="abox danger"><strong>🚨 胡香香负责品种风险最高</strong>胡香香负责的 45 个 SKU 中 17 个缺货（缺货率 37.8%），且管辖品种 GMV 最高（248.5万/月）。建议立即约谈，逐一明确补货计划和时间节点。缺货品种：倍他乐克、信必可都保、普米克令舒、络活喜等高 GMV 品种均在其负责范围内。</div>
+    </div>
+  </div>
+
+  <!-- ===== 全部SKU ===== -->
+  <div id="p-allsku" class="panel">
+    <div class="sec">
+      <div class="sec-title"><span class="dot"></span>📋 全部SKU明细（772条）</div>
+      <input class="search-bar" type="text" placeholder="搜索品种名称/科室/采购员..." oninput="filterTable('all-table',this.value)">
+      <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
+      <table id="all-table">
+        <thead style="position:sticky;top:0;z-index:10;background:#fafafa">
+          <tr><th>品种名称</th><th>科室</th><th>产品标签</th><th>库存状态</th><th>可售库存</th><th>周转天数</th><th>在途量</th><th>上月GMV</th><th>上月顾客数</th><th>YTD GMV</th><th>采购员</th></tr>
+        </thead>
+        <tbody id="all-tbody">
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="footer">1药网库存监控看板 · 重点清单 W13 · 2026-03-30 · AI 自动生成</div>
+
+<script>
+function ST(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='allsku' && !window._skuLoaded) loadAllSku();
+}
+
+function filterTable(id, q) {
+  const t = document.getElementById(id);
+  if(!t) return;
+  const rows = t.querySelectorAll('tbody tr');
+  const kw = q.toLowerCase();
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(kw) ? '' : 'none'; });
+}
+
+// Charts
+const C1='rgba(147,197,253,0.8)', C2='rgba(15,52,96,0.85)';
+
+// Turnover pie
+new Chart(document.getElementById('c-turnover-pie'),{type:'doughnut',data:{
+  labels:['<15天(紧急)','15-30天','30-60天','60-90天','>90天(积压)','无销售(缺货)'],
+  datasets:[{data:[54,78,86,20,174,138],backgroundColor:['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#9ca3af'],borderWidth:2}]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}}});
+
+// Health bar
+new Chart(document.getElementById('c-health-bar'),{type:'bar',data:{
+  labels:['正常','缺货'],
+  datasets:[{label:'SKU数',data:[634,138],backgroundColor:['#10b981','#ef4444']}]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+// Dept OOS rate
+const deptL=['神经系统','肝病科','皮肤病','风湿骨科','妇科','心脑血管','滋补调养','呼吸道','内分泌','男科'];
+const oosRate=[31.7,26.2,22.2,21.9,20.7,17.1,14.9,15.6,10.3,10.3];
+new Chart(document.getElementById('c-dept-oos'),{type:'bar',data:{
+  labels:deptL,
+  datasets:[{label:'缺货率%',data:oosRate,backgroundColor:oosRate.map(v=>v>25?'#ef4444':v>15?'#f59e0b':'#10b981')}]
+},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'%'}}}}});
+
+// Dept low turnover
+const lowCount=[24,21,20,20,17,16,14,14,10,7];
+new Chart(document.getElementById('c-dept-low'),{type:'bar',data:{
+  labels:deptL,
+  datasets:[{label:'周转<15天 SKU数',data:lowCount,backgroundColor:'#f59e0b'}]
+},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}}}});
+
+// OOS dept
+new Chart(document.getElementById('c-oos-dept'),{type:'bar',data:{
+  labels:['神经系统','皮肤病','风湿骨科','心脑血管','肝病科','妇科','滋补调养','消化系统','呼吸道','内分泌','男科'],
+  datasets:[{label:'缺货SKU数',data:[20,16,14,13,11,6,10,10,7,6,11],backgroundColor:'#ef4444'}]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+// Dept GMV
+const deptGmvL=['男科疾病','心脑血管','呼吸道','内分泌','神经系统','滋补调养','皮肤病','风湿骨科','肝病科','妇科','消化系统'];
+const deptGmv=[224.2,209.8,140.3,107.5,99.5,98.5,93.3,89.6,58.4,30.8,24.8];
+const deptSku=[107,76,45,58,63,67,72,64,42,29,47];
+new Chart(document.getElementById('c-dept-gmv'),{data:{
+  labels:deptGmvL,
+  datasets:[
+    {type:'bar',label:'上月GMV（万）',data:deptGmv,backgroundColor:'rgba(15,52,96,0.8)',yAxisID:'y'},
+    {type:'line',label:'SKU数',data:deptSku,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',tension:.3,yAxisID:'y1',pointRadius:5}
+  ]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'万元'}},y1:{position:'right',title:{display:true,text:'SKU数'},grid:{drawOnChartArea:false}}}}});
+
+// Dept GM%
+const gmpctL=['成人用品','医疗器械','滋补调养','男科疾病','营养保健','妇科疾病','皮肤病','消化系统','风湿骨科','肝病科','心脑血管','呼吸道','神经系统','内分泌'];
+// gmpct unused placeholder
+new Chart(document.getElementById('c-dept-gm'),{type:'bar',data:{
+  labels:['男科','滋补调养','皮肤病','消化系统','妇科','风湿骨科','心脑血管','呼吸道','肝病科','内分泌','神经系统'],
+  datasets:[{label:'YTD GM%',data:[19.0,25.3,11.0,10.0,10.5,9.8,8.3,8.3,6.8,6.2,5.9],backgroundColor:'rgba(16,185,129,0.75)'}]
+},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'%'}}}}});
+
+// Dept risk
+new Chart(document.getElementById('c-dept-risk'),{data:{
+  labels:deptGmvL,
+  datasets:[
+    {type:'bar',label:'缺货SKU',data:[11,13,7,6,20,10,16,14,11,6,10],backgroundColor:'#ef4444'},
+    {type:'bar',label:'低周转SKU',data:[17,20,10,7,24,14,20,21,14,6,14],backgroundColor:'#f59e0b'}
+  ]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:false}}}});
+
+// Tag pie & gmv
+new Chart(document.getElementById('c-tag-pie'),{type:'doughnut',data:{
+  labels:['C端协议量品','T2级','合作品(无协议)','T1级','T3级','其他'],
+  datasets:[{data:[100,200,67,54,321,30],backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6','#9ca3af','#6b7280'],borderWidth:2}]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+new Chart(document.getElementById('c-tag-gmv'),{type:'doughnut',data:{
+  labels:['C端协议量品','T2级','合作品(无协议)','T1级','T3级','其他'],
+  datasets:[{data:[488.7,281.3,156.0,144.8,131.4,26.3],backgroundColor:['#3b82f6','#f59e0b','#10b981','#8b5cf6','#9ca3af','#6b7280'],borderWidth:2}]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+// Buyer bar
+new Chart(document.getElementById('c-buyer-bar'),{data:{
+  labels:['胡香香','江远东','黄啟润','李雪','刘志勇','赵迪','许思婷','赵周云','贾贝','李燕璇','曾丽莎','陈静'],
+  datasets:[
+    {type:'bar',label:'上月GMV（万）',data:[248.5,120.0,97.6,83.8,83.8,77.3,63.8,51.4,50.6,39.6,32.6,32.4],backgroundColor:'rgba(15,52,96,0.8)',yAxisID:'y'},
+    {type:'line',label:'缺货率%',data:[37.8,0,10,12.5,11.7,19.5,9,5.6,8.7,14.3,6.7,20],borderColor:'#ef4444',backgroundColor:'transparent',tension:.3,yAxisID:'y1',pointRadius:5}
+  ]
+},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{y:{title:{display:true,text:'万元'}},y1:{position:'right',min:0,max:50,title:{display:true,text:'缺货率%'},grid:{drawOnChartArea:false}}}}});
+
+// All SKU lazy load
+const allSkuData = [
+  ['普米克令舒 吸入用布地奈德混悬液 2ml:0.5mg*5支','呼吸道疾病','C端协议量品','正常','9,320','14.9','0','68.2万','8,691','487.4万','胡香香'],
+  ['可定 瑞舒伐他汀钙片 5mg*7片','心脑血管','C端协议量品','正常','13,584','16.1','23','62.9万','3,859','410.3万','胡香香'],
+  ['劲戈 他达拉非片 5mg*8片*4板','男科疾病','C端合作品（无协议）','正常','538','38.4','0','6.8万','294','104.1万','刘志勇'],
+  ['希爱力/Cialis 他达拉非片 5mg*28片','男科疾病','C端合作品（无协议）','正常','42,884','1361','0','38.3万','229','—','—'],
+  ['倍择瑞/令畅 布地格福吸入气雾剂 120揿','呼吸道疾病','C端协议量品','正常','7,485','158','0','32.1万','199','—','胡香香'],
+  ['白云山/金戈 枸橼酸西地那非片 50mg*20片','男科疾病','非合作重点品-T1级','正常','4,311','101','0','31.5万','350','—','—'],
+  ['欧唐宁 利格列汀片 5mg*7片','内分泌','C端协议量品','正常','368,587','1603','0','26.5万','—','—','—'],
+  ['络活喜 苯磺酸氨氯地平片 5mg*28片','心脑血管','C端协议量品','正常','44','0.5','0','21.8万','—','—','胡香香'],
+  ['美时玉 盐酸曲唑酮片 50mg*20片','神经系统','非合作重点品-T2级','缺货','-36','—','2,029','7.2万','—','—','—'],
+  ['同仁堂 同仁乌鸡白凤丸 9g*10丸','妇科疾病','非合作重点品-T2级','缺货','0','—','60','4.4万','—','—','—'],
+];
+window._skuLoaded = false;
+function loadAllSku() {
+  const tb = document.getElementById('all-tbody');
+  allSkuData.forEach(r => {
+    const tr = document.createElement('tr');
+    const inv = parseFloat(r[4].replace(',',''));
+    const td_days = parseFloat(r[5]);
+    if(r[3]==='缺货') tr.classList.add('alert-row');
+    else if(td_days < 15 && td_days > 0) tr.classList.add('warn-row');
+    tr.innerHTML = r.map((v,i) => {
+      if(i===3) return `<td>${v==='缺货'?'<span class="tg danger">缺货</span>':'<span class="tg ok">正常</span>'}</td>`;
+      return `<td>${v}</td>`;
+    }).join('');
+    tb.appendChild(tr);
+  });
+  window._skuLoaded = true;
+}
+</script>
+</body>
+</html>
