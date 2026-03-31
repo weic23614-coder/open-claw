@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>药网 Q1 业务诊断报告 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0d1117;color:#e0e0e0}
+.header{background:linear-gradient(135deg,#0a1628,#1a3a5c);padding:30px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.header h1{font-size:24px;color:#fff;font-weight:700}
+.header p{font-size:13px;color:rgba(255,255,255,0.4);margin-top:6px}
+.tabs{display:flex;background:#161b27;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 30px;overflow-x:auto}
+.tab{padding:13px 18px;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.45);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:#5dade2;border-bottom-color:#5dade2}
+.tab:hover{color:#fff}
+.panel{display:none;padding:26px 36px}
+.panel.active{display:block}
+.kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.kpi{flex:1;min-width:140px;background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px 18px}
+.kpi-label{font-size:11px;color:rgba(255,255,255,0.38);letter-spacing:1px;margin-bottom:5px}
+.kpi-val{font-size:24px;font-weight:700;color:#fff}
+.kpi-val span{font-size:12px;font-weight:400;color:rgba(255,255,255,0.3)}
+.kpi-sub{font-size:11px;margin-top:3px}
+.kpi-sub.up{color:#2ecc71}.kpi-sub.down{color:#e74c3c}.kpi-sub.flat{color:rgba(255,255,255,0.35)}
+.kpi.blue .kpi-val{color:#5dade2}.kpi.green .kpi-val{color:#2ecc71}.kpi.red .kpi-val{color:#e74c3c}.kpi.orange .kpi-val{color:#e67e22}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.box{background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px 20px}
+.box.wide{grid-column:1/-1}
+.box h3{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:14px}
+canvas{max-height:260px}
+.stitle{font-size:14px;font-weight:600;color:#fff;margin:20px 0 10px;padding-left:10px;border-left:3px solid #3498db}
+.twrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#1e2535;color:rgba(255,255,255,0.4);padding:9px 11px;text-align:left;white-space:nowrap;font-weight:500}
+td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.up{color:#2ecc71}.down{color:#e74c3c}.warn{color:#e67e22}
+.tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px}
+.tag-mp{background:rgba(230,126,34,0.2);color:#e67e22}
+.tag-zy{background:rgba(52,152,219,0.2);color:#5dade2}
+.tag-jbp{background:rgba(46,204,113,0.2);color:#2ecc71}
+.insight{background:rgba(52,152,219,0.07);border:1px solid rgba(52,152,219,0.18);border-radius:9px;padding:13px 16px;margin-bottom:10px;font-size:13px;line-height:1.8;color:rgba(255,255,255,0.82)}
+.alert{background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.2);border-radius:9px;padding:13px 16px;margin-bottom:10px;font-size:13px;line-height:1.8;color:rgba(255,255,255,0.82)}
+.insight strong{color:#5dade2}.alert strong{color:#e74c3c}
+@media(max-width:768px){.grid2,.grid3{grid-template-columns:1fr}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 药网 Q1 出库业务诊断 · 2026年1-3月</h1>
+  <p>数据口径：出库明细 · 共130,303条记录 · 覆盖19个科室 × 4个平台 × 3种业务模式</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="st('overview',event)">总览</div>
+  <div class="tab" onclick="st('dept',event)">科室分析</div>
+  <div class="tab" onclick="st('platform',event)">平台/模式</div>
+  <div class="tab" onclick="st('product',event)">商品TOP40</div>
+  <div class="tab" onclick="st('negatives',event)">⚠️ 负毛品</div>
+  <div class="tab" onclick="st('insight',event)">💡 诊断建议</div>
+</div>
+
+<div class="panel active" id="tab-overview">
+  <div class="kpi-row">
+    <div class="kpi blue"><div class="kpi-label">Q1 GMV合计</div><div class="kpi-val">8,856<span>万</span></div><div class="kpi-sub flat">1月3478 | 2月2205 | 3月3174</div></div>
+    <div class="kpi"><div class="kpi-label">Q1 Revenue合计</div><div class="kpi-val">5,597<span>万</span></div><div class="kpi-sub flat">合计</div></div>
+    <div class="kpi green"><div class="kpi-label">Q1 GM合计</div><div class="kpi-val">828<span>万</span></div><div class="kpi-sub flat">1月331 | 2月205 | 3月292</div></div>
+    <div class="kpi orange"><div class="kpi-label">3月 GM/GMV</div><div class="kpi-val">9.2<span>%</span></div><div class="kpi-sub down">1月9.5% → 2月9.3% → 3月9.2% ↓</div></div>
+    <div class="kpi red"><div class="kpi-label">3月负毛利SKU</div><div class="kpi-val">412<span>个</span></div><div class="kpi-sub down">合计损失 -12.8万</div></div>
+  </div>
+  <div class="grid2">
+    <div class="box"><h3>月度 GMV 趋势（万元）</h3><canvas id="gmvLine"></canvas></div>
+    <div class="box"><h3>月度 GM 及 GM/GMV 趋势</h3><canvas id="gmLine"></canvas></div>
+    <div class="box wide"><h3>各科室 GMV 月度对比（万元）</h3><canvas id="deptBar" style="max-height:320px"></canvas></div>
+  </div>
+</div>
+
+<div class="panel" id="tab-dept">
+  <div class="stitle">科室 GMV 月度趋势（万元）</div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>科室</th><th>1月GMV</th><th>2月GMV</th><th>3月GMV</th><th>2-3月环比</th><th>3月GM</th><th>3月GM/GMV</th><th>走势</th></tr></thead>
+      <tbody>
+<tr>
+      <td><strong>心脑血管</strong></td>
+      <td>628.5</td><td>369.0</td><td><strong>618.8</strong></td>
+      <td class="up">+67.7% ↑</td>
+      <td>49.0</td>
+      <td class="down">7.9%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>男科疾病</strong></td>
+      <td>396.9</td><td>279.2</td><td><strong>361.0</strong></td>
+      <td class="up">+29.3% ↑</td>
+      <td>52.3</td>
+      <td class="up">14.5%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>神经系统</strong></td>
+      <td>388.2</td><td>202.5</td><td><strong>327.5</strong></td>
+      <td class="up">+61.7% ↑</td>
+      <td>22.4</td>
+      <td class="down">6.8%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>滋补调养</strong></td>
+      <td>226.6</td><td>157.3</td><td><strong>226.9</strong></td>
+      <td class="up">+44.3% ↑</td>
+      <td>37.2</td>
+      <td class="up">16.4%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>肝病科</strong></td>
+      <td>173.6</td><td>117.1</td><td><strong>222.3</strong></td>
+      <td class="up">+89.9% ↑</td>
+      <td>16.4</td>
+      <td class="down">7.4%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>皮肤病</strong></td>
+      <td>191.3</td><td>138.1</td><td><strong>209.5</strong></td>
+      <td class="up">+51.7% ↑</td>
+      <td>21.7</td>
+      <td class="warn">10.4%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>风湿骨科</strong></td>
+      <td>216.5</td><td>155.5</td><td><strong>208.1</strong></td>
+      <td class="up">+33.8% ↑</td>
+      <td>17.1</td>
+      <td class="warn">8.2%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>内分泌</strong></td>
+      <td>260.4</td><td>156.3</td><td><strong>201.1</strong></td>
+      <td class="up">+28.7% ↑</td>
+      <td>13.5</td>
+      <td class="down">6.7%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>呼吸道疾病</strong></td>
+      <td>391.8</td><td>201.2</td><td><strong>193.4</strong></td>
+      <td class="down">-3.9% →</td>
+      <td>16.6</td>
+      <td class="warn">8.6%</td>
+      <td style="font-size:18px">→</td>
+    </tr><tr>
+      <td><strong>消化系统疾病</strong></td>
+      <td>132.6</td><td>86.9</td><td><strong>126.0</strong></td>
+      <td class="up">+44.9% ↑</td>
+      <td>11.3</td>
+      <td class="warn">9.0%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>营养保健</strong></td>
+      <td>97.9</td><td>67.5</td><td><strong>114.0</strong></td>
+      <td class="up">+68.8% ↑</td>
+      <td>8.6</td>
+      <td class="down">7.6%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>医疗器械</strong></td>
+      <td>86.7</td><td>62.2</td><td><strong>83.4</strong></td>
+      <td class="up">+34.1% ↑</td>
+      <td>3.7</td>
+      <td class="down">4.4%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>五官科疾病</strong></td>
+      <td>66.4</td><td>41.0</td><td><strong>59.6</strong></td>
+      <td class="up">+45.3% ↑</td>
+      <td>4.5</td>
+      <td class="down">7.6%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>肿瘤科</strong></td>
+      <td>53.5</td><td>37.8</td><td><strong>52.7</strong></td>
+      <td class="up">+39.7% ↑</td>
+      <td>3.9</td>
+      <td class="down">7.4%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>维生素、钙剂</strong></td>
+      <td>41.4</td><td>28.6</td><td><strong>52.7</strong></td>
+      <td class="up">+84.3% ↑</td>
+      <td>3.2</td>
+      <td class="down">6.1%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>妇科疾病</strong></td>
+      <td>59.4</td><td>57.5</td><td><strong>48.2</strong></td>
+      <td class="down">-16.1% ↓</td>
+      <td>4.0</td>
+      <td class="warn">8.2%</td>
+      <td style="font-size:18px">↓</td>
+    </tr><tr>
+      <td><strong>美妆个护</strong></td>
+      <td>39.0</td><td>26.0</td><td><strong>39.2</strong></td>
+      <td class="up">+51.1% ↑</td>
+      <td>1.9</td>
+      <td class="down">4.7%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>成人用品</strong></td>
+      <td>26.5</td><td>21.2</td><td><strong>28.8</strong></td>
+      <td class="up">+36.3% ↑</td>
+      <td>4.7</td>
+      <td class="up">16.3%</td>
+      <td style="font-size:18px">↑</td>
+    </tr><tr>
+      <td><strong>隐形眼镜</strong></td>
+      <td>0.6</td><td>0.1</td><td><strong>0.4</strong></td>
+      <td class="up">+179.8% ↑</td>
+      <td>0.1</td>
+      <td class="up">18.0%</td>
+      <td style="font-size:18px">↑</td>
+    </tr></tbody></table></div>
+  <div class="grid2">
+    <div class="box"><h3>3月科室 GMV 占比</h3><canvas id="deptPie3"></canvas></div>
+    <div class="box"><h3>3月科室 GM/GMV 对比</h3><canvas id="deptGmr"></canvas></div>
+  </div>
+</div>
+
+<div class="panel" id="tab-platform">
+  <div class="stitle">平台 × 月度 GMV（万元）</div>
+  <div class="kpi-row">
+<div class="kpi"><div class="kpi-label">官网/APP</div>
+      <div class="kpi-val">1672.4<span>万</span></div>
+      <div class="kpi-sub up">环比+46.5% | GM/GMV 7.0%</div></div><div class="kpi"><div class="kpi-label">官网/H5</div>
+      <div class="kpi-val">264.8<span>万</span></div>
+      <div class="kpi-sub up">环比+53.3% | GM/GMV 13.4%</div></div><div class="kpi"><div class="kpi-label">三方平台</div>
+      <div class="kpi-val">1150.3<span>万</span></div>
+      <div class="kpi-sub up">环比+37.7% | GM/GMV 9.3%</div></div><div class="kpi"><div class="kpi-label">官网/PC</div>
+      <div class="kpi-val">86.2<span>万</span></div>
+      <div class="kpi-sub up">环比+56.2% | GM/GMV 37.3%</div></div></div>
+  <div class="grid2">
+    <div class="box"><h3>平台 GMV 月度趋势</h3><canvas id="platLine"></canvas></div>
+    <div class="box"><h3>业务模式 GMV 月度趋势</h3><canvas id="bizLine"></canvas></div>
+    <div class="box"><h3>3月平台 GMV 占比</h3><canvas id="platPie"></canvas></div>
+    <div class="box"><h3>3月业务模式 GM 对比</h3><canvas id="bizGm"></canvas></div>
+  </div>
+  <div class="stitle">业务模式详细数据</div>
+  <div class="twrap"><table>
+    <thead><tr><th>业务模式</th><th>1月GMV</th><th>2月GMV</th><th>3月GMV</th><th>1月GM</th><th>2月GM</th><th>3月GM</th><th>3月GM/GMV</th></tr></thead><tbody>
+<tr><td><span class='tag tag-mp'>MP</span></td><td>1080.6</td><td>655.8</td><td><strong>981.6</strong></td><td>65.5</td><td>39.5</td><td>59.3</td><td>6.0%</td></tr><tr><td><span class='tag tag-zy'>自营备货</span></td><td>2013.4</td><td>1288.7</td><td><strong>1856.6</strong></td><td>214.5</td><td>132.7</td><td>190.8</td><td>10.3%</td></tr><tr><td><span class='tag tag-jbp'>自营JBP</span></td><td>383.8</td><td>260.4</td><td><strong>335.5</strong></td><td>51.0</td><td>32.8</td><td>41.8</td><td>12.5%</td></tr></tbody></table></div></div>
+<div class="panel" id="tab-product">
+  <div class="stitle">3月 GMV TOP 40 商品</div>
+  <div class="twrap"><table>
+    <thead><tr><th>#</th><th>产品名称</th><th>科室</th><th>业务模式</th><th>3月GMV</th><th>3月GM</th><th>GM/GMV</th></tr></thead><tbody id="topTbody"></tbody>
+  </table></div>
+</div>
+
+<div class="panel" id="tab-negatives">
+  <div class="kpi-row">
+    <div class="kpi red"><div class="kpi-label">3月负毛利SKU数</div><div class="kpi-val">412<span>个</span></div><div class="kpi-sub down">需逐一排查</div></div>
+    <div class="kpi red"><div class="kpi-label">3月负毛利合计</div><div class="kpi-val">-12.8<span>万</span></div><div class="kpi-sub down">吞噬正毛利</div></div>
+    <div class="kpi orange"><div class="kpi-label">3月负毛GMV</div><div class="kpi-val">154<span>万</span></div><div class="kpi-sub down">低价销售损失</div></div>
+  </div>
+  <div class="stitle">负毛利 TOP 30 商品（3月）</div>
+  <div class="twrap"><table>
+    <thead><tr><th>#</th><th>产品名称</th><th>科室</th><th>3月GMV</th><th>3月GM（亏损）</th><th>GM/GMV</th></tr></thead>
+    <tbody id="negTbody"></tbody>
+  </table></div>
+</div>
+
+<div class="panel" id="tab-insight">
+  <div class="stitle">📈 Q1 整体诊断</div>
+  <div class="insight">✅ <strong>Q1 总量稳健：</strong>Q1 GMV合计 8,856万，其中3月3,174万，1月3,478万，2月受春节影响2,205万属正常季节性波动，3月恢复率91.2%（vs 1月）。</div>
+  <div class="insight">📊 <strong>心脑血管是最大支柱：</strong>3月GMV 618万，占全站19.5%，全季累计1,616万。心脑血管+男科+神经系统三科室合计占比超50%，是绝对基本盘。</div>
+  <div class="insight">🔥 <strong>肝病科爆发式增长：</strong>1月174万 → 3月222万，环比+89.8%（vs2月），季内增幅最大，润众恩替卡韦分散片单品贡献85万，是拉动核心。</div>
+  <div class="insight">💊 <strong>自营备货仍是主力：</strong>3月自营备货GMV 1,857万（占58.5%），GM 191万；MP 982万（占30.9%），GM 59万。自营备货GM/GMV 10.3%远高于MP的6.0%，是毛利主要来源。</div>
+
+  <div class="stitle">⚠️ 问题诊断</div>
+  <div class="alert">🔴 <strong>GM/GMV持续下滑：</strong>1月9.5% → 2月9.3% → 3月9.2%，逐月下行。主因是低毛产品（希爱力、金戈、安达唐等）GMV占比扩大，而高毛科室增速不足。4月目标9.93%需要主动干预。</div>
+  <div class="alert">🔴 <strong>412个负毛利SKU拖累整体：</strong>3月负毛产品合计亏损12.8万，其中男科（希爱力、爱力劲各-0.5万）、内分泌（安达唐-1.6万）是重灾区。建议下架或限制低价促销。</div>
+  <div class="alert">🟠 <strong>呼吸道季节性大幅下滑：</strong>1月392万 → 3月193万，环比-3.9%，但更关键的是绝对量同比季节规律看可能低于预期。3月GM只有16.6万，GM/GMV 8.6%偏低。</div>
+  <div class="alert">🟠 <strong>神经系统GMV异常波动：</strong>1月388万 → 2月203万 → 3月328万，波动剧烈。结合之前库存分析，该科室有19个缺货SKU，缺货期流量损失可能超过50万GMV。</div>
+  <div class="alert">🟡 <strong>美妆个护/隐形眼镜体量过小：</strong>美妆3月仅39万，隐形眼镜仅0.4万，GM/GMV分别4.9%和25%，建议评估是否值得保留维护资源。</div>
+
+  <div class="stitle">✅ 4月行动建议</div>
+  <div class="twrap"><table>
+    <thead><tr><th>优先级</th><th>方向</th><th>具体行动</th><th>预期效果</th></tr></thead>
+    <tbody>
+      <tr><td><span style="color:#e74c3c;font-weight:700">P0</span></td><td>止血负毛利</td><td>对412个负毛SKU逐一设置价格底线或下架，重点处理内分泌安达唐、男科希爱力/爱力劲</td><td>预计挽回15-20万GM</td></tr>
+      <tr><td><span style="color:#e74c3c;font-weight:700">P0</span></td><td>GM/GMV提升</td><td>4月目标9.93%，需在滋补调养（25%）、男科（高毛SKU）、成人用品（33%）上加大投入</td><td>提升0.5-1个百分点</td></tr>
+      <tr><td><span style="color:#e67e22;font-weight:700">P1</span></td><td>神经系统补货</td><td>19个缺货SKU紧急补货，预计可释放50万+GMV</td><td>+50万GMV</td></tr>
+      <tr><td><span style="color:#e67e22;font-weight:700">P1</span></td><td>肝病科维持强势</td><td>润众恩替卡韦单品85万，确保库存充足，同步挖掘同科室恩替卡韦其他规格</td><td>保持200万+GMV</td></tr>
+      <tr><td><span style="color:#f39c12;font-weight:700">P2</span></td><td>皮肤病挖潜</td><td>3月209万，GM/GMV 10.4%，特维丝27万表现好，找更多高毛皮肤科品种</td><td>冲240万GMV</td></tr>
+      <tr><td><span style="color:#5dade2;font-weight:700">P3</span></td><td>三方平台提毛利</td><td>三方平台GM/GMV仅9.3%，低于自营备货10.3%，优化三方在售品类结构</td><td>GM/GMV提升至10%+</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<script>
+const COLORS=['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#5dade2','#bb8fce','#58d68d','#f8c471','#85c1e9','#f1948a','#a9cce3','#a9dfbf','#fad7a0','#d2b4de','#aed6f1'];
+
+// Overview GMV line
+new Chart(document.getElementById('gmvLine'),{
+  type:'line',
+  data:{labels:['1月','2月','3月'],datasets:[{label:'GMV（万）',data:[3477.9, 2204.9, 3173.7],borderColor:'#3498db',backgroundColor:'rgba(52,152,219,0.1)',tension:0.3,fill:true,pointRadius:5}]},
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// GM line with secondary axis
+new Chart(document.getElementById('gmLine'),{
+  type:'line',
+  data:{labels:['1月','2月','3月'],datasets:[
+    {label:'GM（万）',data:[330.9, 205.0, 291.9],borderColor:'#2ecc71',backgroundColor:'rgba(46,204,113,0.1)',tension:0.3,fill:true,yAxisID:'y',pointRadius:5},
+    {label:'GM/GMV(%)',data:[9.5, 9.3, 9.2],borderColor:'#f39c12',tension:0.3,yAxisID:'y1',pointRadius:5,borderDash:[5,3]}
+  ]},
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}},y1:{position:'right',ticks:{color:'#f39c12',callback:v=>v+'%'},grid:{display:false}}}}
+});
+
+// Dept bar grouped
+new Chart(document.getElementById('deptBar'),{
+  type:'bar',
+  data:{labels:['心脑血管', '男科疾病', '神经系统', '滋补调养', '肝病科', '皮肤病', '风湿骨科', '内分泌', '呼吸道疾病', '消化系统疾病', '营养保健', '医疗器械', '五官科疾病', '肿瘤科', '维生素、钙剂', '妇科疾病', '美妆个护', '成人用品', '隐形眼镜'],datasets:[
+    {label:'1月',data:[628.5, 396.9, 388.2, 226.6, 173.6, 191.3, 216.5, 260.4, 391.8, 132.6, 97.9, 86.7, 66.4, 53.5, 41.4, 59.4, 39.0, 26.5, 0.6],backgroundColor:'#3498db55',borderColor:'#3498db',borderWidth:1,borderRadius:3},
+    {label:'2月',data:[369.0, 279.2, 202.5, 157.3, 117.1, 138.1, 155.5, 156.3, 201.2, 86.9, 67.5, 62.2, 41.0, 37.8, 28.6, 57.5, 26.0, 21.2, 0.1],backgroundColor:'#e6792255',borderColor:'#e67922',borderWidth:1,borderRadius:3},
+    {label:'3月',data:[618.8, 361.0, 327.5, 226.9, 222.3, 209.5, 208.1, 201.1, 193.4, 126.0, 114.0, 83.4, 59.6, 52.7, 52.7, 48.2, 39.2, 28.8, 0.4],backgroundColor:'#2ecc7155',borderColor:'#2ecc71',borderWidth:1,borderRadius:3}
+  ]},
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Dept pie 3月
+new Chart(document.getElementById('deptPie3'),{
+  type:'doughnut',
+  data:{labels:['心脑血管', '男科疾病', '神经系统', '滋补调养', '肝病科', '皮肤病', '风湿骨科', '内分泌', '呼吸道疾病', '消化系统疾病', '营养保健', '医疗器械', '五官科疾病', '肿瘤科', '维生素、钙剂', '妇科疾病', '美妆个护', '成人用品', '隐形眼镜'],datasets:[{data:[618.8, 361.0, 327.5, 226.9, 222.3, 209.5, 208.1, 201.1, 193.4, 126.0, 114.0, 83.4, 59.6, 52.7, 52.7, 48.2, 39.2, 28.8, 0.4],backgroundColor:COLORS,borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.5)',font:{size:10},boxWidth:10}}}}
+});
+
+// Dept GMR bar
+new Chart(document.getElementById('deptGmr'),{
+  type:'bar',
+  data:{labels:['心脑血管', '男科疾病', '神经系统', '滋补调养', '肝病科', '皮肤病', '风湿骨科', '内分泌', '呼吸道疾病', '消化系统疾病', '营养保健', '医疗器械', '五官科疾病', '肿瘤科', '维生素、钙剂', '妇科疾病', '美妆个护', '成人用品', '隐形眼镜'],datasets:[{label:'GM/GMV(%)',data:[7.9, 14.5, 6.8, 16.4, 7.4, 10.4, 8.2, 6.7, 8.6, 9.0, 7.6, 4.4, 7.6, 7.4, 6.1, 8.2, 4.7, 16.3, 18.0],backgroundColor:[7.9, 14.5, 6.8, 16.4, 7.4, 10.4, 8.2, 6.7, 8.6, 9.0, 7.6, 4.4, 7.6, 7.4, 6.1, 8.2, 4.7, 16.3, 18.0].map(v=>v>=12?'#2ecc7188':v>=8?'#f39c1288':'#e74c3c88'),borderWidth:0,borderRadius:4}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+});
+
+// Platform line
+const platNames = ['官网/APP', '官网/H5', '三方平台', '官网/PC'];
+const platColors = ['#3498db','#e67e22','#2ecc71','#9b59b6'];
+const platData = {"\u5b98\u7f51/APP": [1804.4, 1141.6, 1672.4], "\u5b98\u7f51/H5": [282.8, 172.7, 264.8], "\u4e09\u65b9\u5e73\u53f0": [1292.0, 835.4, 1150.3], "\u5b98\u7f51/PC": [98.6, 55.2, 86.2]};
+new Chart(document.getElementById('platLine'),{
+  type:'line',
+  data:{labels:['1月','2月','3月'],datasets:platNames.map((p,i)=>({'label':p,'data':platData[p],'borderColor':platColors[i],'backgroundColor':platColors[i]+'22','tension':0.3,'fill':false,'pointRadius':4}))  },
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.5)',font:{size:11}}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Biz line
+const bizNames = ['MP', '自营备货', '自营JBP'];
+const bizData = {"MP": [1080.6, 655.8, 981.6], "\u81ea\u8425\u5907\u8d27": [2013.4, 1288.7, 1856.6], "\u81ea\u8425JBP": [383.8, 260.4, 335.5]};
+const bizColors = ['#e67e22','#3498db','#2ecc71'];
+new Chart(document.getElementById('bizLine'),{
+  type:'line',
+  data:{labels:['1月','2月','3月'],datasets:bizNames.map((b,i)=>({'label':b,'data':bizData[b],'borderColor':bizColors[i],'backgroundColor':bizColors[i]+'22','tension':0.3,'fill':false,'pointRadius':4}))  },
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.5)',font:{size:11}}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Plat pie
+new Chart(document.getElementById('platPie'),{
+  type:'doughnut',
+  data:{labels:platNames,datasets:[{data:[1672.4, 264.8, 1150.3, 86.2],backgroundColor:platColors,borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)'}}}}
+});
+
+// Biz GM bar
+new Chart(document.getElementById('bizGm'),{
+  type:'bar',
+  data:{labels:bizNames,datasets:[{label:'3月GM（万）',data:[59.3, 190.8, 41.8],backgroundColor:bizColors,borderRadius:5}]},
+  options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.6)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Top products table
+const top40 = [["\u6da6\u4f17 \u6069\u66ff\u5361\u97e6\u5206\u6563\u7247 0.5mg*14\u7247*2\u677f", 85.15, 7.35, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u53ef\u5b9a \u745e\u8212\u4f10\u4ed6\u6c40\u9499\u7247 5mg*7\u7247", 79.15, 8.96, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u5b89\u8fbe\u91ca \u8fbe\u683c\u5217\u51c0\u4e8c\u7532\u53cc\u80cd\u7f13\u91ca\u7247(\u2160) 10mg/1000mg*28\u7247", 78.49, 6.15, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27"], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 20mg*28\u7247", 60.42, 4.72, "\u6ecb\u8865\u8c03\u517b", "MP"], ["\u666e\u7c73\u514b\u4ee4\u8212 \u5438\u5165\u7528\u5e03\u5730\u5948\u5fb7\u6df7\u60ac\u6db2 2ml:0.5mg*5\u652f", 50.68, 6.05, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u5e0c\u7231\u529b/Cialis \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*28\u7247", 46.26, 0.38, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u7edc\u6d3b\u559c \u82ef\u78fa\u9178\u6c28\u6c2f\u5730\u5e73\u7247 5mg*28\u7247", 36.69, 3.57, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u767d\u4e91\u5c71/\u91d1\u6208 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 50mg*20\u7247", 36.56, 1.43, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u6d77\u9ed8\u5c3c/\u7f8e\u65f6\u7389 \u76d0\u9178\u66f2\u5511\u916e\u7247 50mg*20\u7247", 33.01, 3.08, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"], ["\u7279\u7ef4\u4e1d \u5f02\u7ef4A\u9178\u8f6f\u80f6\u56ca 10mg*24\u7c92", 27.14, 4.57, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u559c\u683c\u8fc8 \u5c3c\u53ef\u5730\u5c14\u7247 5mg*10\u7247*10\u677f", 25.85, 2.06, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u529b\u5e73\u4e4b \u975e\u8bfa\u8d1d\u7279\u80f6\u56ca 200mg*10\u7c92", 25.21, 1.92, "\u5fc3\u8111\u8840\u7ba1", "MP"], ["\u745e\u590d\u8212 \u5417\u66ff\u9ea6\u8003\u915a\u916f\u80f6\u56ca 0.25g*10\u7c92*4\u677f", 24.65, 2.59, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u7eb7\u4e50 \u786b\u9178\u7f9f\u6c2f\u55b9\u7247 0.1g*14\u7247", 20.66, 1.12, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u559c\u683c\u8fc8 \u5c3c\u53ef\u5730\u5c14\u7247 5mg*10\u7247*3\u677f", 20.25, 1.78, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u5eb7\u738b \u590d\u65b9\u916e\u5eb7\u5511\u53d1\u7528\u6d17\u5242 100ml/\u7ba1", 19.77, 1.3, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 10mg*28\u7247", 19.18, 1.47, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u65bd\u5f3a \u590d\u65b9\u7384\u9a79\u80f6\u56ca 0.42g*72\u7c92/\u74f6", 18.4, 0.49, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["\u5409\u6613\u514b \u5de6\u4e59\u62c9\u897f\u5766\u7247 0.25g*10\u7247*3\u677f", 18.15, 0.72, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"], ["\u7075\u6cf0/\u897f\u7ef4\u5c14 \u7852\u9175\u6bcd\u7247(OTC) 50\u03bcg*50\u7247/\u74f6", 16.44, 1.18, "\u80bf\u7624\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*10\u7247*3\u677f", 14.38, -1.54, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27"], ["\u535a\u8def\u5b9a \u6069\u66ff\u5361\u97e6\u7247 0.5mg*28\u7247", 14.32, 0.03, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*15\u7247*2\u677f", 14.22, -0.44, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u52b2\u6208 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*8\u7247*4\u677f", 14.02, 10.89, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u500d\u62e9\u745e/\u4ee4\u7545 \u5e03\u5730\u683c\u798f\u5438\u5165\u6c14\u96fe\u5242 120\u63ff", 13.65, 0.42, "\u9690\u5f62\u773c\u955c", "\u81ea\u8425\u5907\u8d27"], ["\u97e6\u7acb\u5f97 \u5bcc\u9a6c\u9178\u4e19\u915a\u66ff\u8bfa\u798f\u97e6\u7247 25mg*30\u7247", 13.56, 0.38, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u827e\u5f97\u8f9b \u827e\u62c9\u83ab\u5fb7\u7247 25mg*14\u7247", 13.38, 0.44, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u66f2\u83b1 \u5965\u5361\u897f\u5e73\u7247 0.3g*50\u7247", 12.79, 0.24, "\u795e\u7ecf\u7cfb\u7edf", "MP"], ["\u73c2\u4e39 \u6069\u4ed6\u5361\u670b\u7247 0.2g*30\u7247/\u74f6", 12.42, 0.63, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 20mg*7\u7247", 12.28, 0.67, "\u9690\u5f62\u773c\u955c", "MP"], ["\u827e\u6377\u7ef4 \u67b8\u6a7c\u9178\u6258\u6cd5\u66ff\u5e03\u7247 5mg*28\u7247/\u74f6", 11.91, 1.11, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u540c\u4ec1\u5802 \u516d\u5473\u5730\u9ec4\u4e38 9g*10\u4e38(\u5927\u871c\u4e38)", 11.72, 0.58, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["\u897f\u4e50\u8446/CELEBREX \u585e\u6765\u6614\u5e03\u80f6\u56ca 0.2g*18\u7c92", 10.6, 0.76, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u767d\u4e91\u5c71/\u91d1\u6208/BYS/\u5e7f\u836f\u767d\u4e91\u5c71 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 25mg*21\u7247", 10.58, 1.67, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u8fbe\u7075\u590d \u6069\u4ed6\u5361\u670b\u53cc\u591a\u5df4\u7247(\u2161) 30\u7247/\u74f6", 9.73, 0.44, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"], ["\u5999\u7eb3 \u76d0\u9178\u4e59\u54cc\u7acb\u677e\u7247 50mg*10\u7247*2\u677f(\u8584\u819c\u8863\u7247)", 9.73, 1.11, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"], ["\u5b89\u7532\u7ef4 \u975e\u90a3\u96c4\u80fa\u7247 1mg*10\u7247*3\u677f", 9.45, 0.8, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u795e\u5a01 \u5065\u9633\u7247 0.64g*12\u7247", 9.44, 4.61, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["HORAE \u8695\u8338\u67f1\u5929\u80f6\u56ca 0.4g*8\u7c92*2\u677f", 9.41, 6.51, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["\u5de6\u6d1b\u590d \u76d0\u9178\u820d\u66f2\u6797\u7247 50mg*14\u7247", 9.35, 0.61, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27"]];
+const topTbody = document.getElementById('topTbody');
+top40.forEach((r,i) => {
+  const gmr = r[1]>0?((r[2]/r[1])*100).toFixed(1):0;
+  const gmrColor = gmr>=12?'#2ecc71':gmr>=8?'#f39c12':'#e74c3c';
+  const tag = r[4]==='MP'?'tag-mp':r[4]==='自营JBP'?'tag-jbp':'tag-zy';
+  topTbody.innerHTML+=`<tr><td>${i+1}</td><td>${r[0]}</td><td style="font-size:11px;color:rgba(255,255,255,0.45)">${r[3]}</td><td><span class="tag ${tag}">${r[4]}</span></td><td><strong>${r[1]}万</strong></td><td>${r[2]}万</td><td style="color:${gmrColor}">${gmr}%</td></tr>`;
+});
+
+// Neg GM table
+const neg30 = [["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*10\u7247*3\u677f", 14.38, -1.54, "\u5185\u5206\u6ccc"], ["999 \u611f\u5192\u7075\u9897\u7c92 10g*9\u888b", 4.33, -1.26, "\u547c\u5438\u9053\u75be\u75c5"], ["\u7f9a\u9510/\u4e24\u53ea\u8001\u864e \u4f24\u6e7f\u6b62\u75db\u818f 7cm*10cm*10\u8d34", 0.18, -0.46, "\u98ce\u6e7f\u9aa8\u79d1"], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*15\u7247*2\u677f", 14.22, -0.44, "\u7537\u79d1\u75be\u75c5"], ["\u4e5d\u829d\u5802/\u829d \u516d\u5473\u5730\u9ec4\u4e38(\u6d53\u7f29\u4e38) 200\u4e38/\u74f6", 2.25, -0.41, "\u6ecb\u8865\u8c03\u517b"], ["21\u91d1\u7ef4\u4ed6 \u591a\u7ef4\u5143\u7d20\u7247(21) 100\u7247/\u74f6", 2.56, -0.4, "\u7ef4\u751f\u7d20\u3001\u9499\u5242"], ["\u4fe1\u5fc5\u53ef\u90fd\u4fdd \u5e03\u5730\u5948\u5fb7\u798f\u83ab\u7279\u7f57\u5438\u5165\u7c89\u96fe\u5242(\u2161) 160\u03bcg/4.5\u03bcg*60\u5438/\u652f", 5.77, -0.38, "\u547c\u5438\u9053\u75be\u75c5"], ["\u6c5f\u4e2d \u5065\u80c3\u6d88\u98df\u7247 0.8g*8\u7247*4\u677f(\u8584\u819c\u8863\u7247)", 0.84, -0.35, "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5"], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 20mg*5\u7247*2\u677f\uff08\u8584\u819c\u8863\u7247\uff09", 6.19, -0.3, "\u7537\u79d1\u75be\u75c5"], ["BETALOCZOK/\u500d\u4ed6\u4e50\u514b \u7425\u73c0\u9178\u7f8e\u6258\u6d1b\u5c14\u7f13\u91ca\u7247 47.5mg*14\u7247*2\u677f", 3.27, -0.29, "\u5fc3\u8111\u8840\u7ba1"], ["\u53ef\u5b9a \u745e\u8212\u4f10\u4ed6\u6c40\u9499\u7247 10mg*14\u7247*2\u677f", 8.04, -0.29, "\u5fc3\u8111\u8840\u7ba1"], ["\u683c\u534e\u6b62 \u76d0\u9178\u4e8c\u7532\u53cc\u80cd\u7247 0.5g*10\u7247/\u677f\uff0c2\u677f/\u76d2", 3.81, -0.27, "\u5185\u5206\u6ccc"], ["\u90fd\u4e50 \u91d1\u55d3\u5b50\u5589\u7247 2g*6\u7247*2\u677f", 0.52, -0.24, "\u533b\u7597\u5668\u68b0"], ["CHENPON \u590d\u5408\u7ef4\u751f\u7d20B\u7247 100\u7247", 0.28, -0.24, "\u7ef4\u751f\u7d20\u3001\u9499\u5242"], ["\u4e07\u827e\u53ef \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 100mg*12\u7247", 8.93, -0.23, "\u7537\u79d1\u75be\u75c5"], ["\u6ce2\u7acb\u7ef4/PLAVIX \u786b\u9178\u6c22\u6c2f\u5421\u683c\u96f7\u7247 75mg*28\u7247", 2.99, -0.22, "\u5fc3\u8111\u8840\u7ba1"], ["\u6d77\u6c0f\u6d77\u8bfa \u4e00\u6b21\u6027\u4f7f\u7528\u533b\u7528\u5916\u79d1\u53e3\u7f69 17.5cm*9.5cm*10\u53ea  \u65e0\u83cc \u8033\u6302\u5f0f\u5e73\u9762\u5f62  \u84dd\u8272", 0.12, -0.2, "\u533b\u7597\u5668\u68b0"], ["\u5343\u5a01/\u9f50\u9c81 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 50mg*7\u7247", 4.99, -0.19, "\u7537\u79d1\u75be\u75c5"], ["\u4f18\u5eb7 \u7535\u5b50\u4f53\u6e29\u8ba1 MT-502A", 0.07, -0.19, "\u533b\u7597\u5668\u68b0"], ["\u611f\u5eb7 \u590d\u65b9\u6c28\u915a\u70f7\u80fa\u7247 6\u7247*2\u677f", 1.37, -0.18, "\u547c\u5438\u9053\u75be\u75c5"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u9f3b\u5eb7\u6263 4\u677f*3\u7c92", 0.0, -0.18, "\u7f8e\u5986\u4e2a\u62a4"], ["\u4e1c\u963f\u963f\u80f6 \u590d\u65b9\u963f\u80f6\u6d46 20ml*48\u652f(\u65e0\u8517\u7cd6)", 3.57, -0.17, "\u6ecb\u8865\u8c03\u517b"], ["\u7f8e\u591a\u82ad \u591a\u5df4\u4e1d\u80bc\u7247 0.25g*40\u7247", 4.16, -0.16, "\u795e\u7ecf\u7cfb\u7edf"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u6655\u8f66\u6263 4\u677f*3\u7c92", 0.01, -0.16, "\u7f8e\u5986\u4e2a\u62a4"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u5b89\u795e\u6263 1\u677f*3\u7c92", 0.0, -0.15, "\u7f8e\u5986\u4e2a\u62a4"], ["\u7f57\u6d6e\u5c71\u56fd\u836f/\u9192\u6208 \u590d\u65b9\u82c1\u84c9\u80f6\u56ca 0.5g*18\u7c92", 2.3, -0.14, "\u6ecb\u8865\u8c03\u517b"], ["\u827e\u5f97\u8f9b \u827e\u62c9\u83ab\u5fb7\u7247 25mg*28\u7247", 7.26, -0.14, "\u98ce\u6e7f\u9aa8\u79d1"], ["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*7\u7247*2\u677f", 2.81, -0.14, "\u5185\u5206\u6ccc"], ["\u767e\u7075\u9e1f \u7ef4C\u94f6\u7fd8\u7247 12\u7247*2\u677f", 0.17, -0.14, "\u547c\u5438\u9053\u75be\u75c5"], ["\u5188\u672c/okamoto \u5929\u7136\u80f6\u4e73\u6a61\u80f6\u907f\u5b55\u5957 \u8d85\u6da6\u6ed1 \u76f4\u5f62\u5149\u9762\u578b/\u7c89\u7ea2\u827253\u00b12mm*3\u7247\u88c5", 0.05, -0.13, "\u6210\u4eba\u7528\u54c1"]];
+const negTbody = document.getElementById('negTbody');
+neg30.forEach((r,i) => {
+  const gmr = r[1]>0?((r[2]/r[1])*100).toFixed(1):0;
+  negTbody.innerHTML+=`<tr><td>${i+1}</td><td>${r[0]}</td><td style="font-size:11px;color:rgba(255,255,255,0.45)">${r[3]}</td><td>${r[1]}万</td><td style="color:#e74c3c;font-weight:600">${r[2]}万</td><td style="color:#e74c3c">${gmr}%</td></tr>`;
+});
+
+function st(id,e){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  e.target.classList.add('active');
+}
+</script></body></html>
