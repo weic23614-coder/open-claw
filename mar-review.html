@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>药网 2026年3月 专项复盘</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0d1117;color:#e0e0e0}
+.header{background:linear-gradient(135deg,#0a1628,#173a5e);padding:28px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.header h1{font-size:22px;color:#fff;font-weight:700}
+.header p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:5px}
+.tabs{display:flex;background:#161b27;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 28px;overflow-x:auto}
+.tab{padding:12px 16px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.4);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:#5dade2;border-bottom-color:#5dade2}
+.tab:hover{color:#fff}
+.panel{display:none;padding:24px 32px}
+.panel.active{display:block}
+.krow{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:20px}
+.k{flex:1;min-width:130px;background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:15px 17px}
+.klb{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;margin-bottom:5px}
+.kv{font-size:22px;font-weight:700;color:#fff}
+.kv span{font-size:11px;font-weight:400;color:rgba(255,255,255,0.28)}
+.ks{font-size:10px;margin-top:2px}
+.up{color:#2ecc71}.dn{color:#e74c3c}.wn{color:#e67e22}.bl{color:#5dade2}
+.k.bl .kv{color:#5dade2}.k.gn .kv{color:#2ecc71}.k.rd .kv{color:#e74c3c}.k.or .kv{color:#e67e22}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+.bx{background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:16px 18px}
+.bx.w{grid-column:1/-1}
+.bx h3{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px}
+canvas{max-height:240px}
+.st{font-size:13px;font-weight:600;color:#fff;margin:18px 0 9px;padding-left:9px;border-left:3px solid #3498db}
+.tw{overflow-x:auto;border-radius:9px;border:1px solid rgba(255,255,255,0.07);margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#1e2535;color:rgba(255,255,255,0.38);padding:8px 11px;text-align:left;white-space:nowrap;font-weight:500}
+td{padding:7px 11px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.78)}
+tr:hover td{background:rgba(255,255,255,0.025)}
+.tg{display:inline-block;padding:1px 7px;border-radius:5px;font-size:10px}
+.tg-mp{background:rgba(230,126,34,0.2);color:#e67e22}
+.tg-zy{background:rgba(52,152,219,0.2);color:#5dade2}
+.tg-jbp{background:rgba(46,204,113,0.2);color:#2ecc71}
+.bar-inline{height:5px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:3px}
+.bar-fill{height:100%;border-radius:2px}
+.ins{background:rgba(52,152,219,0.07);border:1px solid rgba(52,152,219,0.17);border-radius:8px;padding:12px 15px;margin-bottom:9px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.8)}
+.alt{background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.18);border-radius:8px;padding:12px 15px;margin-bottom:9px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.8)}
+.ins strong{color:#5dade2}.alt strong{color:#e74c3c}
+.search{background:#1e2535;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#fff;padding:7px 12px;font-size:12px;width:260px;outline:none;margin-bottom:10px}
+@media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📋 药网 2026年3月 专项业务复盘</h1>
+  <p>出库口径 · 46,599条记录 · 渠道 × 平台 × 科室 × 厂家 × 产品 五维分析</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="st('sum',event)">总览</div>
+  <div class="tab" onclick="st('ch',event)">渠道&平台</div>
+  <div class="tab" onclick="st('dept',event)">科室</div>
+  <div class="tab" onclick="st('mfg',event)">厂家 TOP40</div>
+  <div class="tab" onclick="st('prod',event)">产品 TOP50</div>
+  <div class="tab" onclick="st('neg',event)">⚠️ 负毛利品</div>
+</div>
+
+<div class="panel active" id="tab-sum">
+  <div class="krow">
+    <div class="k bl"><div class="klb">3月 GMV</div><div class="kv">3,174<span>万</span></div><div class="ks up">环比2月 +43.9%</div></div>
+    <div class="k"><div class="klb">3月 Revenue</div><div class="kv">1,999<span>万</span></div><div class="ks wn">占GMV 63.0%</div></div>
+    <div class="k gn"><div class="klb">3月 GM</div><div class="kv">292<span>万</span></div><div class="ks up">环比+42.4%</div></div>
+    <div class="k or"><div class="klb">3月 GM/GMV</div><div class="kv">9.2<span>%</span></div><div class="ks dn">2月9.3%↓</div></div>
+    <div class="k"><div class="klb">覆盖科室</div><div class="kv">19<span>个</span></div><div class="ks bl">含19个品类</div></div>
+    <div class="k rd"><div class="klb">负毛利SKU</div><div class="kv">412<span>个</span></div><div class="ks dn">合计-12.8万</div></div>
+  </div>
+  <div class="g2">
+    <div class="bx"><h3>业务模式 GMV 分布（万元）</h3><canvas id="bizPie"></canvas></div>
+    <div class="bx"><h3>平台 GMV 分布（万元）</h3><canvas id="platPie"></canvas></div>
+  </div>
+  <div class="bx w" style="margin-bottom:14px"><h3>渠道×业务模式 GMV 瀑布图</h3><canvas id="chBar" style="max-height:280px"></canvas></div>
+  
+  <div class="st">3月核心结论</div>
+  <div class="ins">📈 <strong>环比整体回升：</strong>3月GMV 3,174万，环比2月（2,205万）大幅增长<strong>+44%</strong>，已恢复至1月3,478万的91%水平，季节性回暖符合预期。</div>
+  <div class="ins">💡 <strong>三方平台是GMV最大来源：</strong>三方自营备货1,094万（34.5%），官网APP+MP合计1,468万（46.2%）。PC端虽然体量小（86万），但GM/GMV高达<strong>46.7%</strong>，是全渠道最高。</div>
+  <div class="alt">⚠️ <strong>官网APP增长乏力：</strong>官网APP自营备货仅538万，而MP达905万，APP自营备货GM/GMV仅6.2%，远低于H5自营（16.7%）。需优化APP自营结构。</div>
+</div>
+
+<div class="panel" id="tab-ch">
+  <div class="st">渠道 × 业务模式 明细</div>
+  <div class="tw"><table>
+    <thead><tr><th>渠道</th><th>业务模式</th><th>GMV（万）</th><th>GM（万）</th><th>GM/GMV</th><th>GMV占比</th><th>贡献图示</th></tr></thead>
+    <tbody><tr>
+      <td>三方平台</td><td><span class="tg tg-zy">自营备货</span></td>
+      <td><strong>1094.27</strong></td><td>100.48</td>
+      <td class="wn"><strong>9.2%</strong></td>
+      <td>34.5%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:100%;background:#f39c12"></div></div></td>
+    </tr><tr>
+      <td>官网/APP</td><td><span class="tg tg-mp">MP</span></td>
+      <td><strong>905.04</strong></td><td>54.88</td>
+      <td class="wn"><strong>6.1%</strong></td>
+      <td>28.5%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:85.5%;background:#e74c3c"></div></div></td>
+    </tr><tr>
+      <td>官网/APP</td><td><span class="tg tg-zy">自营备货</span></td>
+      <td><strong>538.42</strong></td><td>33.35</td>
+      <td class="wn"><strong>6.2%</strong></td>
+      <td>17.0%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:51.0%;background:#e74c3c"></div></div></td>
+    </tr><tr>
+      <td>官网/APP</td><td><span class="tg tg-jbp">自营JBP</span></td>
+      <td><strong>228.95</strong></td><td>28.9</td>
+      <td class="up"><strong>12.6%</strong></td>
+      <td>7.2%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:21.6%;background:#2ecc71"></div></div></td>
+    </tr><tr>
+      <td>官网/H5</td><td><span class="tg tg-zy">自营备货</span></td>
+      <td><strong>158.79</strong></td><td>26.58</td>
+      <td class="up"><strong>16.7%</strong></td>
+      <td>5.0%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:15.0%;background:#2ecc71"></div></div></td>
+    </tr><tr>
+      <td>官网/PC</td><td><span class="tg tg-zy">自营备货</span></td>
+      <td><strong>65.16</strong></td><td>30.4</td>
+      <td class="up"><strong>46.7%</strong></td>
+      <td>2.1%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:6.300000000000001%;background:#2ecc71"></div></div></td>
+    </tr><tr>
+      <td>官网/H5</td><td><span class="tg tg-mp">MP</span></td>
+      <td><strong>63.04</strong></td><td>3.67</td>
+      <td class="dn"><strong>5.8%</strong></td>
+      <td>2.0%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:6.0%;background:#e74c3c"></div></div></td>
+    </tr><tr>
+      <td>三方平台</td><td><span class="tg tg-jbp">自营JBP</span></td>
+      <td><strong>56.08</strong></td><td>6.71</td>
+      <td class="up"><strong>12.0%</strong></td>
+      <td>1.8%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:5.4%;background:#2ecc71"></div></div></td>
+    </tr><tr>
+      <td>官网/H5</td><td><span class="tg tg-jbp">自营JBP</span></td>
+      <td><strong>42.96</strong></td><td>5.2</td>
+      <td class="up"><strong>12.1%</strong></td>
+      <td>1.4%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:4.199999999999999%;background:#2ecc71"></div></div></td>
+    </tr><tr>
+      <td>官网/PC</td><td><span class="tg tg-mp">MP</span></td>
+      <td><strong>13.52</strong></td><td>0.78</td>
+      <td class="dn"><strong>5.8%</strong></td>
+      <td>0.4%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:1.2000000000000002%;background:#e74c3c"></div></div></td>
+    </tr><tr>
+      <td>官网/PC</td><td><span class="tg tg-jbp">自营JBP</span></td>
+      <td><strong>7.48</strong></td><td>0.99</td>
+      <td class="up"><strong>13.2%</strong></td>
+      <td>0.2%</td>
+      <td style="min-width:100px"><div class="bar-inline"><div class="bar-fill" style="width:0.6000000000000001%;background:#2ecc71"></div></div></td>
+    </tr></tbody></table></div>
+  <div class="g2">
+    <div class="bx"><h3>各渠道 GMV 对比（万元）</h3><canvas id="chGmvBar"></canvas></div>
+    <div class="bx"><h3>各渠道 GM/GMV 对比</h3><canvas id="chGmrBar"></canvas></div>
+  </div>
+  <div class="ins">💡 <strong>官网PC端隐形高价值：</strong>GMV 86万占比小，但GM/GMV高达46.7%，GM贡献32万。H5自营备货（16.7%）同样高于均值，这两个端口的用户客单价和毛利质量明显优于APP。</div>
+  <div class="alt">⚠️ <strong>MP渠道毛利率过低：</strong>官网APP·MP（6.1%）、官网H5·MP（5.8%）、官网PC·MP（5.8%）三端MP毛利率均偏低，拉低整体水平。MP占GMV 30.9%，但GM贡献仅20.3%，需重新评估MP品类策略。</div>
+</div>
+
+<div class="panel" id="tab-dept">
+  <div class="krow">
+<div class="k"><div class="klb">心脑血管</div><div class="kv">618.84<span>万</span></div>
+      <div class="ks up">环比+67.7% | GM/GMV 7.9%</div></div><div class="k"><div class="klb">男科疾病</div><div class="kv">361.03<span>万</span></div>
+      <div class="ks up">环比+29.3% | GM/GMV 14.5%</div></div><div class="k"><div class="klb">神经系统</div><div class="kv">327.51<span>万</span></div>
+      <div class="ks up">环比+61.7% | GM/GMV 6.8%</div></div><div class="k"><div class="klb">滋补调养</div><div class="kv">226.94<span>万</span></div>
+      <div class="ks up">环比+44.3% | GM/GMV 16.4%</div></div><div class="k"><div class="klb">肝病科</div><div class="kv">222.31<span>万</span></div>
+      <div class="ks up">环比+89.9% | GM/GMV 7.4%</div></div><div class="k"><div class="klb">皮肤病</div><div class="kv">209.5<span>万</span></div>
+      <div class="ks up">环比+51.7% | GM/GMV 10.4%</div></div></div>
+  <div class="g2">
+    <div class="bx"><h3>科室 GMV 排名（万元）</h3><canvas id="deptGmv" style="max-height:340px"></canvas></div>
+    <div class="bx"><h3>科室 GM/GMV（%）</h3><canvas id="deptGmr" style="max-height:340px"></canvas></div>
+  </div>
+  <div class="st">科室明细数据</div>
+  <div class="tw"><table>
+    <thead><tr><th>科室</th><th>3月GMV</th><th>2月GMV</th><th>环比</th><th>3月GM</th><th>3月GM/GMV</th><th>2月GM/GMV</th><th>毛利率变化</th></tr></thead><tbody><tr>
+      <td><strong>心脑血管</strong></td>
+      <td><strong>618.84</strong></td><td>368.95</td>
+      <td class="up">+67.7%</td>
+      <td>49.01</td>
+      <td class="wn"><strong>7.9%</strong></td>
+      <td>7.8%</td>
+      <td class="up">+0.1pp</td>
+    </tr><tr>
+      <td><strong>男科疾病</strong></td>
+      <td><strong>361.03</strong></td><td>279.21</td>
+      <td class="up">+29.3%</td>
+      <td>52.3</td>
+      <td class="up"><strong>14.5%</strong></td>
+      <td>14.6%</td>
+      <td class="dn">-0.1pp</td>
+    </tr><tr>
+      <td><strong>神经系统</strong></td>
+      <td><strong>327.51</strong></td><td>202.54</td>
+      <td class="up">+61.7%</td>
+      <td>22.39</td>
+      <td class="dn"><strong>6.8%</strong></td>
+      <td>7.2%</td>
+      <td class="dn">-0.4pp</td>
+    </tr><tr>
+      <td><strong>滋补调养</strong></td>
+      <td><strong>226.94</strong></td><td>157.31</td>
+      <td class="up">+44.3%</td>
+      <td>37.16</td>
+      <td class="up"><strong>16.4%</strong></td>
+      <td>17.4%</td>
+      <td class="dn">-1.0pp</td>
+    </tr><tr>
+      <td><strong>肝病科</strong></td>
+      <td><strong>222.31</strong></td><td>117.07</td>
+      <td class="up">+89.9%</td>
+      <td>16.35</td>
+      <td class="wn"><strong>7.4%</strong></td>
+      <td>6.4%</td>
+      <td class="up">+1.0pp</td>
+    </tr><tr>
+      <td><strong>皮肤病</strong></td>
+      <td><strong>209.5</strong></td><td>138.12</td>
+      <td class="up">+51.7%</td>
+      <td>21.71</td>
+      <td class="wn"><strong>10.4%</strong></td>
+      <td>9.9%</td>
+      <td class="up">+0.5pp</td>
+    </tr><tr>
+      <td><strong>风湿骨科</strong></td>
+      <td><strong>208.1</strong></td><td>155.54</td>
+      <td class="up">+33.8%</td>
+      <td>17.09</td>
+      <td class="wn"><strong>8.2%</strong></td>
+      <td>8.1%</td>
+      <td class="up">+0.1pp</td>
+    </tr><tr>
+      <td><strong>内分泌</strong></td>
+      <td><strong>201.09</strong></td><td>156.25</td>
+      <td class="up">+28.7%</td>
+      <td>13.45</td>
+      <td class="dn"><strong>6.7%</strong></td>
+      <td>6.1%</td>
+      <td class="up">+0.6pp</td>
+    </tr><tr>
+      <td><strong>呼吸道疾病</strong></td>
+      <td><strong>193.37</strong></td><td>201.22</td>
+      <td class="dn">-3.9%</td>
+      <td>16.57</td>
+      <td class="wn"><strong>8.6%</strong></td>
+      <td>8.9%</td>
+      <td class="dn">-0.3pp</td>
+    </tr><tr>
+      <td><strong>消化系统疾病</strong></td>
+      <td><strong>125.96</strong></td><td>86.9</td>
+      <td class="up">+44.9%</td>
+      <td>11.31</td>
+      <td class="wn"><strong>9.0%</strong></td>
+      <td>9.8%</td>
+      <td class="dn">-0.8pp</td>
+    </tr><tr>
+      <td><strong>营养保健</strong></td>
+      <td><strong>113.95</strong></td><td>67.5</td>
+      <td class="up">+68.8%</td>
+      <td>8.65</td>
+      <td class="wn"><strong>7.6%</strong></td>
+      <td>7.8%</td>
+      <td class="dn">-0.2pp</td>
+    </tr><tr>
+      <td><strong>医疗器械</strong></td>
+      <td><strong>83.4</strong></td><td>62.17</td>
+      <td class="up">+34.1%</td>
+      <td>3.7</td>
+      <td class="dn"><strong>4.4%</strong></td>
+      <td>4.2%</td>
+      <td class="up">+0.2pp</td>
+    </tr><tr>
+      <td><strong>五官科疾病</strong></td>
+      <td><strong>59.6</strong></td><td>41.02</td>
+      <td class="up">+45.3%</td>
+      <td>4.51</td>
+      <td class="wn"><strong>7.6%</strong></td>
+      <td>7.5%</td>
+      <td class="up">+0.1pp</td>
+    </tr><tr>
+      <td><strong>肿瘤科</strong></td>
+      <td><strong>52.74</strong></td><td>37.77</td>
+      <td class="up">+39.7%</td>
+      <td>3.92</td>
+      <td class="wn"><strong>7.4%</strong></td>
+      <td>7.1%</td>
+      <td class="up">+0.3pp</td>
+    </tr><tr>
+      <td><strong>维生素、钙剂</strong></td>
+      <td><strong>52.69</strong></td><td>28.59</td>
+      <td class="up">+84.3%</td>
+      <td>3.21</td>
+      <td class="dn"><strong>6.1%</strong></td>
+      <td>6.4%</td>
+      <td class="dn">-0.3pp</td>
+    </tr><tr>
+      <td><strong>妇科疾病</strong></td>
+      <td><strong>48.23</strong></td><td>57.47</td>
+      <td class="dn">-16.1%</td>
+      <td>3.96</td>
+      <td class="wn"><strong>8.2%</strong></td>
+      <td>5.9%</td>
+      <td class="up">+2.3pp</td>
+    </tr><tr>
+      <td><strong>美妆个护</strong></td>
+      <td><strong>39.22</strong></td><td>25.95</td>
+      <td class="up">+51.1%</td>
+      <td>1.85</td>
+      <td class="dn"><strong>4.7%</strong></td>
+      <td>7.2%</td>
+      <td class="dn">-2.5pp</td>
+    </tr><tr>
+      <td><strong>成人用品</strong></td>
+      <td><strong>28.84</strong></td><td>21.16</td>
+      <td class="up">+36.3%</td>
+      <td>4.7</td>
+      <td class="up"><strong>16.3%</strong></td>
+      <td>14.6%</td>
+      <td class="up">+1.7pp</td>
+    </tr><tr>
+      <td><strong>隐形眼镜</strong></td>
+      <td><strong>0.38</strong></td><td>0.14</td>
+      <td class="up">+179.8%</td>
+      <td>0.07</td>
+      <td class="up"><strong>18.0%</strong></td>
+      <td>14.7%</td>
+      <td class="up">+3.3pp</td>
+    </tr></tbody></table></div>
+  <div class="ins">🔥 <strong>肝病科爆发，润众恩替卡韦拉动：</strong>3月222万，环比+89.9%，创近3月新高。润众恩替卡韦分散片单品贡献85万，建议维持库存优先级。</div>
+  <div class="ins">💰 <strong>高毛科室梯队：成人用品（16.3%）、男科（14.5%）、滋补调养（16.4%）：</strong>三者合计616万GMV，但总GM/GMV均超14%，是整盘毛利支柱。</div>
+  <div class="alt">⚠️ <strong>神经系统GMV/GM双低：</strong>327万但GM/GMV仅6.8%，是体量大且低毛的危险组合。曲莱、珂丹、吉易克毛利均低于5%，建议优化品类。</div>
+  <div class="alt">⚠️ <strong>妇科疾病环比下滑-16%：</strong>唯一绝对量下滑的科室（48万→3月，vs 2月57万），需排查原因。</div>
+</div>
+
+<div class="panel" id="tab-mfg">
+  <input class="search" id="mfgSearch" placeholder="搜索厂家名称..." oninput="filterMfg()">
+  <div class="tw"><table id="mfgTable">
+    <thead><tr><th>#</th><th>生产厂商</th><th>3月GMV（万）</th><th>3月GM（万）</th><th>GM/GMV</th><th>涉及科室</th><th>GMV占比</th></tr></thead>
+    <tbody id="mfgTbody"></tbody>
+  </table></div>
+  <div class="g2">
+    <div class="bx"><h3>厂家 GMV TOP 15</h3><canvas id="mfgBar" style="max-height:320px"></canvas></div>
+    <div class="bx"><h3>厂家 GM/GMV TOP 15（毛利率）</h3><canvas id="mfgGmrBar" style="max-height:320px"></canvas></div>
+  </div>
+</div>
+
+<div class="panel" id="tab-prod">
+  <input class="search" id="prodSearch" placeholder="搜索产品名/科室/业务模式..." oninput="filterProd()">
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>产品名称</th><th>科室</th><th>模式</th><th>平台</th><th>3月GMV</th><th>3月GM</th><th>GM/GMV</th><th>环比</th></tr></thead>
+    <tbody id="prodTbody"></tbody>
+  </table></div>
+</div>
+
+<div class="panel" id="tab-neg">
+  <div class="krow">
+    <div class="k rd"><div class="klb">负毛利SKU总数</div><div class="kv">412<span>个</span></div><div class="ks dn">需清退或调价</div></div>
+    <div class="k rd"><div class="klb">负毛利合计亏损</div><div class="kv">-12.8<span>万</span></div><div class="ks dn">侵蚀正毛利</div></div>
+    <div class="k or"><div class="klb">负毛GMV合计</div><div class="kv">115.2<span>万（前40）</span></div><div class="ks dn">低价带量无效</div></div>
+  </div>
+  <div class="st">负毛利产品 TOP 40</div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>产品名称</th><th>科室</th><th>业务模式</th><th>3月GMV</th><th>3月GM（亏损）</th><th>GM/GMV</th></tr></thead>
+    <tbody id="negTbody"></tbody>
+  </table></div>
+  <div class="alt">⚠️ <strong>内分泌安达唐亏损最重：</strong>3月亏损-1.54万（达格列净10mg版本），另一个安达释规格同样亏-0.11万。建议立即排查定价，或与阿斯利康重新谈成本。</div>
+  <div class="alt">⚠️ <strong>男科负毛集中：</strong>希爱力5mg*28片GMV 14.4万但亏-0.53万，爱力劲5mg*15片亏-0.44万，万艾可100mg亏-0.23万。男科整体毛利率14.5%中有相当一部分被这些负毛品拉低。</div>
+  <div class="alt">⚠️ <strong>阿斯利康体系整体亏损：</strong>阿斯利康药业（中国）公司负毛合计-1.5万，是最大单一厂商负毛来源，需重新评估采购协议。</div>
+</div>
+
+<script>
+const COLORS=['#3498db','#e67e22','#2ecc71','#9b59b6','#e74c3c','#1abc9c','#f39c12','#34495e','#5dade2','#bb8fce','#58d68d','#f8c471','#85c1e9','#f1948a'];
+const GMV_TOTAL = 31737161.900768377;
+
+// Biz pie
+new Chart(document.getElementById('bizPie'),{
+  type:'doughnut',
+  data:{labels:['MP','自营JBP','自营备货'],datasets:[{data:[981.6,335.5,1856.6],backgroundColor:['#e67e22','#2ecc71','#3498db'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)',font:{size:11},boxWidth:10}}}}
+});
+
+// Plat pie
+new Chart(document.getElementById('platPie'),{
+  type:'doughnut',
+  data:{labels:['三方平台','官网/APP','官网/H5','官网/PC'],datasets:[{data:[1150.3,1672.4,264.8,86.2],backgroundColor:['#3498db','#e67e22','#2ecc71','#9b59b6'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)',font:{size:11},boxWidth:10}}}}
+});
+
+// Channel bar
+const chNames=["\u4e09\u65b9\u5e73\u53f0 \u00b7 \u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/APP \u00b7 MP", "\u5b98\u7f51/APP \u00b7 \u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/APP \u00b7 \u81ea\u8425JBP", "\u5b98\u7f51/H5 \u00b7 \u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC \u00b7 \u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5 \u00b7 MP", "\u4e09\u65b9\u5e73\u53f0 \u00b7 \u81ea\u8425JBP", "\u5b98\u7f51/H5 \u00b7 \u81ea\u8425JBP", "\u5b98\u7f51/PC \u00b7 MP", "\u5b98\u7f51/PC \u00b7 \u81ea\u8425JBP"];
+const chGmvs=[1094.27, 905.04, 538.42, 228.95, 158.79, 65.16, 63.04, 56.08, 42.96, 13.52, 7.48];
+const chGms=[100.48, 54.88, 33.35, 28.9, 26.58, 30.4, 3.67, 6.71, 5.2, 0.78, 0.99];
+new Chart(document.getElementById('chBar'),{
+  type:'bar',
+  data:{labels:chNames,datasets:[
+    {label:'GMV（万）',data:chGmvs,backgroundColor:'#3498db88',borderColor:'#3498db',borderWidth:1,borderRadius:4,yAxisID:'y'},
+    {label:'GM（万）',data:chGms,backgroundColor:'#2ecc7188',borderColor:'#2ecc71',borderWidth:1,borderRadius:4,yAxisID:'y'}
+  ]},
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.55)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}}}}
+});
+
+// Ch detail bars
+const chGmrs=[9.2, 6.1, 6.2, 12.6, 16.7, 46.7, 5.8, 12.0, 12.1, 5.8, 13.2];
+new Chart(document.getElementById('chGmvBar'),{
+  type:'bar',
+  data:{labels:chNames,datasets:[{label:'GMV',data:chGmvs,backgroundColor:COLORS,borderRadius:4}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+new Chart(document.getElementById('chGmrBar'),{
+  type:'bar',
+  data:{labels:chNames,datasets:[{label:'GM/GMV%',data:chGmrs,backgroundColor:chGmrs.map(v=>v>=12?'#2ecc7188':v>=8?'#f39c1288':'#e74c3c88'),borderWidth:0,borderRadius:4}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+
+// Dept charts
+const deptNames=["\u5fc3\u8111\u8840\u7ba1", "\u7537\u79d1\u75be\u75c5", "\u795e\u7ecf\u7cfb\u7edf", "\u6ecb\u8865\u8c03\u517b", "\u809d\u75c5\u79d1", "\u76ae\u80a4\u75c5", "\u98ce\u6e7f\u9aa8\u79d1", "\u5185\u5206\u6ccc", "\u547c\u5438\u9053\u75be\u75c5", "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5", "\u8425\u517b\u4fdd\u5065", "\u533b\u7597\u5668\u68b0", "\u4e94\u5b98\u79d1\u75be\u75c5", "\u80bf\u7624\u79d1", "\u7ef4\u751f\u7d20\u3001\u9499\u5242", "\u5987\u79d1\u75be\u75c5", "\u7f8e\u5986\u4e2a\u62a4", "\u6210\u4eba\u7528\u54c1", "\u9690\u5f62\u773c\u955c"];
+const deptGmvs=[618.84, 361.03, 327.51, 226.94, 222.31, 209.5, 208.1, 201.09, 193.37, 125.96, 113.95, 83.4, 59.6, 52.74, 52.69, 48.23, 39.22, 28.84, 0.38];
+const deptGmrs=[7.9, 14.5, 6.8, 16.4, 7.4, 10.4, 8.2, 6.7, 8.6, 9.0, 7.6, 4.4, 7.6, 7.4, 6.1, 8.2, 4.7, 16.3, 18.0];
+new Chart(document.getElementById('deptGmv'),{
+  type:'bar',data:{labels:deptNames,datasets:[{label:'GMV',data:deptGmvs,backgroundColor:COLORS,borderRadius:3}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+new Chart(document.getElementById('deptGmr'),{
+  type:'bar',data:{labels:deptNames,datasets:[{label:'GM/GMV%',data:deptGmrs,backgroundColor:deptGmrs.map(v=>v>=15?'#2ecc7188':v>=10?'#3498db88':v>=7?'#f39c1288':'#e74c3c88'),borderWidth:0,borderRadius:3}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.6)',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+
+// Mfg data
+const mfgData = [["\u6656\u81f4\u5236\u836f(\u5927\u8fde)\u6709\u9650\u516c\u53f8(\u8f89\u745e\u5236\u836f\u6709\u9650\u516c\u53f8)", 169.1, 12.46, ["\u7537\u79d1\u75be\u75c5", "\u76ae\u80a4\u75c5", "\u5fc3\u8111\u8840\u7ba1"]], ["\u6b63\u5927\u5929\u6674\u836f\u4e1a\u96c6\u56e2\u80a1\u4efd\u6709\u9650\u516c\u53f8", 98.29, 8.38, ["\u547c\u5438\u9053\u75be\u75c5", "\u5185\u5206\u6ccc", "\u98ce\u6e7f\u9aa8\u79d1"]], ["IPR Pharmaceuticals, INCORPORATED(\u963f\u65af\u5229\u5eb7\u836f\u4e1a", 88.67, 8.73, ["\u5fc3\u8111\u8840\u7ba1"]], ["AstraZeneca Pharmaceuticals LP(\u963f\u65af\u5229\u5eb7\u5236\u836f\u6709\u9650\u516c", 83.83, 6.35, ["\u80bf\u7624\u79d1", "\u795e\u7ecf\u7cfb\u7edf", "\u5185\u5206\u6ccc"]], ["\u5e7f\u5dde\u767d\u4e91\u5c71\u533b\u836f\u96c6\u56e2\u80a1\u4efd\u6709\u9650\u516c\u53f8\u767d\u4e91\u5c71\u5236\u836f\u603b\u5382", 78.38, 7.88, ["\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5", "\u5185\u5206\u6ccc"]], ["Menarini-von Heyden GmbH(MvH)", 52.48, 1.06, ["\u7537\u79d1\u75be\u75c5"]], ["AstraZeneca Pty Ltd", 50.83, 6.06, ["\u547c\u5438\u9053\u75be\u75c5"]], ["\u5317\u4eac\u540c\u4ec1\u5802\u79d1\u6280\u53d1\u5c55\u80a1\u4efd\u6709\u9650\u516c\u53f8\u5236\u836f\u5382", 47.86, 2.84, ["\u5987\u79d1\u75be\u75c5", "\u76ae\u80a4\u75c5", "\u547c\u5438\u9053\u75be\u75c5"]], ["\u6d77\u5357\u5148\u58f0\u836f\u4e1a\u6709\u9650\u516c\u53f8", 46.7, 3.01, ["\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5", "\u76ae\u80a4\u75c5"]], ["Nipro Pharma Corporation Kagamiishi Plan", 46.12, 3.84, ["\u5fc3\u8111\u8840\u7ba1"]], ["\u7f8e\u65f6\u5316\u5b66\u5236\u836f\u80a1\u4efd\u6709\u9650\u516c\u53f8\u5357\u6295\u5382(\u91cd\u5e86\u6d77\u9ed8\u5c3c\u5236\u836f\u6709\u9650\u516c\u53f8\u5206\u5305\u88c5)", 33.01, 3.08, ["\u795e\u7ecf\u7cfb\u7edf"]], ["Orion Corporation", 27.92, 1.48, ["\u533b\u7597\u5668\u68b0", "\u80bf\u7624\u79d1", "\u795e\u7ecf\u7cfb\u7edf"]], ["\u4e1c\u6d77\u5236\u836f(\u6cb3\u5317)\u6709\u9650\u516c\u53f8", 27.19, 4.59, ["\u5987\u79d1\u75be\u75c5", "\u7ef4\u751f\u7d20\u3001\u9499\u5242", "\u76ae\u80a4\u75c5"]], ["\u6d59\u6c5f\u4eac\u65b0\u836f\u4e1a\u80a1\u4efd\u6709\u9650\u516c\u53f8", 26.32, 1.33, ["\u7537\u79d1\u75be\u75c5", "\u76ae\u80a4\u75c5", "\u5185\u5206\u6ccc"]], ["\u5e7f\u5dde\u6717\u5723\u836f\u4e1a\u6709\u9650\u516c\u53f8", 25.18, 18.18, ["\u5987\u79d1\u75be\u75c5", "\u7537\u79d1\u75be\u75c5", "\u5185\u5206\u6ccc"]], ["\u5357\u4eac\u6b63\u79d1\u533b\u836f\u80a1\u4efd\u6709\u9650\u516c\u53f8", 25.0, 1.87, ["\u5987\u79d1\u75be\u75c5", "\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5"]], ["Astrea Fontaine(RECIPHARM FONTAINE)", 24.8, 1.89, ["\u5fc3\u8111\u8840\u7ba1"]], ["\u6ec7\u8679\u836f\u4e1a\u96c6\u56e2\u80a1\u4efd\u6709\u9650\u516c\u53f8", 24.6, 1.64, ["\u76ae\u80a4\u75c5"]], ["\u4e0a\u6d77\u4e0a\u836f\u4e2d\u897f\u5236\u836f\u6709\u9650\u516c\u53f8", 24.09, 1.43, ["\u98ce\u6e7f\u9aa8\u79d1", "\u5fc3\u8111\u8840\u7ba1", "\u76ae\u80a4\u75c5"]], ["\u6c64\u81e3\u500d\u5065\u80a1\u4efd\u6709\u9650\u516c\u53f8", 21.85, 1.35, ["\u6ecb\u8865\u8c03\u517b", "\u533b\u7597\u5668\u68b0", "\u7ef4\u751f\u7d20\u3001\u9499\u5242"]], ["\u536b\u6750(\u4e2d\u56fd)\u836f\u4e1a\u6709\u9650\u516c\u53f8", 21.55, 1.77, ["\u98ce\u6e7f\u9aa8\u79d1", "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5", "\u533b\u7597\u5668\u68b0"]], ["Novartis Farma S.p.A(\u5317\u4eac\u8bfa\u534e\u5236\u836f\u6709\u9650\u516c\u53f8\u5206\u5305\u88c5)", 20.81, 0.27, ["\u5fc3\u8111\u8840\u7ba1", "\u795e\u7ecf\u7cfb\u7edf"]], ["\u5317\u4eac\u540c\u4ec1\u5802\u80a1\u4efd\u6709\u9650\u516c\u53f8\u540c\u4ec1\u5802\u5236\u836f\u5382", 19.21, 1.14, ["\u5987\u79d1\u75be\u75c5", "\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5"]], ["\u6d59\u6c5f\u65bd\u5f3a\u5236\u836f\u6709\u9650\u516c\u53f8", 19.01, 0.53, ["\u7537\u79d1\u75be\u75c5", "\u6ecb\u8865\u8c03\u517b"]], ["\u9f50\u9c81\u5236\u836f\u6709\u9650\u516c\u53f8", 18.86, 1.01, ["\u76ae\u80a4\u75c5", "\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5"]], ["\u91cd\u5e86\u836f\u53cb\u5236\u836f\u6709\u9650\u8d23\u4efb\u516c\u53f8", 18.33, 2.98, ["\u76ae\u80a4\u75c5", "\u5185\u5206\u6ccc", "\u98ce\u6e7f\u9aa8\u79d1"]], ["\u7261\u4e39\u6c5f\u7075\u6cf0\u836f\u4e1a\u80a1\u4efd\u6709\u9650\u516c\u53f8", 17.63, 1.32, ["\u547c\u5438\u9053\u75be\u75c5", "\u4e94\u5b98\u79d1\u75be\u75c5", "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5"]], ["\u4e2d\u7f8e\u4e0a\u6d77\u65bd\u8d35\u5b9d\u5236\u836f\u6709\u9650\u516c\u53f8", 16.99, 0.26, ["\u547c\u5438\u9053\u75be\u75c5", "\u5185\u5206\u6ccc", "\u7ef4\u751f\u7d20\u3001\u9499\u5242"]], ["AstraZeneca AB(\u963f\u65af\u5229\u5eb7\u5236\u836f\u6709\u9650\u516c\u53f8\u5206\u5305\u88c5)", 15.75, 0.58, ["\u6d88\u5316\u7cfb\u7edf\u75be\u75c5", "\u5fc3\u8111\u8840\u7ba1", "\u533b\u7597\u5668\u68b0"]], ["AstraZeneca AB", 15.32, 0.01, ["\u547c\u5438\u9053\u75be\u75c5"]], ["\u963f\u65af\u5229\u5eb7\u836f\u4e1a\uff08\u4e2d\u56fd\uff09\u6709\u9650\u516c\u53f8", 15.05, -1.5, ["\u5fc3\u8111\u8840\u7ba1", "\u547c\u5438\u9053\u75be\u75c5", "\u5185\u5206\u6ccc"]], ["Laboratoires Galderma", 14.63, 0.93, ["\u76ae\u80a4\u75c5"]], ["Patheon Inc.", 13.98, 0.4, ["\u76ae\u80a4\u75c5", "\u795e\u7ecf\u7cfb\u7edf", "\u809d\u75c5\u79d1"]], ["Viatris Pharmaceuticals LLC(\u6656\u81f4\u5236\u836f(\u5927\u8fde)\u6709\u9650\u516c\u53f8", 13.87, 0.97, ["\u98ce\u6e7f\u9aa8\u79d1", "\u7537\u79d1\u75be\u75c5"]], ["ASTRAZENECA DUNKERQUE PRODUCTION", 13.65, 0.42, ["\u5987\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5", "\u9690\u5f62\u773c\u955c"]], ["\u82cf\u5dde\u7279\u745e\u836f\u4e1a\u80a1\u4efd\u6709\u9650\u516c\u53f8", 13.45, 1.77, ["\u5987\u79d1\u75be\u75c5", "\u7537\u79d1\u75be\u75c5", "\u809d\u75c5\u79d1"]], ["\u56db\u5ddd\u79d1\u4f26\u836f\u4e1a\u80a1\u4efd\u6709\u9650\u516c\u53f8", 13.16, 2.04, ["\u5987\u79d1\u75be\u75c5", "\u76ae\u80a4\u75c5", "\u7537\u79d1\u75be\u75c5"]], ["\u6c5f\u897f\u91d1\u6c34\u5b9d\u5236\u836f\u6709\u9650\u516c\u53f8", 13.06, 0.98, ["\u533b\u7597\u5668\u68b0", "\u7537\u79d1\u75be\u75c5", "\u547c\u5438\u9053\u75be\u75c5"]], ["\u6656\u81f4\u5236\u836f(\u5927\u8fde)\u6709\u9650\u516c\u53f8", 12.86, -0.2, ["\u5fc3\u8111\u8840\u7ba1", "\u7537\u79d1\u75be\u75c5", "\u5185\u5206\u6ccc"]], ["\u5148\u58f0\u836f\u4e1a\u6709\u9650\u516c\u53f8", 12.55, 1.16, ["\u547c\u5438\u9053\u75be\u75c5", "\u98ce\u6e7f\u9aa8\u79d1", "\u5fc3\u8111\u8840\u7ba1"]]];
+let mfgFiltered = [...mfgData];
+function renderMfg() {
+  const tb = document.getElementById('mfgTbody');
+  tb.innerHTML = mfgFiltered.slice(0,40).map((r,i)=>{
+    const gmr = r[2]>0?(r[2]/r[1]*100).toFixed(1):0;
+    const gmrCls = gmr>=12?'up':gmr>=7?'wn':'dn';
+    const pct = (r[1]/GMV_TOTAL*100000).toFixed(1);
+    const bar = Math.min(r[1]/17,100);
+    const bc = gmr>=12?'#2ecc71':gmr>=7?'#f39c12':'#e74c3c';
+    return `<tr><td>${i+1}</td><td><strong>${r[0]}</strong></td><td><strong>${r[1]}</strong></td><td>${r[2]}</td>
+      <td class="${gmrCls}">${gmr}%</td><td style="font-size:10px;color:rgba(255,255,255,0.4)">${r[3].join('/')}</td>
+      <td><div class="bar-inline"><div class="bar-fill" style="width:${bar}%;background:${bc}"></div></div>${pct}%</td></tr>`;
+  }).join('');
+}
+function filterMfg(){
+  const q=document.getElementById('mfgSearch').value.toLowerCase();
+  mfgFiltered=mfgData.filter(r=>r[0].toLowerCase().includes(q)||r[3].join('').includes(q));
+  renderMfg();
+}
+renderMfg();
+
+// Mfg charts
+const mfg15 = mfgData.slice(0,15);
+new Chart(document.getElementById('mfgBar'),{
+  type:'bar',data:{labels:mfg15.map(r=>r[0].slice(-16)),datasets:[{label:'GMV（万）',data:mfg15.map(r=>r[1]),backgroundColor:COLORS,borderRadius:3}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.55)',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+const mfgGmrSort=[...mfgData].filter(r=>r[2]>0.5).sort((a,b)=>b[2]/b[1]-a[2]/a[1]).slice(0,15);
+new Chart(document.getElementById('mfgGmrBar'),{
+  type:'bar',data:{labels:mfgGmrSort.map(r=>r[0].slice(-14)),datasets:[{label:'GM/GMV%',data:mfgGmrSort.map(r=>+(r[2]/r[1]*100).toFixed(1)),backgroundColor:'#2ecc7166',borderColor:'#2ecc71',borderWidth:1,borderRadius:3}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.55)',font:{size:9}},grid:{color:'rgba(255,255,255,0.03)'}}}}
+});
+
+// Products
+const top50 = [["\u6da6\u4f17 \u6069\u66ff\u5361\u97e6\u5206\u6563\u7247 0.5mg*14\u7247*2\u677f", 85.15, 7.35, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 501.7], ["\u53ef\u5b9a \u745e\u8212\u4f10\u4ed6\u6c40\u9499\u7247 5mg*7\u7247", 79.15, 8.96, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 54.0], ["\u5b89\u8fbe\u91ca \u8fbe\u683c\u5217\u51c0\u4e8c\u7532\u53cc\u80cd\u7f13\u91ca\u7247(\u2160) 10mg/1000mg*28\u7247", 78.49, 6.15, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 109.0], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 20mg*28\u7247", 60.42, 4.72, "\u6ecb\u8865\u8c03\u517b", "MP", "\u5b98\u7f51/APP", 293.8], ["\u666e\u7c73\u514b\u4ee4\u8212 \u5438\u5165\u7528\u5e03\u5730\u5948\u5fb7\u6df7\u60ac\u6db2 2ml:0.5mg*5\u652f", 50.68, 6.05, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", -25.7], ["\u5e0c\u7231\u529b/Cialis \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*28\u7247", 46.26, 0.38, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 15.4], ["\u7edc\u6d3b\u559c \u82ef\u78fa\u9178\u6c28\u6c2f\u5730\u5e73\u7247 5mg*28\u7247", 36.69, 3.57, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 63.3], ["\u767d\u4e91\u5c71/\u91d1\u6208 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 50mg*20\u7247", 36.56, 1.43, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 16.2], ["\u6d77\u9ed8\u5c3c/\u7f8e\u65f6\u7389 \u76d0\u9178\u66f2\u5511\u916e\u7247 50mg*20\u7247", 33.01, 3.08, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 358.5], ["\u7279\u7ef4\u4e1d \u5f02\u7ef4A\u9178\u8f6f\u80f6\u56ca 10mg*24\u7c92", 27.14, 4.57, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", -27.9], ["\u559c\u683c\u8fc8 \u5c3c\u53ef\u5730\u5c14\u7247 5mg*10\u7247*10\u677f", 25.85, 2.06, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 57.0], ["\u529b\u5e73\u4e4b \u975e\u8bfa\u8d1d\u7279\u80f6\u56ca 200mg*10\u7c92", 25.21, 1.92, "\u5fc3\u8111\u8840\u7ba1", "MP", "\u5b98\u7f51/H5", 51.1], ["\u745e\u590d\u8212 \u5417\u66ff\u9ea6\u8003\u915a\u916f\u80f6\u56ca 0.25g*10\u7c92*4\u677f", 24.65, 2.59, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 152.9], ["\u7eb7\u4e50 \u786b\u9178\u7f9f\u6c2f\u55b9\u7247 0.1g*14\u7247", 20.66, 1.12, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 127.9], ["\u559c\u683c\u8fc8 \u5c3c\u53ef\u5730\u5c14\u7247 5mg*10\u7247*3\u677f", 20.25, 1.78, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 123.8], ["\u5eb7\u738b \u590d\u65b9\u916e\u5eb7\u5511\u53d1\u7528\u6d17\u5242 100ml/\u7ba1", 19.77, 1.3, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 2376.2], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 10mg*28\u7247", 19.18, 1.47, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 183.4], ["\u65bd\u5f3a \u590d\u65b9\u7384\u9a79\u80f6\u56ca 0.42g*72\u7c92/\u74f6", 18.4, 0.49, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 77.3], ["\u5409\u6613\u514b \u5de6\u4e59\u62c9\u897f\u5766\u7247 0.25g*10\u7247*3\u677f", 18.15, 0.72, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 121.4], ["\u7075\u6cf0/\u897f\u7ef4\u5c14 \u7852\u9175\u6bcd\u7247(OTC) 50\u03bcg*50\u7247/\u74f6", 16.44, 1.18, "\u80bf\u7624\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 200.4], ["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*10\u7247*3\u677f", 14.38, -1.54, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 35.4], ["\u535a\u8def\u5b9a \u6069\u66ff\u5361\u97e6\u7247 0.5mg*28\u7247", 14.32, 0.03, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 57.7], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*15\u7247*2\u677f", 14.22, -0.44, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 29.0], ["\u52b2\u6208 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*8\u7247*4\u677f", 14.02, 10.89, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 107.6], ["\u500d\u62e9\u745e/\u4ee4\u7545 \u5e03\u5730\u683c\u798f\u5438\u5165\u6c14\u96fe\u5242 120\u63ff", 13.65, 0.42, "\u9690\u5f62\u773c\u955c", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", -58.0], ["\u97e6\u7acb\u5f97 \u5bcc\u9a6c\u9178\u4e19\u915a\u66ff\u8bfa\u798f\u97e6\u7247 25mg*30\u7247", 13.56, 0.38, "\u809d\u75c5\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 76.4], ["\u827e\u5f97\u8f9b \u827e\u62c9\u83ab\u5fb7\u7247 25mg*14\u7247", 13.38, 0.44, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 23.5], ["\u66f2\u83b1 \u5965\u5361\u897f\u5e73\u7247 0.3g*50\u7247", 12.79, 0.24, "\u795e\u7ecf\u7cfb\u7edf", "MP", "\u5b98\u7f51/APP", 29.7], ["\u73c2\u4e39 \u6069\u4ed6\u5361\u670b\u7247 0.2g*30\u7247/\u74f6", 12.42, 0.63, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 43.4], ["\u7acb\u666e\u59a5 \u963f\u6258\u4f10\u4ed6\u6c40\u9499\u7247 20mg*7\u7247", 12.28, 0.67, "\u9690\u5f62\u773c\u955c", "MP", "\u5b98\u7f51/APP", 388.7], ["\u827e\u6377\u7ef4 \u67b8\u6a7c\u9178\u6258\u6cd5\u66ff\u5e03\u7247 5mg*28\u7247/\u74f6", 11.91, 1.11, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 0.1], ["\u540c\u4ec1\u5802 \u516d\u5473\u5730\u9ec4\u4e38 9g*10\u4e38(\u5927\u871c\u4e38)", 11.72, 0.58, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 7.4], ["\u897f\u4e50\u8446/CELEBREX \u585e\u6765\u6614\u5e03\u80f6\u56ca 0.2g*18\u7c92", 10.6, 0.76, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 35.4], ["\u767d\u4e91\u5c71/\u91d1\u6208/BYS/\u5e7f\u836f\u767d\u4e91\u5c71 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 25mg*21\u7247", 10.58, 1.67, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 0.3], ["\u8fbe\u7075\u590d \u6069\u4ed6\u5361\u670b\u53cc\u591a\u5df4\u7247(\u2161) 30\u7247/\u74f6", 9.73, 0.44, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 276.4], ["\u5999\u7eb3 \u76d0\u9178\u4e59\u54cc\u7acb\u677e\u7247 50mg*10\u7247*2\u677f(\u8584\u819c\u8863\u7247)", 9.73, 1.11, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 113.5], ["\u5b89\u7532\u7ef4 \u975e\u90a3\u96c4\u80fa\u7247 1mg*10\u7247*3\u677f", 9.45, 0.8, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 52.1], ["\u795e\u5a01 \u5065\u9633\u7247 0.64g*12\u7247", 9.44, 4.61, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 94.2], ["HORAE \u8695\u8338\u67f1\u5929\u80f6\u56ca 0.4g*8\u7c92*2\u677f", 9.41, 6.51, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 50.0], ["\u5de6\u6d1b\u590d \u76d0\u9178\u820d\u66f2\u6797\u7247 50mg*14\u7247", 9.35, 0.61, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", -23.3], ["\u5f00\u6d66\u5170/Keppra \u5de6\u4e59\u62c9\u897f\u5766\u7247 0.5g*30\u7247", 9.32, 0.4, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 666.7], ["\u4e07\u827e\u53ef \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 100mg*12\u7247", 8.93, -0.23, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 62.1], ["\u4e07\u827e\u53ef \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 50mg*10\u7247", 8.46, 0.3, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 29.0], ["\u53ef\u5b9a \u745e\u8212\u4f10\u4ed6\u6c40\u9499\u7247 10mg*14\u7247*2\u677f", 8.04, -0.29, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 59.6], ["\u4fe1\u5fc5\u53ef\u90fd\u4fdd \u5e03\u5730\u5948\u5fb7\u798f\u83ab\u7279\u7f57\u5438\u5165\u7c89\u96fe\u5242(\u2160) 80\u03bcg:4.5\u03bcg*60\u5438/\u652f", 7.9, 0.34, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 118.5], ["\u6ce2\u6bd4\u5b81 \u4f50\u7c73\u66f2\u666e\u5766\u7247 2.5mg*9\u7247", 7.59, 0.45, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 83.3], ["\u534e\u68ee/\u66f2\u7545 \u5965\u5229\u53f8\u4ed6\u80f6\u56ca 0.12g*21\u7c92/\u677f", 7.4, 0.59, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", 32.4], ["\u51ef\u83b1\u6b62/\u836f\u53cb \u76d0\u9178\u4f9d\u5339\u65af\u6c40\u80f6\u56ca 10mg*6\u7c92", 7.37, 1.45, "\u76ae\u80a4\u75c5", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/H5", 7570.5], ["\u56fa\u529b\u5eb7/Glakay \u56db\u70ef\u7532\u8418\u918c\u8f6f\u80f6\u56ca 15mg*30\u7c92", 7.37, 0.63, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/APP", 61.6], ["\u7231\u82e5\u534e \u6765\u6c1f\u7c73\u7279\u7247 10mg*8\u7247*2\u677f", 7.31, 0.47, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27", "\u5b98\u7f51/PC", -57.2]];
+let prodFiltered = [...top50];
+function renderProd(){
+  const tb = document.getElementById('prodTbody');
+  tb.innerHTML = prodFiltered.map((r,i)=>{
+    const gmr = r[1]>0?(r[2]/r[1]*100).toFixed(1):0;
+    const gmrCls = gmr>=15?'up':gmr>=8?'bl':gmr>=4?'wn':'dn';
+    const mom = r[6]; const momCls=mom>20?'up':mom>0?'bl':mom>-20?'wn':'dn';
+    const momStr = mom===999?'新品':((mom>0?'+':'')+mom+'%');
+    const tag = r[4]==='MP'?'tg-mp':r[4]==='自营JBP'?'tg-jbp':'tg-zy';
+    return `<tr><td>${i+1}</td><td style="max-width:220px">${r[0]}</td>
+      <td style="font-size:10px;color:rgba(255,255,255,0.4)">${r[3]}</td>
+      <td><span class="tg ${tag}">${r[4]}</span></td>
+      <td style="font-size:10px;color:rgba(255,255,255,0.35)">${r[5]}</td>
+      <td><strong>${r[1]}万</strong></td><td>${r[2]}万</td>
+      <td class="${gmrCls}">${gmr}%</td>
+      <td class="${momCls}">${momStr}</td></tr>`;
+  }).join('');
+}
+function filterProd(){
+  const q=document.getElementById('prodSearch').value.toLowerCase();
+  prodFiltered=top50.filter(r=>r[0].toLowerCase().includes(q)||r[3].includes(q)||r[4].includes(q));
+  renderProd();
+}
+renderProd();
+
+// Neg products
+const negData = [["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*10\u7247*3\u677f", 14.38, -1.54, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27"], ["999 \u611f\u5192\u7075\u9897\u7c92 10g*9\u888b", 4.33, -1.26, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u7f9a\u9510/\u4e24\u53ea\u8001\u864e \u4f24\u6e7f\u6b62\u75db\u818f 7cm*10cm*10\u8d34", 0.18, -0.46, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 5mg*15\u7247*2\u677f", 14.22, -0.44, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u4e5d\u829d\u5802/\u829d \u516d\u5473\u5730\u9ec4\u4e38(\u6d53\u7f29\u4e38) 200\u4e38/\u74f6", 2.25, -0.41, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["21\u91d1\u7ef4\u4ed6 \u591a\u7ef4\u5143\u7d20\u7247(21) 100\u7247/\u74f6", 2.56, -0.4, "\u7ef4\u751f\u7d20\u3001\u9499\u5242", "\u81ea\u8425\u5907\u8d27"], ["\u4fe1\u5fc5\u53ef\u90fd\u4fdd \u5e03\u5730\u5948\u5fb7\u798f\u83ab\u7279\u7f57\u5438\u5165\u7c89\u96fe\u5242(\u2161) 160\u03bcg/4.5\u03bcg*60\u5438/\u652f", 5.77, -0.38, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u6c5f\u4e2d \u5065\u80c3\u6d88\u98df\u7247 0.8g*8\u7247*4\u677f(\u8584\u819c\u8863\u7247)", 0.84, -0.35, "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u7231\u529b\u52b2 \u4ed6\u8fbe\u62c9\u975e\u7247 20mg*5\u7247*2\u677f\uff08\u8584\u819c\u8863\u7247\uff09", 6.19, -0.3, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["BETALOCZOK/\u500d\u4ed6\u4e50\u514b \u7425\u73c0\u9178\u7f8e\u6258\u6d1b\u5c14\u7f13\u91ca\u7247 47.5mg*14\u7247*2\u677f", 3.27, -0.29, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u53ef\u5b9a \u745e\u8212\u4f10\u4ed6\u6c40\u9499\u7247 10mg*14\u7247*2\u677f", 8.04, -0.29, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u683c\u534e\u6b62 \u76d0\u9178\u4e8c\u7532\u53cc\u80cd\u7247 0.5g*10\u7247/\u677f\uff0c2\u677f/\u76d2", 3.81, -0.27, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27"], ["\u90fd\u4e50 \u91d1\u55d3\u5b50\u5589\u7247 2g*6\u7247*2\u677f", 0.52, -0.24, "\u533b\u7597\u5668\u68b0", "MP"], ["CHENPON \u590d\u5408\u7ef4\u751f\u7d20B\u7247 100\u7247", 0.28, -0.24, "\u7ef4\u751f\u7d20\u3001\u9499\u5242", "\u81ea\u8425\u5907\u8d27"], ["\u4e07\u827e\u53ef \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 100mg*12\u7247", 8.93, -0.23, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u6ce2\u7acb\u7ef4/PLAVIX \u786b\u9178\u6c22\u6c2f\u5421\u683c\u96f7\u7247 75mg*28\u7247", 2.99, -0.22, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u6d77\u6c0f\u6d77\u8bfa \u4e00\u6b21\u6027\u4f7f\u7528\u533b\u7528\u5916\u79d1\u53e3\u7f69 17.5cm*9.5cm*10\u53ea  \u65e0\u83cc \u8033\u6302\u5f0f\u5e73\u9762\u5f62  \u84dd\u8272", 0.12, -0.2, "\u533b\u7597\u5668\u68b0", "\u81ea\u8425JBP"], ["\u5343\u5a01/\u9f50\u9c81 \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 50mg*7\u7247", 4.99, -0.19, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u4f18\u5eb7 \u7535\u5b50\u4f53\u6e29\u8ba1 MT-502A", 0.07, -0.19, "\u533b\u7597\u5668\u68b0", "\u81ea\u8425JBP"], ["\u611f\u5eb7 \u590d\u65b9\u6c28\u915a\u70f7\u80fa\u7247 6\u7247*2\u677f", 1.37, -0.18, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u9f3b\u5eb7\u6263 4\u677f*3\u7c92", 0.0, -0.18, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u4e1c\u963f\u963f\u80f6 \u590d\u65b9\u963f\u80f6\u6d46 20ml*48\u652f(\u65e0\u8517\u7cd6)", 3.57, -0.17, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425JBP"], ["\u7f8e\u591a\u82ad \u591a\u5df4\u4e1d\u80bc\u7247 0.25g*40\u7247", 4.16, -0.16, "\u795e\u7ecf\u7cfb\u7edf", "\u81ea\u8425JBP"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u6655\u8f66\u6263 4\u677f*3\u7c92", 0.01, -0.16, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u5b89\u795e\u6263 1\u677f*3\u7c92", 0.0, -0.15, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u7f57\u6d6e\u5c71\u56fd\u836f/\u9192\u6208 \u590d\u65b9\u82c1\u84c9\u80f6\u56ca 0.5g*18\u7c92", 2.3, -0.14, "\u6ecb\u8865\u8c03\u517b", "\u81ea\u8425\u5907\u8d27"], ["\u827e\u5f97\u8f9b \u827e\u62c9\u83ab\u5fb7\u7247 25mg*28\u7247", 7.26, -0.14, "\u98ce\u6e7f\u9aa8\u79d1", "\u81ea\u8425\u5907\u8d27"], ["\u5b89\u8fbe\u5510 \u8fbe\u683c\u5217\u51c0\u7247 10mg*7\u7247*2\u677f", 2.81, -0.14, "\u5185\u5206\u6ccc", "\u81ea\u8425\u5907\u8d27"], ["\u767e\u7075\u9e1f \u7ef4C\u94f6\u7fd8\u7247 12\u7247*2\u677f", 0.17, -0.14, "\u547c\u5438\u9053\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u5188\u672c/okamoto \u5929\u7136\u80f6\u4e73\u6a61\u80f6\u907f\u5b55\u5957 \u8d85\u6da6\u6ed1 \u76f4\u5f62\u5149\u9762\u578b/\u7c89\u7ea2\u827253\u00b12mm*3\u7247\u88c5", 0.05, -0.13, "\u6210\u4eba\u7528\u54c1", "\u81ea\u8425\u5907\u8d27"], ["\u53ef\u5b5a \u533b\u7528\u68c9\u7b7e \u7898\u4f0f\u68c9\u7b7e(\u6298\u65ad\u578b) 8cm*20\u652f", 0.02, -0.12, "\u533b\u7597\u5668\u68b0", "\u81ea\u8425\u5907\u8d27"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u5b89\u795e\u6263 4\u677f*3\u7c92", 0.0, -0.12, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u4e91\u5357\u767d\u836f \u4e91\u5357\u767d\u836f\u91d1\u53e3\u5065\u7259\u818f\u6fc0\u723d\u8584\u8377\u9999\u578b 145g(\u76ca\u4f18\u8584\u8377)", 0.09, -0.11, "\u533b\u7597\u5668\u68b0", "\u81ea\u8425\u5907\u8d27"], ["\u4e07\u827e\u53ef \u67b8\u6a7c\u9178\u897f\u5730\u90a3\u975e\u7247 100mg*2\u7247", 1.12, -0.11, "\u7537\u79d1\u75be\u75c5", "\u81ea\u8425\u5907\u8d27"], ["\u5188\u672c/okamoto \u5929\u7136\u80f6\u4e73\u6a61\u80f6\u907f\u5b55\u5957 3\u7247  \u7eaf\u8584/\u76f4\u5f62\u5149\u9762\u578b/\u7c89\u7ea2\u8272(53\u58eb2\u6beb\u7c73)", 0.04, -0.11, "\u6210\u4eba\u7528\u54c1", "\u81ea\u8425\u5907\u8d27"], ["\u6c5f\u4e2d/\u5229\u6d3b \u4e73\u9178\u83cc\u7d20\u7247 0.4g*8\u7247*4\u677f", 0.61, -0.11, "\u6d88\u5316\u7cfb\u7edf\u75be\u75c5", "\u81ea\u8425JBP"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u9f3b\u5eb7\u6263 1\u677f*3\u7c92", 0.0, -0.1, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u6263\u8d1d\u6bd4 \u690d\u7269\u9999\u85b0\u9f3b\u6263 \u6655\u8f66\u6263 1\u677f*3\u7c92", 0.0, -0.1, "\u7f8e\u5986\u4e2a\u62a4", "\u81ea\u8425\u5907\u8d27"], ["\u5b89\u535a\u7ef4 \u5384\u8d1d\u6c99\u5766\u7247 0.15g*28\u7247", 2.8, -0.1, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425\u5907\u8d27"], ["\u8bfa\u6b23\u59a5 \u6c99\u5e93\u5df4\u66f2\u7f2c\u6c99\u5766\u94a0\u7247 100mg*28\u7247", 5.11, -0.08, "\u5fc3\u8111\u8840\u7ba1", "\u81ea\u8425JBP"]];
+const negTb = document.getElementById('negTbody');
+negTb.innerHTML = negData.map((r,i)=>{
+  const gmr = r[1]>0?(r[2]/r[1]*100).toFixed(1):0;
+  const tag = r[4]==='MP'?'tg-mp':r[4]==='自营JBP'?'tg-jbp':'tg-zy';
+  return `<tr><td>${i+1}</td><td>${r[0]}</td><td style="font-size:10px;color:rgba(255,255,255,0.4)">${r[3]}</td>
+    <td><span class="tg ${tag}">${r[4]}</span></td><td>${r[1]}万</td>
+    <td style="color:#e74c3c;font-weight:600">${r[2]}万</td>
+    <td style="color:#e74c3c">${gmr}%</td></tr>`;
+}).join('');
+
+function st(id,e){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  e.target.classList.add('active');
+}
+</script></body></html>
