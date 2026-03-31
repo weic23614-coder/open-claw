@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026年4月药网目标拆解</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0f1117;color:#e0e0e0;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1b4b,#1a4080);padding:28px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.header h1{font-size:24px;color:#fff;font-weight:700}
+.header p{font-size:13px;color:rgba(255,255,255,0.45);margin-top:5px}
+.tabs{display:flex;background:#161b27;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 30px;overflow-x:auto}
+.tab{padding:13px 20px;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.45);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab.active{color:#5dade2;border-bottom-color:#5dade2}
+.tab:hover{color:#fff}
+.panel{display:none;padding:28px 36px}
+.panel.active{display:block}
+.kpi-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.kpi{flex:1;min-width:150px;background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px 20px}
+.kpi-label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:700;color:#fff}
+.kpi-val span{font-size:13px;font-weight:400;color:rgba(255,255,255,0.35)}
+.kpi-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px}
+.kpi-sub.up{color:#2ecc71}
+.kpi-sub.down{color:#e74c3c}
+.kpi.highlight .kpi-val{color:#5dade2}
+.kpi.good .kpi-val{color:#2ecc71}
+.kpi.warn .kpi-val{color:#e67e22}
+.section-title{font-size:15px;font-weight:600;color:#fff;margin:22px 0 12px;padding-left:10px;border-left:3px solid #3498db}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px}
+.chart-box{background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:18px 20px}
+.chart-box.wide{grid-column:1/-1}
+.chart-box h3{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px}
+canvas{max-height:260px}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#1e2535;color:rgba(255,255,255,0.45);padding:10px 12px;text-align:left;font-weight:500;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:8px;font-size:11px}
+.badge-blue{background:rgba(52,152,219,0.2);color:#5dade2}
+.badge-green{background:rgba(46,204,113,0.2);color:#2ecc71}
+.badge-orange{background:rgba(230,126,34,0.2);color:#e67e22}
+.badge-red{background:rgba(231,76,60,0.2);color:#e74c3c}
+.progress-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:4px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.alert-box{background:rgba(230,126,34,0.08);border:1px solid rgba(230,126,34,0.2);border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:13px;line-height:1.8;color:rgba(255,255,255,0.8)}
+.alert-box strong{color:#e67e22}
+.info-box{background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.2);border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:13px;line-height:1.8;color:rgba(255,255,255,0.8)}
+.info-box strong{color:#5dade2}
+@media(max-width:768px){.chart-grid{grid-template-columns:1fr}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 2026年4月 · 药网目标拆解</h1>
+  <p>时间进度 93.5% · 数据来源：2026年4月药网目标拆解.xlsx</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview',event)">总目标</div>
+  <div class="tab" onclick="showTab('channel',event)">渠道拆解</div>
+  <div class="tab" onclick="showTab('dept',event)">科室分组</div>
+  <div class="tab" onclick="showTab('operator',event)">运营明细</div>
+  <div class="tab" onclick="showTab('risk',event)">⚠️ 问题诊断</div>
+</div>
+
+<!-- ===== TAB 1: 总目标 ===== -->
+<div class="panel active" id="tab-overview">
+  <div class="kpi-row">
+    <div class="kpi highlight"><div class="kpi-label">4月GMV目标</div><div class="kpi-val">3,640<span>万</span></div><div class="kpi-sub">vs 3月预估3,275万</div></div>
+    <div class="kpi"><div class="kpi-label">4月Revenue目标</div><div class="kpi-val">2,245<span>万</span></div><div class="kpi-sub">vs 3月预估1,931万</div></div>
+    <div class="kpi good"><div class="kpi-label">4月GM目标</div><div class="kpi-val">362<span>万</span></div><div class="kpi-sub up">vs 3月目标 +9.7% ↑</div></div>
+    <div class="kpi warn"><div class="kpi-label">目标GM%</div><div class="kpi-val">16.1<span>%</span></div><div class="kpi-sub down">GM/GMV仅9.93% ↓</div></div>
+    <div class="kpi"><div class="kpi-label">MP GMV</div><div class="kpi-val">1,185<span>万</span></div><div class="kpi-sub">占比 32.5%</div></div>
+    <div class="kpi"><div class="kpi-label">自营 GMV</div><div class="kpi-val">2,455<span>万</span></div><div class="kpi-sub">占比 67.5%</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>4月目标 vs 3月达成 — GMV对比</h3>
+      <canvas id="gmvCompare"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>业务模式 GMV 占比</h3>
+      <canvas id="bizPie"></canvas>
+    </div>
+    <div class="chart-box wide">
+      <h3>历史 GMV 趋势（总计，月度）</h3>
+      <canvas id="histLine" style="max-height:220px"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">目标 vs 历史基准</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>指标</th><th>4月目标</th><th>3月目标</th><th>3月预估达成</th><th>3月预估达成率</th><th>4月 vs 3月目标</th><th>4月 vs 3月达成</th></tr></thead>
+      <tbody>
+        <tr><td>GMV（万）</td><td><strong>3,640</strong></td><td>3,645</td><td>3,275</td><td><span style="color:#e67e22">89.9%</span></td><td><span style="color:#e74c3c">-0.1%</span></td><td><span style="color:#2ecc71">+11.2%</span></td></tr>
+        <tr><td>Revenue（万）</td><td><strong>2,245</strong></td><td>2,237</td><td>1,931</td><td><span style="color:#e67e22">92.3%</span></td><td><span style="color:#2ecc71">+0.4%</span></td><td><span style="color:#2ecc71">+8.8%</span></td></tr>
+        <tr><td>GM（万）</td><td><strong>362</strong></td><td>372</td><td>300</td><td><span style="color:#e74c3c">80.8%</span></td><td><span style="color:#e74c3c">-2.8%</span></td><td><span style="color:#2ecc71">+20.4%</span></td></tr>
+        <tr><td>GM%</td><td><strong>16.1%</strong></td><td>16.6%</td><td>14.6%</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>GM/GMV</td><td><strong>9.93%</strong></td><td>10.2%</td><td>9.2%</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TAB 2: 渠道 ===== -->
+<div class="panel" id="tab-channel">
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">官网-自营</div><div class="kpi-val">1,325<span>万</span></div><div class="kpi-sub">GM 189万 | GM% 16.1%</div></div>
+    <div class="kpi"><div class="kpi-label">官网-MP</div><div class="kpi-val">1,185<span>万</span></div><div class="kpi-sub">GM 73万 | GM% 100%（服务费）</div></div>
+    <div class="kpi good"><div class="kpi-label">三方平台</div><div class="kpi-val">1,130<span>万</span></div><div class="kpi-sub">GM 100万 | GM% 10%</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>渠道 GMV 目标分布</h3>
+      <canvas id="channelPie"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>渠道 GM% 对比</h3>
+      <canvas id="channelGm"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">渠道详细目标</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>渠道</th><th>GMV目标</th><th>Revenue目标</th><th>GM目标</th><th>GM%</th><th>3月GMV达成</th><th>环比变化</th></tr></thead>
+      <tbody>
+        <tr><td>官网-自营</td><td><strong>1,324.9万</strong></td><td>1,172.5万</td><td>188.6万</td><td>16.1%</td><td>1,371.3万</td><td><span style="color:#e74c3c">-3.4%</span></td></tr>
+        <tr><td>官网-MP</td><td><strong>1,185.5万</strong></td><td>73万</td><td>73万</td><td>100%</td><td>1,199.9万</td><td><span style="color:#e74c3c">-1.2%</span></td></tr>
+        <tr><td>三方平台</td><td><strong>1,130万</strong></td><td>1,000万</td><td>100万</td><td>10%</td><td>1,073.5万</td><td><span style="color:#2ecc71">+5.3%</span></td></tr>
+        <tr style="background:rgba(255,255,255,0.03)"><td><strong>合计</strong></td><td><strong>3,640.4万</strong></td><td>2,245.5万</td><td>361.6万</td><td>16.1%</td><td>3,644.7万</td><td><span style="color:#e74c3c">-0.1%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">💡 <strong>三方平台</strong>是本月唯一正增长渠道（+5.3%），GM%目标10%低于3月实际11.5%，存在毛利下滑风险。<br>
+  💡 <strong>官网自营+MP</strong>均小幅下降，整体GMV基本持平3月，重点靠三方拉动增量。</div>
+</div>
+
+<!-- ===== TAB 3: 科室分组 ===== -->
+<div class="panel" id="tab-dept">
+  <div class="kpi-row">
+    <div class="kpi highlight"><div class="kpi-label">科室一组 GMV</div><div class="kpi-val">1,503<span>万</span></div><div class="kpi-sub">客户数目标 83,320</div></div>
+    <div class="kpi"><div class="kpi-label">科室一组 GM</div><div class="kpi-val">162<span>万</span></div><div class="kpi-sub">3月预估 120万</div></div>
+    <div class="kpi highlight"><div class="kpi-label">科室二组 GMV</div><div class="kpi-val">2,073<span>万</span></div><div class="kpi-sub">客户数目标 83,254</div></div>
+    <div class="kpi"><div class="kpi-label">科室二组 GM</div><div class="kpi-val">170<span>万</span></div><div class="kpi-sub">3月预估 134万</div></div>
+    <div class="kpi good"><div class="kpi-label">增值目标 GMV</div><div class="kpi-val">63.6<span>万</span></div><div class="kpi-sub">GM 45万 | GM% 70.8%</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>科室一组 — GMV目标构成</h3>
+      <canvas id="g1Pie"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>科室二组 — GMV目标构成</h3>
+      <canvas id="g2Pie"></canvas>
+    </div>
+    <div class="chart-box wide">
+      <h3>各运营 4月GMV目标 vs 3月预估达成</h3>
+      <canvas id="opBar" style="max-height:280px"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">科室分组目标汇总</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>分组</th><th>GMV目标</th><th>其中MP</th><th>其中自营</th><th>GM目标</th><th>客户数目标</th><th>3月GM预估</th><th>GM环比</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">科室一组</span></td><td><strong>1,503万</strong></td><td>444.6万</td><td>1,058.9万</td><td>162万</td><td>83,320</td><td>120万</td><td><span style="color:#2ecc71">+34.9%↑</span></td></tr>
+        <tr><td><span class="badge badge-orange">科室二组</span></td><td><strong>2,073万</strong></td><td>740.9万</td><td>1,332.4万</td><td>170万</td><td>83,254</td><td>134万</td><td><span style="color:#2ecc71">+27.0%↑</span></td></tr>
+        <tr><td><span class="badge badge-green">增值</span></td><td><strong>63.6万</strong></td><td>—</td><td>—</td><td>45万</td><td>—</td><td>27.2万</td><td><span style="color:#2ecc71">+65.5%↑</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TAB 4: 运营明细 ===== -->
+<div class="panel" id="tab-operator">
+  <div class="section-title">各运营4月GMV目标（GM口径）</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>运营</th><th>分组</th><th>负责科室</th><th>4月GM目标</th><th>3月GM目标</th><th>3月预估达成</th><th>预估达成率</th><th>目标达成进度</th></tr></thead>
+      <tbody id="opTable"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title">各运营历史GM趋势（近12月）</div>
+  <div class="chart-grid" id="opCharts"></div>
+</div>
+
+<!-- ===== TAB 5: 问题诊断 ===== -->
+<div class="panel" id="tab-risk">
+  <div class="section-title">⚠️ 需关注问题</div>
+  <div class="alert-box">⚠️ <strong>问题1：曹明亮目标缺失</strong><br>
+  BI目标拆解Sheet中曹明亮（五官科、营养保健、医疗器械）4月目标列为空，无法计算达成率。3月预估达成约3.5万。需补充目标，否则无考核依据。</div>
+  <div class="alert-box">⚠️ <strong>问题2：杨爱咪科室目标引用错误</strong><br>
+  皮肤病和美妆个护的对比列均显示预估达成率191%，数据源引用了错误单元格（固定值1,898,131而非实际目标）。建议检查公式，正确目标应重新录入。</div>
+  <div class="alert-box">⚠️ <strong>问题3：3月GM完成率偏低（80.8%）</strong><br>
+  3月GM目标372万，预估达成300万，完成率仅80.8%，低于GMV完成率（89.9%）。表明毛利管理存在压力，4月GM目标362万是否有足够支撑动作？</div>
+  <div class="alert-box">⚠️ <strong>问题4：GM/GMV目标持续下滑</strong><br>
+  3月实际GM/GMV 9.17%，4月目标9.93%，已低于去年同期10.41%。Sheet内部注释也指出：「gm/gmv过低，促进低毛销售，gmv是否适当降低」。建议设置GM%考核底线（如≥9.5%）防止低毛冲量。</div>
+
+  <div class="section-title">✅ 整体亮点</div>
+  <div class="info-box">✅ <strong>增值组增长强劲：</strong>增值3月预估达成27万，4月目标45万，环比+65%，且GM%高达70.8%，是全盘毛利贡献最高的板块。</div>
+  <div class="info-box">✅ <strong>三方平台正增长：</strong>4月目标1,130万（+5.3% vs 3月），在官网两端下降的情况下，三方成为唯一增量来源。</div>
+  <div class="info-box">✅ <strong>科室GM目标提升明显：</strong>科室一组GM目标162万（vs 3月预估120万 +35%），科室二组GM目标170万（vs 3月预估134万 +27%），说明毛利结构有主动改善意图。</div>
+
+  <div class="section-title">📋 建议行动清单</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>优先级</th><th>事项</th><th>负责人</th><th>截止</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-red">紧急</span></td><td>补充曹明亮4月GMV目标数字</td><td>曹明亮/魏鹏</td><td>本周内</td></tr>
+        <tr><td><span class="badge badge-red">紧急</span></td><td>修复杨爱咪目标对比列公式引用</td><td>数据同学</td><td>本周内</td></tr>
+        <tr><td><span class="badge badge-orange">重要</span></td><td>明确增值625万是否从总GMV先行扣除</td><td>魏鹏</td><td>目标下发前</td></tr>
+        <tr><td><span class="badge badge-orange">重要</span></td><td>设置GM/GMV考核底线（建议≥9.5%）</td><td>魏鹏</td><td>目标下发时</td></tr>
+        <tr><td><span class="badge badge-blue">建议</span></td><td>官网自营+25%目标明确拉动动作（大促/新品）</td><td>科室一/二组</td><td>4月1日前</td></tr>
+        <tr><td><span class="badge badge-blue">建议</span></td><td>三方平台GM%目标从10%提升至11%（对齐3月实际）</td><td>相关运营</td><td>目标下发时</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const COLORS=['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#16a085','#8e44ad'];
+
+// GMV Compare
+new Chart(document.getElementById('gmvCompare'),{
+  type:'bar',
+  data:{
+    labels:['官网-自营','官网-MP','三方平台'],
+    datasets:[
+      {label:'4月目标',data:[1324.9,1185.5,1130],backgroundColor:'#3498db88',borderColor:'#3498db',borderWidth:1,borderRadius:4},
+      {label:'3月达成',data:[1371.3,1199.9,1073.5],backgroundColor:'#5dade288',borderColor:'#5dade2',borderWidth:1,borderRadius:4}
+    ]
+  },
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.6)'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Biz Pie
+new Chart(document.getElementById('bizPie'),{
+  type:'doughnut',
+  data:{labels:['官网-自营','官网-MP','三方平台'],datasets:[{data:[1324.9,1185.5,1130],backgroundColor:['#3498db','#e67e22','#2ecc71'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)',font:{size:12}}}}}
+});
+
+// Hist line
+const histMonths=['24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04目标'];
+const histGmv=[3275,3351,2624,2788,3239,3173,3164,3122,3131,3008,2892,2857,2880,2942,3497,2205,3064,3640];
+new Chart(document.getElementById('histLine'),{
+  type:'line',
+  data:{labels:histMonths,datasets:[{label:'GMV（万）',data:histGmv,borderColor:'#3498db',backgroundColor:'rgba(52,152,219,0.1)',tension:0.3,fill:true,pointBackgroundColor:(ctx)=>ctx.dataIndex===17?'#f39c12':'#3498db',pointRadius:(ctx)=>ctx.dataIndex===17?8:3}]},
+  options:{plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:11}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Channel Pie
+new Chart(document.getElementById('channelPie'),{
+  type:'doughnut',
+  data:{labels:['官网-自营','官网-MP','三方'],datasets:[{data:[1324.9,1185.5,1130],backgroundColor:['#3498db','#e67e22','#2ecc71'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)'}}}}
+});
+
+// Channel GM
+new Chart(document.getElementById('channelGm'),{
+  type:'bar',
+  data:{
+    labels:['官网-自营','三方平台','官网-MP'],
+    datasets:[{label:'GM%（目标）',data:[16.1,10,100],backgroundColor:['#3498db','#2ecc71','#e67e22'],borderRadius:5}]
+  },
+  options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.7)'},grid:{color:'rgba(255,255,255,0.04)'}}}}
+});
+
+// Group pies
+new Chart(document.getElementById('g1Pie'),{
+  type:'doughnut',
+  data:{labels:['MP','自营'],datasets:[{data:[444.6,1058.9],backgroundColor:['#e67e22','#3498db'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)'}}}}
+});
+new Chart(document.getElementById('g2Pie'),{
+  type:'doughnut',
+  data:{labels:['MP','自营'],datasets:[{data:[740.9,1332.4],backgroundColor:['#e67e22','#3498db'],borderWidth:0}]},
+  options:{cutout:'60%',plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)'}}}}
+});
+
+// Operator data
+const operators = [
+  {name:'潘砚冰',group:'科室一组',depts:'消化系统疾病、肿瘤科',target_apr:20.07,target_mar:20.55,actual_mar:14.71,pct:71.6},
+  {name:'李琼梅',group:'科室一组',depts:'风湿骨科、维生素钙剂',target_apr:24.50,target_mar:25.09,actual_mar:19.64,pct:78.3},
+  {name:'杨爱咪',group:'科室一组',depts:'皮肤病、美妆个护',target_apr:25.53,target_mar:26.14,actual_mar:23.19,pct:88.7},
+  {name:'李亮',group:'科室一组',depts:'成人用品、滋补调养',target_apr:32.21,target_mar:32.99,actual_mar:25.28,pct:76.6},
+  {name:'姚亮',group:'科室一组',depts:'男科疾病',target_apr:59.61,target_mar:61.04,actual_mar:37.38,pct:61.2},
+  {name:'韩冰',group:'科室二组',depts:'心脑血管、神经系统',target_apr:76.98,target_mar:79.89,actual_mar:69.15,pct:86.6},
+  {name:'秦悦',group:'科室二组',depts:'内分泌、妇科疾病',target_apr:23.61,target_mar:24.50,actual_mar:16.86,pct:68.8},
+  {name:'浦丹丹',group:'科室二组',depts:'呼吸道疾病、肝病科',target_apr:46.99,target_mar:48.77,actual_mar:31.44,pct:64.5},
+  {name:'曹明亮',group:'科室二组',depts:'五官科、营养保健、医疗器械',target_apr:null,target_mar:null,actual_mar:3.52,pct:null},
+];
+
+// Op table
+const tbody = document.getElementById('opTable');
+operators.forEach(op => {
+  const pctStr = op.pct !== null ? op.pct.toFixed(1)+'%' : '<span style="color:#e74c3c">目标缺失</span>';
+  const pctColor = op.pct === null ? '' : op.pct >= 90 ? '#2ecc71' : op.pct >= 75 ? '#f39c12' : '#e74c3c';
+  const tApr = op.target_apr !== null ? op.target_apr+'万' : '<span style="color:#e74c3c">待补充</span>';
+  tbody.innerHTML += `<tr>
+    <td><strong>${op.name}</strong></td>
+    <td><span class="badge ${op.group==='科室一组'?'badge-blue':'badge-orange'}">${op.group}</span></td>
+    <td style="font-size:12px;color:rgba(255,255,255,0.5)">${op.depts}</td>
+    <td>${tApr}</td>
+    <td>${op.target_mar !== null ? op.target_mar+'万' : '-'}</td>
+    <td>${op.actual_mar}万</td>
+    <td style="color:${pctColor}">${pctStr}</td>
+    <td style="min-width:100px">${op.pct !== null ? `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(op.pct,100)}%;background:${pctColor}"></div></div><div style="font-size:11px;color:${pctColor};margin-top:2px">${op.pct.toFixed(1)}%</div>` : '-'}</td>
+  </tr>`;
+});
+
+// Op bar chart
+new Chart(document.getElementById('opBar'),{
+  type:'bar',
+  data:{
+    labels:operators.map(o=>o.name),
+    datasets:[
+      {label:'4月GM目标（万）',data:operators.map(o=>o.target_apr),backgroundColor:'#3498db88',borderColor:'#3498db',borderWidth:1,borderRadius:4},
+      {label:'3月预估达成（万）',data:operators.map(o=>o.actual_mar),backgroundColor:'#2ecc7188',borderColor:'#2ecc71',borderWidth:1,borderRadius:4}
+    ]
+  },
+  options:{
+    plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},
+    scales:{x:{ticks:{color:'rgba(255,255,255,0.6)'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}
+  }
+});
+
+// Op sparkline charts
+const opChartsDiv = document.getElementById('opCharts');
+const histData = {
+  '潘砚冰':[18.19,12.55,14.85,15.02,17.07,17.62,16.54,15.93,17.62,16.80,16.34,17.66,15.99,15.00,17.76,11.18,14.71],
+  '李琼梅':[23.99,24.43,16.92,19.81,21.95,21.48,21.23,22.64,21.63,21.48,21.55,20.56,20.34,21.43,26.03,18.41,19.64],
+  '杨爱咪':[23.15,22.04,18.79,22.24,25.26,26.90,29.38,24.46,24.42,25.91,24.83,21.83,20.59,20.01,23.03,16.41,23.19],
+  '李亮':[22.24,22.16,16.84,21.14,24.51,23.83,22.31,23.27,21.72,21.20,23.17,20.62,20.85,22.82,22.44,15.99,25.28],
+  '姚亮':[45.73,46.87,36.28,37.22,47.79,43.85,42.82,45.29,41.10,42.39,34.85,32.71,36.53,34.12,37.80,26.65,37.38],
+  '韩冰':[83.43,81.91,65.24,68.26,77.17,81.44,85.52,81.64,87.07,77.98,75.53,80.61,76.12,82.09,102.56,57.15,69.15],
+  '秦悦':[24.04,25.25,19.25,20.74,25.08,24.65,23.76,24.19,27.99,25.49,24.79,22.63,23.90,24.73,32.32,21.37,16.86],
+  '浦丹丹':[44.16,50.36,41.20,37.81,43.49,38.92,37.89,39.12,39.58,35.92,34.77,38.29,42.70,42.91,56.66,31.83,31.44],
+  '曹明亮':[9.80,10.05,10.62,9.70,9.95,8.60,8.43,7.25,7.98,8.53,8.89,9.46,9.81,9.50,8.67,6.22,3.52],
+};
+const sparkMonths=['24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03'];
+
+operators.forEach((op,i) => {
+  const div = document.createElement('div');
+  div.className = 'chart-box';
+  div.innerHTML = `<h3>${op.name} — ${op.depts} | 4月目标: ${op.target_apr ?? '待补充'}万</h3><canvas id="spark_${i}" style="max-height:140px"></canvas>`;
+  opChartsDiv.appendChild(div);
+  
+  setTimeout(() => {
+    const data = histData[op.name] || [];
+    const ctx = document.getElementById(`spark_${i}`);
+    if (!ctx) return;
+    new Chart(ctx, {
+      type:'line',
+      data:{labels:sparkMonths,datasets:[{label:'GM（万）',data,borderColor:COLORS[i%COLORS.length],backgroundColor:COLORS[i%COLORS.length]+'22',tension:0.3,fill:true,pointRadius:2}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'rgba(255,255,255,0.4)',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+    });
+  }, 100);
+});
+
+function showTab(id, e) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  e.target.classList.add('active');
+}
+</script>
+</body>
+</html>
