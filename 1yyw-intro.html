@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1药网 C端介绍 20260401</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#1a1a2e}
+
+.deck{width:100%;height:100%;position:relative}
+.slide{position:absolute;inset:0;display:none;overflow:hidden;background:#fff}
+.slide.active{display:block}
+
+/* Progress */
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#0066cc,#00aa88);z-index:500;transition:width .35s}
+
+/* Nav */
+#nav{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:400;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);
+  border:1px solid rgba(0,0,0,0.08);border-radius:40px;
+  padding:7px 18px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+#nav button{background:#f0f4f8;border:none;color:#333;
+  padding:6px 18px;border-radius:18px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+#nav button:hover{background:#0066cc;color:#fff}
+.dots{display:flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,0.18);cursor:pointer;transition:all .25s}
+.dot.active{background:#0066cc;width:20px;border-radius:3px}
+#counter{font-size:12px;color:#aaa;min-width:34px;text-align:center}
+
+/* ========== SLIDE 1 ========== */
+/* 商业模式概述页 */
+.s1{background:#fff}
+.s1-top-bar{background:#003399;height:56px;display:flex;align-items:center;padding:0 48px;gap:12px}
+.s1-top-bar .logo{color:#fff;font-size:20px;font-weight:700;letter-spacing:1px}
+.s1-top-bar .title{color:rgba(255,255,255,0.7);font-size:14px;margin-left:8px}
+.s1-body{display:grid;grid-template-columns:1fr 2fr;height:calc(100% - 56px)}
+.s1-left{background:linear-gradient(180deg,#003fa8 0%,#0055d4 100%);padding:36px 36px;display:flex;flex-direction:column;justify-content:space-between}
+.s1-headline{color:#fff;font-size:14px;font-weight:400;line-height:1.8;margin-bottom:16px}
+.s1-bignum{font-size:48px;font-weight:800;color:#fff;line-height:1}
+.s1-bignum-label{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px}
+.s1-desc{color:rgba(255,255,255,0.75);font-size:13px;line-height:1.7;margin-top:10px}
+.s1-badges{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:20px}
+.s1-badge-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s1-badge-item{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;text-align:center}
+.s1-badge-item .num{font-size:22px;font-weight:800;color:#fff}
+.s1-badge-item .num span{font-size:12px;font-weight:400;color:rgba(255,255,255,0.5)}
+.s1-badge-item .lbl{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;letter-spacing:0.5px}
+.s1-right{padding:32px 40px;display:flex;flex-direction:column;gap:16px}
+.s1-right-title{font-size:13px;color:#888;letter-spacing:2px;font-weight:500;margin-bottom:4px}
+.s1-section{border:1px solid #e8eef8;border-radius:14px;padding:20px 22px}
+.s1-section-icon{font-size:20px;margin-bottom:8px}
+.s1-section h3{font-size:16px;font-weight:700;color:#1a2340;margin-bottom:6px}
+.s1-section p{font-size:13px;color:#6a7a90;line-height:1.65}
+.s1-services{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.s1-svc{background:#f5f8ff;border-radius:10px;padding:12px 14px;text-align:center;font-size:12px;color:#3366cc;font-weight:500}
+.s1-svc-icon{font-size:18px;margin-bottom:4px}
+
+/* ========== SLIDE 2 ========== */
+/* 全域平台 - 渠道图 */
+.s2{background:#fff}
+.s2-header{background:#003399;padding:16px 48px;display:flex;align-items:center;gap:14px}
+.s2-header h2{font-size:20px;font-weight:700;color:#fff}
+.s2-header span{font-size:13px;color:rgba(255,255,255,0.55)}
+.s2-body{padding:28px 48px;height:calc(100% - 60px);display:flex;flex-direction:column;gap:20px}
+.s2-channels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;flex:1;align-items:stretch}
+.s2-ch{border:1.5px solid #e0e8f8;border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.s2-ch.main{border-color:#0066cc;background:#f5f9ff}
+.s2-ch-badge{position:absolute;top:14px;right:14px;background:#e8f0fe;border-radius:8px;padding:3px 10px;font-size:10px;color:#0066cc;font-weight:600}
+.s2-ch-icon{width:44px;height:44px;border-radius:12px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:20px}
+.s2-ch-icon.green{background:#e8f9f0}
+.s2-ch-icon.orange{background:#fff4e8}
+.s2-ch h3{font-size:17px;font-weight:700;color:#1a2340}
+.s2-ch p{font-size:13px;color:#6a7a90;line-height:1.65}
+/* Partner logos from PPT */
+.s2-logos{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.s2-logo-img{background:#f5f8ff;border:1px solid #e8eef8;border-radius:8px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.s2-logo-img img{max-width:80%;max-height:34px;object-fit:contain}
+
+/* ========== SLIDE 3 ========== */
+/* 用户触达 & 合作药企 */
+.s3-header{background:#003399;padding:16px 48px}
+.s3-header h2{font-size:20px;font-weight:700;color:#fff}
+.s3-header p{font-size:12px;color:rgba(255,255,255,0.55);margin-top:3px}
+.s3-body{padding:24px 48px;height:calc(100% - 66px);display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.s3-left{display:flex;flex-direction:column;gap:16px}
+.s3-stat-box{background:#f5f9ff;border:1px solid #d8e8f8;border-radius:14px;padding:20px 22px}
+.s3-stat-box .label{font-size:11px;color:#888;letter-spacing:1px;margin-bottom:6px}
+.s3-stat-box .num{font-size:44px;font-weight:800;color:#0033aa;line-height:1}
+.s3-stat-box .num span{font-size:16px;font-weight:500;color:#6688bb}
+.s3-stat-box .sub{font-size:13px;color:#6a7a90;margin-top:4px}
+.s3-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.s3-right{display:flex;flex-direction:column;gap:10px}
+.s3-right .label{font-size:11px;color:#888;letter-spacing:1.5px;font-weight:600;margin-bottom:4px}
+.logo-scroll{display:flex;flex-wrap:wrap;gap:8px}
+.logo-pill{background:#f4f7fb;border:1px solid #e2e8f0;border-radius:7px;padding:5px 12px;font-size:12px;color:#4a5568;font-weight:500}
+.logo-pill.featured{background:#e8f0fe;border-color:#b8cfff;color:#0044cc;font-weight:700}
+/* partner logo images from PPT */
+.s3-logos-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.s3-logo-cell{background:#f8faff;border:1px solid #eef2f8;border-radius:8px;height:36px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:3px}
+.s3-logo-cell img{max-width:90%;max-height:32px;object-fit:contain}
+
+/* ========== SLIDE 4 ========== */
+/* 用户画像 */
+.s4-header{background:#003399;padding:16px 48px}
+.s4-header h2{font-size:20px;font-weight:700;color:#fff}
+.s4-header p{font-size:12px;color:rgba(255,255,255,0.55);margin-top:3px}
+.s4-body{padding:22px 48px;height:calc(100% - 66px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.s4-card{background:#f8faff;border:1px solid #e4edf8;border-radius:14px;padding:20px 22px}
+.s4-card .title{font-size:11px;color:#888;letter-spacing:1px;font-weight:600;margin-bottom:12px;text-transform:uppercase}
+canvas{max-height:220px}
+.s4-feature{display:flex;flex-direction:column;gap:10px}
+.s4-feat-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e8eef8;border-radius:10px;padding:12px 14px}
+.s4-feat-icon{font-size:20px;flex-shrink:0}
+.s4-feat-text{font-size:13px;color:#334;line-height:1.5}
+.s4-feat-text strong{color:#0033aa;font-size:15px}
+.s4-img-wrap{border-radius:12px;overflow:hidden;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f4fa}
+.s4-img-wrap img{width:100%;height:100%;object-fit:cover}
+
+/* ========== SLIDE 5-10: FULL IMAGE ========== */
+.img-slide{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden}
+.img-slide img{width:100%;height:100%;object-fit:contain;object-position:center}
+
+/* Title tag on image slides */
+.img-slide-label{position:absolute;top:16px;left:40px;background:rgba(0,51,153,0.85);
+  color:#fff;font-size:11px;padding:4px 14px;border-radius:12px;letter-spacing:1px;font-weight:500;z-index:10}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck">
+
+<!-- ===== SLIDE 1 ===== -->
+<div class="slide s1 active" id="slide-1">
+  <div class="s1-top-bar">
+    <div class="logo">1药网</div>
+    <div class="title">C端全域平台 · 商业介绍</div>
+  </div>
+  <div class="s1-body">
+    <div class="s1-left">
+      <div>
+        <div class="s1-headline">商业模式：</div>
+        <div class="s1-bignum">B2C<span style="font-size:16px;font-weight:400;color:rgba(255,255,255,0.6)">板块</span></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);margin:6px 0 4px">服务</div>
+        <div class="s1-bignum">2500<span style="font-size:22px">万+</span></div>
+        <div class="s1-bignum-label">个人用户</div>
+        <div class="s1-desc">累计 · 中国最早线上售药平台<br>为药企提供全方位电商代运营服务</div>
+      </div>
+      <div class="s1-badge-row">
+        <div class="s1-badge-item"><div class="num">280<span>+</span></div><div class="lbl">同城配送城市</div></div>
+        <div class="s1-badge-item"><div class="num">400<span>+</span></div><div class="lbl">战略药企合作</div></div>
+        <div class="s1-badge-item"><div class="num">150<span>万+</span></div><div class="lbl">月度患者UV</div></div>
+        <div class="s1-badge-item"><div class="num">¥120</div><div class="lbl">用户平均客单价</div></div>
+      </div>
+    </div>
+    <div class="s1-right">
+      <div class="s1-right-title">平台三大核心业务</div>
+      <div class="s1-section">
+        <div class="s1-section-icon">🏪</div>
+        <h3>在线零售药房 · 1药网®</h3>
+        <p>提供品类丰富的药品选择，确保质量可靠、服务无忧，实现高效便捷的购药体验</p>
+      </div>
+      <div class="s1-section">
+        <div class="s1-section-icon">🏥</div>
+        <h3>在线医患管理工具 · 互联网医院</h3>
+        <p>在线续方 · 电子处方 · 云诊所 · 慢病管理 · 医疗咨询 · 新药可及</p>
+        <div class="s1-services" style="margin-top:12px">
+          <div class="s1-svc"><div class="s1-svc-icon">💊</div>在线续方</div>
+          <div class="s1-svc"><div class="s1-svc-icon">🩺</div>医疗咨询</div>
+          <div class="s1-svc"><div class="s1-svc-icon">📋</div>电子处方</div>
+          <div class="s1-svc"><div class="s1-svc-icon">☁️</div>云药房</div>
+          <div class="s1-svc"><div class="s1-svc-icon">💉</div>新药可及</div>
+          <div class="s1-svc"><div class="s1-svc-icon">🫀</div>慢病管理</div>
+        </div>
+      </div>
+      <div class="s1-section">
+        <div class="s1-section-icon">🏬</div>
+        <h3>线下连锁药房</h3>
+        <p>线下门店网络，打通线上线下一体化服务体系</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 2 ===== -->
+<div class="slide" id="slide-2">
+  <div class="s2-header">
+    <h2>1药网 C端全域平台</h2>
+    <span>渠道覆盖：以自有APP为主，同时覆盖公域+私域</span>
+  </div>
+  <div class="s2-body">
+    <div class="s2-channels">
+      <div class="s2-ch main">
+        <div class="s2-ch-badge">主力渠道</div>
+        <div class="s2-ch-icon"><img src="ppt-assets/image7.png" style="max-width:36px;max-height:36px;object-fit:contain" onerror="this.style.display='none';this.parentElement.innerHTML='📱'"></div>
+        <h3>1药网 自营APP</h3>
+        <p>核心流量阵地，80%+为官网自有粘度患者，高复购慢病用户聚集</p>
+      </div>
+      <div class="s2-ch">
+        <div class="s2-ch-icon orange">🛒</div>
+        <h3>三方平台 POP 店</h3>
+        <p>京东 · 天猫 · 美团等<br>覆盖公域增量用户</p>
+        <div style="margin-top:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <img src="ppt-assets/image3.png" style="height:28px;object-fit:contain" onerror="this.style.display='none'">
+          <img src="ppt-assets/image4.png" style="height:28px;object-fit:contain" onerror="this.style.display='none'">
+          <img src="ppt-assets/image5.png" style="height:28px;object-fit:contain" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="s2-ch">
+        <div class="s2-ch-icon green">💬</div>
+        <h3>企业微信私域</h3>
+        <p>药师1对1服务<br>慢病患者精细化运营<br>用药教育+复购提醒</p>
+        <div style="margin-top:auto">
+          <img src="ppt-assets/image2.png" style="height:30px;object-fit:contain" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+    <!-- Logo strip from PPT image6,7 -->
+    <div style="background:#f5f8ff;border:1px solid #e8eef8;border-radius:12px;padding:14px 20px">
+      <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:10px;font-weight:500">平台资质 & 认证</div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <img src="ppt-assets/image1.png" style="height:36px;object-fit:contain" onerror="this.style.display='none'">
+        <img src="ppt-assets/image6.png" style="height:36px;object-fit:contain" onerror="this.style.display='none'">
+        <img src="ppt-assets/image9.png" style="height:36px;object-fit:contain" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 3 ===== -->
+<div class="slide" id="slide-3">
+  <div class="s3-header">
+    <h2>有效触达用户：帮助品牌扩大终端用户影响力</h2>
+    <p>截止2025年3月31日，我们与400+家国内外知名药企达成直采战略合作伙伴关系</p>
+  </div>
+  <div class="s3-body">
+    <div class="s3-left">
+      <div class="s3-stat-row">
+        <div class="s3-stat-box">
+          <div class="label">官网自有用户</div>
+          <div class="num">80<span>%+</span></div>
+          <div class="sub">聚集在官网APP等官方渠道</div>
+        </div>
+        <div class="s3-stat-box">
+          <div class="label">月度患者UV</div>
+          <div class="num">150<span>万+</span></div>
+          <div class="sub">活跃购药用户</div>
+        </div>
+      </div>
+      <!-- Partner logos from PPT -->
+      <div style="background:#f8faff;border:1px solid #e8eef8;border-radius:12px;padding:14px 18px;flex:1">
+        <div style="font-size:11px;color:#888;letter-spacing:1.5px;font-weight:600;margin-bottom:10px">部分合作药企 LOGO</div>
+        <div class="s3-logos-grid">
+          <div class="s3-logo-cell"><img src="ppt-assets/image10.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image11.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image12.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image13.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image14.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image15.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image16.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image17.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image18.png" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell"><img src="ppt-assets/image19.png" onerror="this.style.display='none'"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image20.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image21.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image22.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image23.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image24.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image25.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image26.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image27.jpeg" onerror="this.style.display='none'"></div>
+          <div class="s3-logo-cell" style="width:60px"><img src="ppt-assets/image29.jpeg" onerror="this.style.display='none'"></div>
+          <div style="padding:5px 10px;font-size:12px;color:#aaa">… 400+</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:#f8faff;border:1px solid #e8eef8;border-radius:12px;padding:16px 18px;flex:1">
+        <div style="font-size:11px;color:#888;letter-spacing:1.5px;font-weight:600;margin-bottom:10px">合作药企（节选）</div>
+        <img src="ppt-assets/image28.png" style="width:100%;border-radius:8px;object-fit:contain;max-height:280px" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 4 ===== -->
+<div class="slide" id="slide-4">
+  <div class="s4-header">
+    <h2>高价值用户资产：锁定具备强消费力的家庭健康决策者</h2>
+    <p>1药网用户画像</p>
+  </div>
+  <div class="s4-body">
+    <!-- Age chart -->
+    <div class="s4-card">
+      <div class="title">年龄分布</div>
+      <div style="font-size:13px;color:#334;margin-bottom:10px">53%的用户集中在31-50岁，相对更有消费力</div>
+      <canvas id="ageChart"></canvas>
+    </div>
+    <!-- Gender + scene -->
+    <div class="s4-card">
+      <div class="title">性别 & 用药场景</div>
+      <canvas id="genderChart" style="max-height:140px"></canvas>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        <div class="s4-feat-row">
+          <div class="s4-feat-icon">👥</div>
+          <div class="s4-feat-text">整体用户男性用户明显多于女性<br><strong>67%</strong> 男性 &nbsp; <strong>33%</strong> 女性</div>
+        </div>
+        <div class="s4-feat-row">
+          <div class="s4-feat-icon">🏠</div>
+          <div class="s4-feat-text">用药场景：以<strong>家庭用药</strong>为主<br>会为家人、朋友购买（占93%）</div>
+        </div>
+        <div class="s4-feat-row">
+          <div class="s4-feat-icon">💰</div>
+          <div class="s4-feat-text">平台平均客单价 <strong>¥120</strong>元<br>高于其他同类平台</div>
+        </div>
+      </div>
+    </div>
+    <!-- Image from PPT -->
+    <div class="s4-card" style="padding:12px">
+      <div class="title" style="padding:0 10px">平台销量TOP10科室</div>
+      <div class="s4-img-wrap">
+        <img src="ppt-assets/image32.png" alt="TOP10科室" onerror="this.parentElement.innerHTML='<div style=padding:20px;color:#aaa;font-size:13px>心脑血管 · 男科 · 神经系统<br>内分泌 · 皮肤病 · 呼吸道<br>滋补调养 · 肝病科 · 风湿骨科<br>消化系统</div>'">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDES 5-10: FULL IMAGE ===== -->
+<div class="slide" id="slide-5" style="position:relative">
+  <div class="img-slide-label">05 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image33.png" alt="Slide 5">
+  </div>
+</div>
+
+<div class="slide" id="slide-6" style="position:relative">
+  <div class="img-slide-label">06 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image36.png" alt="Slide 6">
+  </div>
+</div>
+
+<div class="slide" id="slide-7" style="position:relative">
+  <div class="img-slide-label">07 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image40.png" alt="Slide 7">
+  </div>
+</div>
+
+<div class="slide" id="slide-8" style="position:relative">
+  <div class="img-slide-label">08 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image42.png" alt="Slide 8">
+  </div>
+</div>
+
+<div class="slide" id="slide-9" style="position:relative">
+  <div class="img-slide-label">09 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image43.png" alt="Slide 9">
+  </div>
+</div>
+
+<div class="slide" id="slide-10" style="position:relative">
+  <div class="img-slide-label">10 / 10</div>
+  <div class="img-slide">
+    <img src="ppt-assets/image45.png" alt="Slide 10">
+  </div>
+</div>
+
+</div><!-- end deck -->
+
+<div id="nav">
+  <button onclick="prev()">◀</button>
+  <div class="dots" id="dots"></div>
+  <button onclick="next()">▶</button>
+  <span id="counter"></span>
+</div>
+
+<script>
+const total = 10;
+let cur = 0;
+
+const dotsEl = document.getElementById('dots');
+for(let i=0;i<total;i++){
+  const d = document.createElement('div');
+  d.className='dot';
+  d.onclick=()=>show(i);
+  dotsEl.appendChild(d);
+}
+
+// Age chart
+new Chart(document.getElementById('ageChart'),{
+  type:'bar',
+  data:{
+    labels:['20岁以下','21-30岁','31-40岁','41-50岁','51-60岁','60岁以上'],
+    datasets:[{
+      data:[2,10,29,24,19,16],
+      backgroundColor:['#d8e8f8','#a8c8f0','#0055cc','#0066ee','#a8c8f0','#d8e8f8'],
+      borderRadius:5
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'#888',callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.04)'}},
+      y:{ticks:{color:'#556',font:{size:11}},grid:{color:'rgba(0,0,0,0.03)'}}
+    }
+  }
+});
+
+// Gender chart
+new Chart(document.getElementById('genderChart'),{
+  type:'doughnut',
+  data:{
+    labels:['男性 67%','女性 33%'],
+    datasets:[{data:[67,33],backgroundColor:['#0066cc','#e8b4d4'],borderWidth:0}]
+  },
+  options:{cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#556',font:{size:12},boxWidth:12}}}}
+});
+
+function show(i){
+  document.querySelectorAll('.slide').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  document.querySelectorAll('.dot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
+  document.getElementById('counter').textContent=(i+1)+'/'+total;
+  document.getElementById('progress').style.width=((i+1)/total*100)+'%';
+  cur=i;
+}
+function next(){if(cur<total-1)show(cur+1);}
+function prev(){if(cur>0)show(cur-1);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')next();
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')prev();
+});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(dx<-50)next();if(dx>50)prev();});
+show(0);
+</script>
+</body>
+</html>
