@@ -89,7 +89,7 @@ tr:hover td{background:rgba(255,255,255,0.03)}
         <th onclick="sortTable('oos',7)">在途库存</th>
         <th onclick="sortTable('oos',8)">上月GMV</th>
         <th onclick="sortTable('oos',9)">上月顾客</th>
-        <th onclick="sortTable('oos',10)">YTD毛利率</th>
+        
       </tr></thead>
       <tbody id="oos-tbody"></tbody>
     </table>
@@ -120,7 +120,7 @@ tr:hover td{background:rgba(255,255,255,0.03)}
         <th onclick="sortTable('lt',8)">周转天数</th>
         <th onclick="sortTable('lt',9)">上月GMV</th>
         <th onclick="sortTable('lt',10)">上月顾客</th>
-        <th onclick="sortTable('lt',11)">YTD毛利率</th>
+        
       </tr></thead>
       <tbody id="lt-tbody"></tbody>
     </table>
@@ -195,7 +195,6 @@ function getOosRow(x) {
     <td>${transit}</td>
     <td>${x.last_gmv>0?x.last_gmv+'万':'-'}</td>
     <td>${x.last_customers>0?x.last_customers.toLocaleString():'-'}</td>
-    <td style="color:${marginColor(x.margin)}">${x.margin}%</td>
   </tr>`;
 }
 function getLtRow(x) {
@@ -213,7 +212,6 @@ function getLtRow(x) {
     <td><strong style="color:${tdColor}">${x.turnover_days}天</strong></td>
     <td>${x.last_gmv>0?x.last_gmv+'万':'-'}</td>
     <td>${x.last_customers>0?x.last_customers.toLocaleString():'-'}</td>
-    <td style="color:${marginColor(x.margin)}">${x.margin}%</td>
   </tr>`;
 }
 
@@ -266,8 +264,8 @@ function filterLt() {
   renderLt(1);
 }
 
-const oosCols=['dept','name','label','buyer','operator','supply_dept','avail_stock','in_transit','last_gmv','last_customers','margin'];
-const ltCols=['dept','name','label','buyer','operator','supply_dept','avail_stock','in_transit','turnover_days','last_gmv','last_customers','margin'];
+const oosCols=['dept','name','label','buyer','operator','supply_dept','avail_stock','in_transit','last_gmv','last_customers'];
+const ltCols=['dept','name','label','buyer','operator','supply_dept','avail_stock','in_transit','turnover_days','last_gmv','last_customers'];
 
 function sortTable(type, col) {
   if(type==='oos'){
