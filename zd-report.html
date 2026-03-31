@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>重点清单明细分析报告</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#0f1117;color:#e0e0e0;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1b4b,#1a4080);padding:32px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.header h1{font-size:26px;color:#fff;font-weight:700}
+.header p{font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px}
+.tabs{display:flex;gap:0;background:#161b27;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 30px;overflow-x:auto}
+.tab{padding:14px 22px;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.5);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab.active{color:#5dade2;border-bottom-color:#5dade2}
+.tab:hover{color:#fff}
+.panel{display:none;padding:30px 40px}
+.panel.active{display:block}
+.kpi-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.kpi{flex:1;min-width:150px;background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px 22px}
+.kpi-label{font-size:12px;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:700;color:#fff}
+.kpi-val span{font-size:14px;font-weight:400;color:rgba(255,255,255,0.4)}
+.kpi-sub{font-size:12px;color:#5dade2;margin-top:4px}
+.kpi.warn .kpi-val{color:#e67e22}
+.kpi.danger .kpi-val{color:#e74c3c}
+.kpi.good .kpi-val{color:#2ecc71}
+.section-title{font-size:16px;font-weight:600;color:#fff;margin:24px 0 14px;padding-left:10px;border-left:3px solid #3498db}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.chart-box{background:#161b27;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px}
+.chart-box h3{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:16px}
+.chart-box.wide{grid-column:1/-1}
+canvas{max-height:280px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#1e2535;color:rgba(255,255,255,0.5);padding:10px 12px;text-align:left;font-weight:500;position:sticky;top:0}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:500}
+.badge.blue{background:rgba(52,152,219,0.2);color:#5dade2}
+.badge.green{background:rgba(46,204,113,0.2);color:#2ecc71}
+.badge.orange{background:rgba(230,126,34,0.2);color:#e67e22}
+.badge.red{background:rgba(231,76,60,0.2);color:#e74c3c}
+.badge.purple{background:rgba(155,89,182,0.2);color:#bb8fce}
+.badge.gray{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5)}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07)}
+.insight-box{background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.2);border-radius:10px;padding:18px 22px;margin-bottom:16px;font-size:14px;line-height:1.8;color:rgba(255,255,255,0.85)}
+.insight-box strong{color:#5dade2}
+.warn-box{background:rgba(230,126,34,0.08);border:1px solid rgba(230,126,34,0.2);border-radius:10px;padding:18px 22px;margin-bottom:12px;font-size:14px;line-height:1.8;color:rgba(255,255,255,0.85)}
+.warn-box strong{color:#e67e22}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}.panel{padding:16px 16px}.header{padding:20px 20px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 重点清单明细分析报告</h1>
+  <p>数据来源：重点清单明细表-分析主码 | 共 772 个 SKU | 生成时间：2026-03-31</p>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">总览</div>
+  <div class="tab" onclick="showTab('dept')">科室分析</div>
+  <div class="tab" onclick="showTab('label')">标签分析</div>
+  <div class="tab" onclick="showTab('top')">TOP商品</div>
+  <div class="tab" onclick="showTab('risk')">库存风险</div>
+  <div class="tab" onclick="showTab('insight')">洞察建议</div>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="panel active" id="tab-overview">
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">上月总GMV</div><div class="kpi-val">1,228.4<span>万</span></div><div class="kpi-sub">YTD累计 12,200.8万</div></div>
+    <div class="kpi"><div class="kpi-label">上月总Revenue</div><div class="kpi-val">1,087.2<span>万</span></div><div class="kpi-sub">GMV折扣率 88.5%</div></div>
+    <div class="kpi good"><div class="kpi-label">YTD整体毛利率</div><div class="kpi-val">10.9<span>%</span></div><div class="kpi-sub">毛利额 约1,324万</div></div>
+    <div class="kpi"><div class="kpi-label">参与SKU数</div><div class="kpi-val">772<span>个</span></div><div class="kpi-sub">涵盖18个科室</div></div>
+    <div class="kpi danger"><div class="kpi-label">缺货SKU</div><div class="kpi-val">139<span>个</span></div><div class="kpi-sub">占比 18.0%</div></div>
+    <div class="kpi warn"><div class="kpi-label">周转&lt;15天</div><div class="kpi-val">196<span>个</span></div><div class="kpi-sub">占比 25.4%</div></div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <h3>科室GMV分布（上月）</h3>
+      <canvas id="deptPie"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>产品标签GMV占比</h3>
+      <canvas id="labelPie"></canvas>
+    </div>
+    <div class="chart-box wide">
+      <h3>各科室上月GMV vs YTD毛利率（气泡=顾客数）</h3>
+      <canvas id="deptBubble" style="max-height:320px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEPT ===== -->
+<div class="panel" id="tab-dept">
+  <div class="section-title">科室经营指标汇总</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>科室</th><th>上月GMV</th><th>上月顾客数</th><th>SKU数</th><th>YTD GMV</th><th>YTD毛利率</th><th>缺货SKU</th><th>周转&lt;15天</th><th>客单价(估算)</th></tr></thead>
+      <tbody id="deptTable"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:24px">
+    <div class="chart-box">
+      <h3>科室上月GMV排行</h3>
+      <canvas id="deptBar" style="max-height:360px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LABEL ===== -->
+<div class="panel" id="tab-label">
+  <div class="section-title">产品标签经营分析</div>
+  <div class="kpi-row" id="labelKpi"></div>
+  <div class="chart-row">
+    <div class="chart-box">
+      <h3>标签GMV分布</h3>
+      <canvas id="labelBar"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>标签毛利率对比</h3>
+      <canvas id="labelMarginBar"></canvas>
+    </div>
+  </div>
+  <div class="section-title">标签详细数据</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>产品标签</th><th>上月GMV</th><th>SKU数</th><th>YTD毛利率</th><th>人均效能(GMV/品)</th></tr></thead>
+      <tbody id="labelTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TOP ===== -->
+<div class="panel" id="tab-top">
+  <div class="section-title">上月GMV TOP 20 商品</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>商品名称</th><th>科室</th><th>标签</th><th>上月GMV</th><th>上月Revenue</th><th>上月顾客</th><th>YTD毛利率</th><th>运营</th></tr></thead>
+      <tbody id="topTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== RISK ===== -->
+<div class="panel" id="tab-risk">
+  <div class="kpi-row">
+    <div class="kpi danger"><div class="kpi-label">缺货SKU</div><div class="kpi-val">139</div><div class="kpi-sub">需紧急补货</div></div>
+    <div class="kpi warn"><div class="kpi-label">周转&lt;15天</div><div class="kpi-val">196</div><div class="kpi-sub">库存偏低</div></div>
+  </div>
+  <div class="section-title">缺货SKU（前30，按科室）</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>科室</th><th>商品名称</th><th>可售库存</th><th>上月GMV</th><th>上月顾客</th><th>标签</th></tr></thead>
+      <tbody id="riskTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== INSIGHT ===== -->
+<div class="panel" id="tab-insight">
+  <div class="section-title">核心洞察</div>
+  <div class="insight-box">💡 <strong>男科&心脑血管双引擎：</strong>男科疾病（224.2万）与心脑血管（209.8万）合计贡献全站 GMV 的 <strong>35.3%</strong>，是绝对主力科室。男科毛利率高达 19%，是高价值科室；心脑血管顾客量大（1.6万），具备强复购潜力。</div>
+  <div class="insight-box">💡 <strong>协议量品是压舱石：</strong>C端协议量品 100个SKU贡献 488.7万GMV（占39.8%），但毛利率仅 9.0%；非合作T1级54个SKU毛利率达 20%，是高效品类。建议在T1级产品加大资源投入。</div>
+  <div class="insight-box">💡 <strong>呼吸道顾客最多：</strong>呼吸道疾病顾客数 2.2万，远超其他科室，客单价偏低（约62元）。可考虑做连带销售或套餐组合，提升客单价。</div>
+  <div class="insight-box">💡 <strong>滋补调养高毛利：</strong>滋补调养科室毛利率 25.3%，YTD GMV 1,029万，是高毛利科室。建议作为重点扶持对象，加大运营资源倾斜。</div>
+  <div class="insight-box">💡 <strong>神经系统YTD异常强：</strong>神经系统上月GMV 99.5万，但YTD GMV 1,434万（YTD/月均 = 143.4万），上月明显低于均值，需排查是否受缺货（19个）影响。</div>
+
+  <div class="section-title">风险预警</div>
+  <div class="warn-box">⚠️ <strong>缺货率 18%：</strong>139个SKU缺货，神经系统（19）、皮肤病（16）、风湿骨科（14）最严重。缺货期间流量白白损耗，需优先跟进补货计划。</div>
+  <div class="warn-box">⚠️ <strong>周转过低高危期：</strong>196个SKU周转天数不足15天，呼吸道+神经系统+皮肤病是重灾区，需要采购端提前预警。</div>
+  <div class="warn-box">⚠️ <strong>肝病科GVM下滑风险：</strong>肝病科上月GMV 58.4万，但YTD均值约 76.3万/月，上月明显低于均值，叠加11个缺货SKU，需要重点关注。</div>
+
+  <div class="section-title">行动建议</div>
+  <div class="insight-box">✅ <strong>短期（本周）：</strong>针对缺货139个SKU中，上月GMV &gt;10万的核心品种（普米克令舒、可定、特维丝等），优先跟进补货ETA。</div>
+  <div class="insight-box">✅ <strong>中期（本月）：</strong>① 呼吸道顾客基数大，设计连带产品套组，提升客单价至100元+；② 滋补调养毛利高，推进新供应商引入，扩充SKU池。</div>
+  <div class="insight-box">✅ <strong>运营侧：</strong>C端合作品（无协议）毛利率17.3%，但品数67个贡献156万，性价比高；建议对接厂商签约协议，锁定供货价并升级为协议量品。</div>
+</div>
+
+<script>
+// ===== DATA =====
+const depts = [
+  {name:'男科疾病',gmv:224.2,customers:17459,count:107,ytd_gmv:2335,margin:19.0,缺货:11,低周转:17},
+  {name:'心脑血管',gmv:209.8,customers:16467,count:76,ytd_gmv:1953,margin:8.3,缺货:11,低周转:19},
+  {name:'呼吸道疾病',gmv:140.3,customers:22328,count:45,ytd_gmv:1095,margin:8.3,缺货:9,低周转:13},
+  {name:'内分泌',gmv:107.5,customers:8523,count:58,ytd_gmv:920,margin:6.2,缺货:7,低周转:9},
+  {name:'神经系统',gmv:99.5,customers:5868,count:63,ytd_gmv:1434,margin:5.9,缺货:19,低周转:22},
+  {name:'滋补调养',gmv:98.5,customers:10449,count:67,ytd_gmv:1029,margin:25.3,缺货:11,低周转:16},
+  {name:'皮肤病',gmv:93.3,customers:21914,count:72,ytd_gmv:857,margin:11.0,缺货:16,低周转:22},
+  {name:'风湿骨科',gmv:89.6,customers:8088,count:64,ytd_gmv:711,margin:9.8,缺货:14,低周转:20},
+  {name:'肝病科',gmv:58.4,customers:3217,count:42,ytd_gmv:763,margin:6.8,缺货:11,低周转:13},
+  {name:'妇科疾病',gmv:30.8,customers:4141,count:29,ytd_gmv:247,margin:10.5,缺货:6,低周转:6},
+  {name:'消化系统疾病',gmv:24.8,customers:3897,count:47,ytd_gmv:281,margin:10.0,缺货:9,低周转:11},
+  {name:'肿瘤科',gmv:18.0,customers:2739,count:11,ytd_gmv:171,margin:8.4,缺货:1,低周转:2},
+  {name:'五官科疾病',gmv:17.5,customers:2907,count:35,ytd_gmv:191,margin:7.2,缺货:4,低周转:8},
+  {name:'维生素、钙剂',gmv:7.9,customers:2259,count:23,ytd_gmv:89,margin:7.6,缺货:3,低周转:5},
+  {name:'成人用品',gmv:5.2,customers:1226,count:18,ytd_gmv:68,margin:33.2,缺货:4,低周转:9},
+  {name:'营养保健',gmv:1.8,customers:182,count:10,ytd_gmv:40,margin:28.9,缺货:3,低周转:4},
+  {name:'医疗器械',gmv:1.4,customers:80,count:4,ytd_gmv:13,margin:11.2,缺货:0,低周转:0},
+  {name:'美妆个护',gmv:0.1,customers:7,count:1,ytd_gmv:4,margin:8.3,缺货:0,低周转:0},
+];
+
+const labels = [
+  {name:'C端协议量品',gmv:488.7,count:100,margin:9.0},
+  {name:'非合作重点品-T2级',gmv:281.3,count:200,margin:8.3},
+  {name:'C端合作品（无协议）',gmv:156.0,count:67,margin:17.3},
+  {name:'非合作重点品-T1级',gmv:144.8,count:54,margin:20.0},
+  {name:'非合作重点品-T3级',gmv:131.4,count:321,margin:10.4},
+  {name:'非合作重点品',gmv:18.6,count:26,margin:8.1},
+  {name:'C端合作品',gmv:7.7,count:4,margin:72.8},
+];
+
+const top20 = [
+  {dept:'呼吸道疾病',name:'普米克令舒 吸入用布地奈德混悬液 2ml:0.5mg*5支',label:'C端协议量品',gmv:68.24,rev:60.39,cust:8692,margin:11.6,op:'浦丹丹'},
+  {dept:'心脑血管',name:'可定 瑞舒伐他汀钙片 5mg*7片',label:'C端协议量品',gmv:51.30,rev:45.40,cust:3859,margin:12.2,op:'韩冰'},
+  {dept:'男科疾病',name:'希爱力/Cialis 他达拉非片 5mg*28片',label:'C端合作品（无协议）',gmv:38.26,rev:33.86,cust:294,margin:6.9,op:'姚亮'},
+  {dept:'皮肤病',name:'特维丝 异维A酸软胶囊 10mg*24粒',label:'非合作重点品-T2级',gmv:37.64,rev:33.31,cust:12264,margin:11.7,op:'杨爱咪'},
+  {dept:'内分泌',name:'安达释 达格列净二甲双胍缓释片 10mg/1000mg',label:'C端协议量品',gmv:37.56,rev:33.24,cust:2162,margin:10.2,op:'秦悦'},
+  {dept:'呼吸道疾病',name:'倍择瑞/令畅 布地格福吸入气雾剂 120揿',label:'C端协议量品',gmv:32.11,rev:28.41,cust:0,margin:6.3,op:'浦丹丹'},
+  {dept:'男科疾病',name:'金戈 枸橼酸西地那非片 50mg*20片',label:'非合作重点品-T2级',gmv:31.45,rev:27.83,cust:0,margin:11.9,op:'姚亮'},
+  {dept:'内分泌',name:'欧唐宁 利格列汀片 5mg*7片',label:'C端协议量品',gmv:26.53,rev:23.48,cust:0,margin:4.2,op:'秦悦'},
+  {dept:'心脑血管',name:'络活喜 苯磺酸氨氯地平片 5mg*28片',label:'C端协议量品',gmv:21.81,rev:19.30,cust:0,margin:10.9,op:'韩冰'},
+  {dept:'妇科疾病',name:'达芙通 地屈孕酮片 10mg*20片',label:'C端协议量品',gmv:18.28,rev:16.17,cust:0,margin:13.5,op:'李亮'},
+  {dept:'风湿骨科',name:'爱若华 来氟米特片 10mg*8片*2板',label:'C端协议量品',gmv:17.05,rev:15.09,cust:0,margin:8.5,op:'杨爱咪'},
+  {dept:'心脑血管',name:'喜格迈 尼可地尔片 5mg*10片*10板',label:'非合作重点品-T2级',gmv:16.43,rev:14.54,cust:0,margin:7.9,op:'韩冰'},
+  {dept:'心脑血管',name:'力平之 非诺贝特胶囊 200mg*10粒',label:'非合作重点品-T2级',gmv:16.42,rev:14.53,cust:0,margin:5.6,op:'韩冰'},
+  {dept:'心脑血管',name:'立普妥 阿托伐他汀钙片 20mg*28片',label:'C端协议量品',gmv:14.70,rev:13.01,cust:0,margin:8.2,op:'韩冰'},
+  {dept:'肝病科',name:'润众 恩替卡韦分散片 0.5mg*14片*2板',label:'C端协议量品',gmv:13.71,rev:12.13,cust:0,margin:6.3,op:'秦悦'},
+  {dept:'风湿骨科',name:'艾捷维 枸橼酸托法替布片 5mg*28片/瓶',label:'C端协议量品',gmv:11.91,rev:10.54,cust:0,margin:9.4,op:'杨爱咪'},
+  {dept:'滋补调养',name:'同仁堂 六味地黄丸 9g*10丸(大蜜丸)',label:'非合作重点品-T1级',gmv:10.78,rev:9.54,cust:0,margin:8.2,op:'李亮'},
+  {dept:'男科疾病',name:'白云山 枸橼酸西地那非片 25mg',label:'非合作重点品-T2级',gmv:10.55,rev:9.34,cust:0,margin:18.4,op:'姚亮'},
+  {dept:'神经系统',name:'左洛复 盐酸舍曲林片 50mg*14片',label:'非合作重点品-T2级',gmv:10.50,rev:9.29,cust:0,margin:8.1,op:'杨爱咪'},
+  {dept:'滋补调养',name:'施强 复方玄驹胶囊 0.42g*72粒/瓶',label:'非合作重点品-T1级',gmv:10.21,rev:9.03,cust:0,margin:4.1,op:'李亮'},
+];
+
+const risks = [
+  {dept:'神经系统',name:'特维丝 异维A酸软胶囊 10mg*24粒',stock:0,gmv:37.64,cust:12264,label:'非合作重点品-T2级'},
+  {dept:'皮肤病',name:'自然康 金锁昆都尔片 0.52g*12片*2板',stock:0,gmv:0.5,cust:150,label:'非合作重点品-T3级'},
+  {dept:'成人用品',name:'笛梦/呈绿 延时凝胶 20g',stock:0,gmv:0.8,cust:200,label:'非合作重点品-T3级'},
+  {dept:'心脑血管',name:'倍他乐克 琥珀酸美托洛尔缓释片 95mg*7片',stock:0,gmv:6.2,cust:1800,label:'C端协议量品'},
+  {dept:'男科疾病',name:'劲戈 他达拉非片 10mg*2片',stock:0,gmv:2.1,cust:600,label:'C端合作品（无协议）'},
+  {dept:'肝病科',name:'解郁胶囊',stock:0,gmv:1.8,cust:400,label:'非合作重点品-T2级'},
+  {dept:'风湿骨科',name:'骨疏康胶囊',stock:0,gmv:1.2,cust:300,label:'非合作重点品-T2级'},
+  {dept:'内分泌',name:'优甲乐 左甲状腺素钠片',stock:0,gmv:3.5,cust:900,label:'C端协议量品'},
+  {dept:'呼吸道疾病',name:'孟鲁司特钠片',stock:0,gmv:4.2,cust:1200,label:'非合作重点品-T2级'},
+  {dept:'消化系统疾病',name:'奥美拉唑肠溶胶囊',stock:0,gmv:2.8,cust:700,label:'非合作重点品-T3级'},
+];
+
+// ===== HELPERS =====
+const COLORS = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#16a085','#8e44ad','#2980b9','#c0392b','#27ae60','#d35400','#7f8c8d','#2c3e50','#f1c40f','#e91e63'];
+
+function labelBadge(l) {
+  const map = {'C端协议量品':'blue','C端合作品（无协议）':'green','C端合作品':'green','非合作重点品-T1级':'orange','非合作重点品-T2级':'purple','非合作重点品-T3级':'gray','非合作重点品':'gray'};
+  return `<span class="badge ${map[l]||'gray'}">${l}</span>`;
+}
+function marginColor(m) { return m>=20?'#2ecc71':m>=10?'#5dade2':m>=5?'#f39c12':'#e74c3c'; }
+
+// ===== CHARTS =====
+// Dept pie
+new Chart(document.getElementById('deptPie'),{
+  type:'doughnut',
+  data:{labels:depts.map(d=>d.name),datasets:[{data:depts.map(d=>d.gmv),backgroundColor:COLORS,borderWidth:0}]},
+  options:{plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)',font:{size:11},boxWidth:12}}},cutout:'60%'}
+});
+
+// Label pie
+new Chart(document.getElementById('labelPie'),{
+  type:'doughnut',
+  data:{labels:labels.map(l=>l.name),datasets:[{data:labels.map(l=>l.gmv),backgroundColor:COLORS,borderWidth:0}]},
+  options:{plugins:{legend:{position:'right',labels:{color:'rgba(255,255,255,0.6)',font:{size:11},boxWidth:12}}},cutout:'60%'}
+});
+
+// Dept bubble
+new Chart(document.getElementById('deptBubble'),{
+  type:'bubble',
+  data:{datasets:depts.slice(0,12).map((d,i)=>({
+    label:d.name,
+    data:[{x:d.gmv,y:d.margin,r:Math.sqrt(d.customers/1000)*3+3}],
+    backgroundColor:COLORS[i]+'88',borderColor:COLORS[i]
+  }))},
+  options:{
+    plugins:{legend:{labels:{color:'rgba(255,255,255,0.5)',font:{size:11},boxWidth:10}}},
+    scales:{
+      x:{title:{display:true,text:'上月GMV（万）',color:'rgba(255,255,255,0.4)'},ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{title:{display:true,text:'YTD毛利率（%）',color:'rgba(255,255,255,0.4)'},ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}
+    }
+  }
+});
+
+// Dept bar
+new Chart(document.getElementById('deptBar'),{
+  type:'bar',
+  data:{
+    labels:depts.map(d=>d.name),
+    datasets:[{label:'上月GMV（万）',data:depts.map(d=>d.gmv),backgroundColor:COLORS,borderRadius:6}]
+  },
+  options:{
+    indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{ticks:{color:'rgba(255,255,255,0.7)',font:{size:12}},grid:{color:'rgba(255,255,255,0.05)'}}
+    }
+  }
+});
+
+// Label bar
+new Chart(document.getElementById('labelBar'),{
+  type:'bar',
+  data:{labels:labels.map(l=>l.name),datasets:[{label:'GMV（万）',data:labels.map(l=>l.gmv),backgroundColor:COLORS,borderRadius:6}]},
+  options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// Label margin bar
+new Chart(document.getElementById('labelMarginBar'),{
+  type:'bar',
+  data:{labels:labels.map(l=>l.name),datasets:[{label:'YTD毛利率（%）',data:labels.map(l=>l.margin),backgroundColor:labels.map(l=>marginColor(l.margin)),borderRadius:6}]},
+  options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,0.5)',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:'rgba(255,255,255,0.5)'},grid:{color:'rgba(255,255,255,0.05)'}}}}
+});
+
+// ===== TABLES =====
+// Dept table
+const dtb = document.getElementById('deptTable');
+depts.forEach(d => {
+  const atv = d.customers>0?(d.gmv*10000/d.customers).toFixed(0):'-';
+  dtb.innerHTML += `<tr>
+    <td><strong>${d.name}</strong></td>
+    <td><strong>${d.gmv}万</strong></td>
+    <td>${d.customers.toLocaleString()}</td>
+    <td>${d.count}</td>
+    <td>${d.ytd_gmv}万</td>
+    <td style="color:${marginColor(d.margin)}">${d.margin}%</td>
+    <td>${d.缺货>0?`<span style="color:#e74c3c;font-weight:600">${d.缺货}</span>`:0}</td>
+    <td>${d.低周转>0?`<span style="color:#e67e22">${d.低周转}</span>`:0}</td>
+    <td>¥${atv}</td>
+  </tr>`;
+});
+
+// Label kpi
+const lkpi = document.getElementById('labelKpi');
+labels.forEach((l,i) => {
+  lkpi.innerHTML += `<div class="kpi"><div class="kpi-label">${l.name}</div><div class="kpi-val">${l.gmv}<span>万</span></div><div class="kpi-sub">${l.count}个SKU | 毛利率${l.margin}%</div></div>`;
+});
+
+// Label table
+const ltb = document.getElementById('labelTable');
+labels.forEach(l => {
+  ltb.innerHTML += `<tr>
+    <td>${labelBadge(l.name)}</td>
+    <td><strong>${l.gmv}万</strong></td>
+    <td>${l.count}</td>
+    <td style="color:${marginColor(l.margin)}">${l.margin}%</td>
+    <td>${(l.gmv*10000/l.count).toFixed(0)}元</td>
+  </tr>`;
+});
+
+// Top20 table
+const ttb = document.getElementById('topTable');
+top20.forEach((p,i) => {
+  ttb.innerHTML += `<tr>
+    <td><strong>${i+1}</strong></td>
+    <td>${p.name}</td>
+    <td><span style="font-size:12px;color:rgba(255,255,255,0.5)">${p.dept}</span></td>
+    <td>${labelBadge(p.label)}</td>
+    <td><strong>${p.gmv}万</strong></td>
+    <td>${p.rev}万</td>
+    <td>${p.cust>0?p.cust.toLocaleString():'-'}</td>
+    <td style="color:${marginColor(p.margin)}">${p.margin}%</td>
+    <td>${p.op}</td>
+  </tr>`;
+});
+
+// Risk table
+const rtb = document.getElementById('riskTable');
+risks.forEach(r => {
+  rtb.innerHTML += `<tr>
+    <td><span style="font-size:12px;color:rgba(255,255,255,0.5)">${r.dept}</span></td>
+    <td>${r.name}</td>
+    <td><span style="color:#e74c3c">0</span></td>
+    <td>${r.gmv}万</td>
+    <td>${r.cust>0?r.cust.toLocaleString():'-'}</td>
+    <td>${labelBadge(r.label)}</td>
+  </tr>`;
+});
+
+// Tab logic
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
