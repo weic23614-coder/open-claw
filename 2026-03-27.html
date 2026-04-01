@@ -128,9 +128,36 @@
 
   .footer { text-align: center; font-size: 12px; color: #a0aab6; margin-top: 30px; }
   .footer span { color: #2e9c5f; font-weight: 600; }
+
+  /* Password overlay */
+  #pwd-overlay { position: fixed; inset: 0; background: #0f1117; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+  #pwd-box { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 16px; padding: 40px 36px; width: 320px; text-align: center; box-shadow: 0 20px 60px #00000088; }
+  #pwd-box .lock { font-size: 40px; margin-bottom: 16px; }
+  #pwd-box h2 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  #pwd-box p { font-size: 13px; color: #718096; margin-bottom: 24px; }
+  #pwd-input { width: 100%; background: #0d1117; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 16px; font-size: 18px; color: #fff; text-align: center; letter-spacing: 6px; outline: none; margin-bottom: 14px; }
+  #pwd-input:focus { border-color: #4299e1; }
+  #pwd-btn { width: 100%; background: #4299e1; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  #pwd-btn:hover { background: #3182ce; }
+  #pwd-error { color: #fc8181; font-size: 13px; margin-top: 10px; display: none; }
+  #main-content { display: none; }
 </style>
 </head>
 <body>
+
+<!-- Password overlay -->
+<div id="pwd-overlay">
+  <div id="pwd-box">
+    <div class="lock">🔒</div>
+    <h2>药网数据看板</h2>
+    <p>请输入访问密码</p>
+    <input id="pwd-input" type="password" placeholder="••••" maxlength="20" autofocus onkeydown="if(event.key==='Enter')checkPwd()" />
+    <button id="pwd-btn" onclick="checkPwd()">进入看板</button>
+    <div id="pwd-error">密码错误，请重试</div>
+  </div>
+</div>
+<div id="main-content">
+
 
 <div class="header">
   <div class="header-title">🌿 药网平台日报</div>
@@ -553,5 +580,20 @@ function renderFinanceChart() {
   });
 }
 </script>
+
+<script>
+function checkPwd() {
+  var input = document.getElementById('pwd-input').value;
+  if (input === '1212') {
+    document.getElementById('pwd-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+</script>
+</div><!-- /main-content -->
 </body>
 </html>
