@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>药网看板 · 提示词模板</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; line-height: 1.7; }
+
+/* Password */
+#pwd-overlay { position: fixed; inset: 0; background: #0f1117; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+#pwd-box { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 16px; padding: 40px 36px; width: 320px; text-align: center; box-shadow: 0 20px 60px #00000088; }
+#pwd-box .lock { font-size: 40px; margin-bottom: 16px; }
+#pwd-box h2 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+#pwd-box p { font-size: 13px; color: #718096; margin-bottom: 24px; }
+#pwd-input { width: 100%; background: #0d1117; border: 1px solid #2d3748; border-radius: 8px; padding: 12px 16px; font-size: 18px; color: #fff; text-align: center; letter-spacing: 6px; outline: none; margin-bottom: 14px; }
+#pwd-input:focus { border-color: #4299e1; }
+#pwd-btn { width: 100%; background: #4299e1; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+#pwd-error { color: #fc8181; font-size: 13px; margin-top: 10px; display: none; }
+#main-content { display: none; }
+
+/* Layout */
+.header { background: linear-gradient(135deg, #1a1f2e, #16213e); padding: 28px 40px; border-bottom: 1px solid #2d3748; }
+.header h1 { font-size: 22px; font-weight: 800; color: #fff; }
+.header h1 span { color: #4299e1; }
+.header .sub { font-size: 13px; color: #718096; margin-top: 6px; }
+.header .badge { display: inline-block; background: #4299e122; color: #63b3ed; border: 1px solid #4299e144; border-radius: 20px; padding: 3px 12px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+
+.container { max-width: 960px; margin: 0 auto; padding: 32px 40px; }
+
+.toc { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+.toc-title { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.toc-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc-item { background: #0d1117; border: 1px solid #2d3748; border-radius: 8px; padding: 6px 14px; font-size: 13px; color: #a0aec0; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+.toc-item:hover { border-color: #4299e1; color: #4299e1; }
+
+.section { margin-bottom: 40px; }
+.section-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4299e1; display: flex; align-items: center; gap: 10px; }
+.section-title .num { background: #4299e1; color: #fff; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+
+/* Cards */
+.card { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+.card p, .card li { font-size: 14px; color: #a0aec0; }
+.card strong { color: #e2e8f0; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #0d1117; color: #718096; font-weight: 600; padding: 9px 14px; text-align: left; border-bottom: 1px solid #2d3748; white-space: nowrap; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+td { padding: 9px 14px; border-bottom: 1px solid #1e2535; color: #e2e8f0; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #1e2535; }
+
+/* Code */
+pre { background: #0d1117; border: 1px solid #2d3748; border-radius: 10px; padding: 18px 20px; overflow-x: auto; margin: 12px 0; }
+code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Menlo, Monaco, monospace; font-size: 13px; color: #e2e8f0; line-height: 1.7; }
+p code, li code { background: #0d1117; border: 1px solid #2d3748; border-radius: 4px; padding: 1px 6px; font-size: 12px; color: #63b3ed; font-family: monospace; }
+
+/* List */
+ul, ol { padding-left: 20px; }
+ul li, ol li { color: #a0aec0; font-size: 14px; margin-bottom: 6px; }
+ul li strong, ol li strong { color: #e2e8f0; }
+
+/* Tab defs */
+.tab-def { border-left: 4px solid #4299e1; background: #0d1117; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px; }
+.tab-def .tab-name { font-size: 14px; font-weight: 700; color: #4299e1; margin-bottom: 8px; }
+.tab-def ul { margin: 0; }
+
+/* Fill area */
+.fill-area { background: #0d1117; border: 2px dashed #4299e1; border-radius: 12px; padding: 24px; margin: 16px 0; }
+.fill-area .fill-title { font-size: 13px; font-weight: 700; color: #4299e1; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+.fill-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.fill-field { flex: 1; min-width: 200px; }
+.fill-field label { font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+.fill-input { width: 100%; background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 14px; font-size: 14px; color: #e2e8f0; outline: none; }
+.fill-input:focus { border-color: #4299e1; }
+.fill-textarea { width: 100%; background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #e2e8f0; outline: none; font-family: monospace; resize: vertical; min-height: 120px; }
+.fill-textarea:focus { border-color: #4299e1; }
+
+/* Copy button */
+.copy-btn { display: inline-flex; align-items: center; gap: 6px; background: #4299e1; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+.copy-btn:hover { background: #3182ce; }
+.copy-btn.copied { background: #38a169; }
+
+/* Color chips */
+.color-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.color-chip { display: flex; align-items: center; gap: 8px; background: #0d1117; border: 1px solid #2d3748; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #a0aec0; }
+.color-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+
+/* Risk cards */
+.risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.risk-card { border-radius: 10px; padding: 14px 16px; }
+.risk-card.red { background: #fc818122; border: 1px solid #fc818144; }
+.risk-card.yellow { background: #f6ad5522; border: 1px solid #f6ad5544; }
+.risk-card .risk-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.risk-card.red .risk-title { color: #fc8181; }
+.risk-card.yellow .risk-title { color: #f6ad55; }
+.risk-card .risk-desc { font-size: 12px; color: #a0aec0; }
+
+/* Step */
+.steps { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.step { display: flex; align-items: flex-start; gap: 12px; background: #0d1117; border: 1px solid #2d3748; border-radius: 10px; padding: 14px 16px; }
+.step-num { background: #4299e1; color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+.step-content .step-title { font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+.step-content .step-desc { font-size: 13px; color: #718096; }
+
+@media (max-width: 640px) {
+  .container { padding: 20px 16px; }
+  .risk-grid { grid-template-columns: 1fr; }
+  .header { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="pwd-overlay">
+  <div id="pwd-box">
+    <div class="lock">🔒</div>
+    <h2>药网数据看板</h2>
+    <p>请输入访问密码</p>
+    <input id="pwd-input" type="password" placeholder="••••" maxlength="20" autofocus onkeydown="if(event.key==='Enter')checkPwd()" />
+    <button id="pwd-btn" onclick="checkPwd()">进入看板</button>
+    <div id="pwd-error">密码错误，请重试</div>
+  </div>
+</div>
+
+<div id="main-content">
+
+<div class="header">
+  <h1>💊 药网看板 · <span>提示词模板</span></h1>
+  <div class="sub">每次收到出库数据后，填好「填空区」发给 AI，直接生成完整看板并部署</div>
+  <div class="badge">📋 可复用模板 · 更新于 2026-04-01</div>
+</div>
+
+<div class="container">
+
+  <!-- 目录 -->
+  <div class="toc">
+    <div class="toc-title">📌 目录</div>
+    <div class="toc-list">
+      <a class="toc-item" href="#s1">一、业务背景</a>
+      <a class="toc-item" href="#s2">二、数据字段说明</a>
+      <a class="toc-item" href="#s3">三、Excel 解析</a>
+      <a class="toc-item" href="#s4">四、技术规范</a>
+      <a class="toc-item" href="#s5">五、6个 Tab 定义</a>
+      <a class="toc-item" href="#s6">六、部署规范</a>
+      <a class="toc-item" href="#s7">⭐ 填空区（每次用这个）</a>
+    </div>
+  </div>
+
+  <!-- 一、业务背景 -->
+  <div class="section" id="s1">
+    <div class="section-title"><span class="num">一</span>业务背景</div>
+    <div class="card">
+      <p style="margin-bottom:14px"><strong>平台名称：</strong>1药网（医药电商 C 端业务）</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>渠道</th><th>字段值</th><th>说明</th></tr>
+          <tr><td>官网/APP</td><td><code>官网/APP</code></td><td>自有 App，主力流量渠道</td></tr>
+          <tr><td>三方平台</td><td><code>三方平台</code></td><td>美团/京东/阿里/拼多多等</td></tr>
+          <tr><td>官网/H5</td><td><code>官网/H5</code></td><td>移动端网页版</td></tr>
+          <tr><td>官网/PC</td><td><code>官网/PC</code></td><td>PC 端网页版</td></tr>
+        </table>
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table>
+          <tr><th>业务模式</th><th>字段值</th><th>说明</th></tr>
+          <tr><td>自营备货</td><td><code>自营备货</code></td><td>自有仓储，自采自销</td></tr>
+          <tr><td>MP</td><td><code>MP</code></td><td>Marketplace 商家入驻</td></tr>
+          <tr><td>自营JBP</td><td><code>自营JBP</code></td><td>与品牌商联合业务计划</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:14px"><strong>科室体系：</strong>心脑血管、神经系统、男科疾病、皮肤病、内分泌、呼吸道疾病、消化系统疾病、滋补调养、肝病科、风湿骨科、营养保健、医疗器械等20个科室</p>
+      <p style="margin-top:8px"><strong>⚠️ 集中度风险：</strong>1号药网占比历史高达 67.6%，建议控制在 50% 以内</p>
+    </div>
+  </div>
+
+  <!-- 二、字段说明 -->
+  <div class="section" id="s2">
+    <div class="section-title"><span class="num">二</span>数据字段说明</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>#</th><th>字段名</th><th>含义</th><th>类型</th><th>备注</th></tr>
+        <tr><td>A</td><td>出库日期</td><td>订单出库日期</td><td>日期</td><td>格式 YYYY-MM-DD</td></tr>
+        <tr><td>B</td><td>产品名称</td><td>商品名（通用名+品牌名）</td><td>文本</td><td>去重后统计 GMV</td></tr>
+        <tr><td>C</td><td>生产厂商</td><td>商家/供应商名称</td><td>文本</td><td>用于集中度分析</td></tr>
+        <tr><td>D</td><td>科室</td><td>所属科室分类</td><td>文本</td><td>见科室体系</td></tr>
+        <tr><td>E</td><td>平台</td><td>销售渠道</td><td>文本</td><td>见渠道体系</td></tr>
+        <tr><td>F</td><td>业务模式</td><td>经营模式</td><td>文本</td><td>见业务模式</td></tr>
+        <tr><td>G</td><td>GMV</td><td>交易总额（元）</td><td>数值</td><td>含优惠前金额</td></tr>
+        <tr><td>H</td><td>Revenue</td><td>实收金额（元）</td><td>数值</td><td>实际到账</td></tr>
+        <tr><td>I</td><td>GAAP毛利额(去税)</td><td>毛利润（元）</td><td>数值</td><td>Revenue - 成本</td></tr>
+        <tr><td>J</td><td>GAAP毛利率(去税)(%)</td><td>毛利润率</td><td>数值</td><td>毛利额 / Revenue</td></tr>
+        <tr><td>K</td><td>顾客数</td><td>下单顾客数（去重）</td><td>整数</td><td>按 user_id 去重</td></tr>
+        <tr><td>L</td><td>新客数</td><td>首次下单顾客数</td><td>整数</td><td>历史首单判断</td></tr>
+      </table>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <strong>衍生指标：</strong>
+      <ul style="margin-top:8px">
+        <li>新客率 = 新客数 / 顾客数 × 100%</li>
+        <li>客均ARPO = Revenue / 顾客数</li>
+        <li>日均GMV = 总GMV / 统计天数</li>
+        <li>毛利额占比 = 各维度毛利额 / 总毛利额 × 100%</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 三、Excel解析 -->
+  <div class="section" id="s3">
+    <div class="section-title"><span class="num">三</span>Excel 解析注意事项</div>
+    <div class="card" style="margin-bottom:12px">
+      <strong>⚠️ 重要：</strong>出库 Excel 使用 <code>inlineStr</code> 或 <code>sharedStrings</code> 格式，<strong>不能直接用 pandas.read_excel()</strong>，必须用 zipfile + ElementTree 解析。
+    </div>
+    <pre><code>import zipfile
+import xml.etree.ElementTree as ET
+
+def parse_xlsx(filepath):
+    with zipfile.ZipFile(filepath) as z:
+        # 读取 sharedStrings（可能不存在）
+        shared = []
+        if 'xl/sharedStrings.xml' in z.namelist():
+            root = ET.fromstring(z.read('xl/sharedStrings.xml'))
+            ns = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+            for si in root.findall('x:si', ns):
+                shared.append(''.join(t.text or '' for t in si.findall('.//x:t', ns)))
+
+        # 解析 sheet
+        root = ET.fromstring(z.read('xl/worksheets/sheet1.xml'))
+        ns = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+
+        def get_col(ref):
+            col = ''.join(c for c in ref if c.isalpha())
+            idx = 0
+            for c in col: idx = idx * 26 + (ord(c) - ord('A') + 1)
+            return idx - 1
+
+        def get_val(cell):
+            t = cell.get('t', '')
+            v = cell.find('x:v', ns)
+            if t == 's': return shared[int(v.text)] if v is not None else ''
+            if t == 'inlineStr':
+                it = cell.find('.//x:t', ns)
+                return it.text if it is not None else ''
+            return v.text if v is not None else ''
+
+        data = []
+        for row in root.findall('.//x:row', ns):
+            cells = row.findall('x:c', ns)
+            row_dict = {get_col(c.get('r','')): get_val(c) for c in cells}
+            data.append(row_dict)
+        return data  # data[0] 是表头行</code></pre>
+  </div>
+
+  <!-- 四、技术规范 -->
+  <div class="section" id="s4">
+    <div class="section-title"><span class="num">四</span>看板生成技术规范</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>规范</th></tr>
+        <tr><td>图表库</td><td><code>Chart.js 4.4.0</code> — <code>https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js</code></td></tr>
+        <tr><td>背景色</td><td><code>#0f1117</code>（深色主题）</td></tr>
+        <tr><td>卡片背景</td><td><code>#1a1f2e</code>，边框 <code>#2d3748</code>，圆角 12px</td></tr>
+        <tr><td>输出格式</td><td>单文件 .html（内嵌 CSS+JS，无外部依赖除 CDN）</td></tr>
+        <tr><td>密码保护</td><td>密码 <code>1212</code>（见下方结构）</td></tr>
+        <tr><td>响应式</td><td>移动端适配，小屏单列布局</td></tr>
+      </table>
+    </div>
+    <div class="color-grid" style="margin-top:16px">
+      <div class="color-chip"><div class="color-dot" style="background:#4299e1"></div><code>#4299e1</code> GMV / 主色</div>
+      <div class="color-chip"><div class="color-dot" style="background:#68d391"></div><code>#68d391</code> 毛利额</div>
+      <div class="color-chip"><div class="color-dot" style="background:#b794f4"></div><code>#b794f4</code> 顾客数</div>
+      <div class="color-chip"><div class="color-dot" style="background:#4fd1c5"></div><code>#4fd1c5</code> 新客数</div>
+      <div class="color-chip"><div class="color-dot" style="background:#f6ad55"></div><code>#f6ad55</code> 警告橙</div>
+      <div class="color-chip"><div class="color-dot" style="background:#fc8181"></div><code>#fc8181</code> 危险红</div>
+    </div>
+  </div>
+
+  <!-- 五、6个Tab -->
+  <div class="section" id="s5">
+    <div class="section-title"><span class="num">五</span>必须包含的 6 个 Tab</div>
+
+    <div class="tab-def">
+      <div class="tab-name">📊 Tab 1 · 经营总览</div>
+      <ul>
+        <li><strong>6个KPI卡：</strong>总GMV / 总毛利额 / 总顾客数 / 总新客数 / 综合毛利率 / 新客率</li>
+        <li><strong>图表：</strong>渠道 GMV 饼图（donut）+ 业务模式 GMV 饼图</li>
+        <li><strong>洞察区：</strong>总结整体经营状况</li>
+      </ul>
+    </div>
+
+    <div class="tab-def">
+      <div class="tab-name">📈 Tab 2 · 经营趋势</div>
+      <ul>
+        <li><strong>双轴图：</strong>柱状 GMV + 折线毛利额（左轴 GMV，右轴毛利额）</li>
+        <li><strong>趋势图：</strong>顾客数 &amp; 新客数折线</li>
+        <li><strong>明细表：</strong>每日 GMV / 环比 / 毛利额 / 毛利率 / 顾客数 / 新客数 / 新客率</li>
+        <li><strong>洞察区：</strong>识别流量峰谷、趋势方向</li>
+      </ul>
+    </div>
+
+    <div class="tab-def">
+      <div class="tab-name">🌐 Tab 3 · 渠道分析</div>
+      <ul>
+        <li><strong>4个渠道卡片：</strong>每张含 GMV / 毛利额 / 毛利率 / 顾客数 / 新客数</li>
+        <li><strong>对比柱图：</strong>GMV vs 毛利额（分组柱图）</li>
+        <li><strong>对比图：</strong>毛利率 vs 新客率</li>
+        <li><strong>洞察区：</strong>高毛利/高获客渠道对比</li>
+      </ul>
+    </div>
+
+    <div class="tab-def">
+      <div class="tab-name">🏥 Tab 4 · 科室分析</div>
+      <ul>
+        <li><strong>横向柱图：</strong>科室 GMV Top10</li>
+        <li><strong>横向柱图：</strong>科室毛利额 Top10</li>
+        <li><strong>气泡图：</strong>X=毛利率 / Y=GMV / 气泡大小=顾客数（识别高价值科室）</li>
+        <li><strong>详情表：</strong>科室 / GMV / 毛利额 / 毛利率 / 顾客数 / 新客数 / 新客率</li>
+        <li><strong>洞察区：</strong>量大利薄 vs 量小利厚 科室对比</li>
+      </ul>
+    </div>
+
+    <div class="tab-def">
+      <div class="tab-name">💊 Tab 5 · 商品&amp;地域</div>
+      <ul>
+        <li><strong>商品 Top10 表：</strong>排名 / 商品名 / GMV / 占比 / 进度条</li>
+        <li><strong>省份 Top10 横向柱图</strong></li>
+        <li><strong>洞察区：</strong>头部商品集中度、区域分布特征</li>
+      </ul>
+    </div>
+
+    <div class="tab-def">
+      <div class="tab-name">⚠️ Tab 6 · 风险预警</div>
+      <div class="risk-grid" style="margin:10px 0">
+        <div class="risk-card red"><div class="risk-title">🔴 商家集中度风险</div><div class="risk-desc">1号药网占比 > 60% 触发高危</div></div>
+        <div class="risk-card red"><div class="risk-title">🔴 三方平台新客依赖</div><div class="risk-desc">三方新客占全部新客 > 70%</div></div>
+        <div class="risk-card yellow"><div class="risk-title">🟡 周末流量下滑</div><div class="risk-desc">周末 GMV 低于日均 > 10%</div></div>
+        <div class="risk-card yellow"><div class="risk-title">🟡 低毛利科室拖累</div><div class="risk-desc">毛利率 &lt; 7% 的科室 GMV 占比 > 20%</div></div>
+      </div>
+      <ul style="margin-top:4px">
+        <li>行动建议列表：5条优先级排序的行动项</li>
+        <li>洞察区：本期最需关注的 1-2 个核心风险</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 六、部署规范 -->
+  <div class="section" id="s6">
+    <div class="section-title"><span class="num">六</span>部署规范</div>
+    <div class="card" style="margin-bottom:16px">
+      <p><strong>GitHub Pages 地址：</strong><a href="https://weic23614-coder.github.io/open-claw/" style="color:#4299e1">https://weic23614-coder.github.io/open-claw/</a></p>
+      <p style="margin-top:6px"><strong>首页：</strong><code>index.html</code> &nbsp;|&nbsp; <strong>归档：</strong><code>archive.html</code> &nbsp;|&nbsp; <strong>综合看板：</strong><code>dashboard.html</code></p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">加密码保护</div>
+          <div class="step-desc">所有 HTML 文件统一密码 <code>1212</code>，使用规范的 pwd-overlay 结构</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">更新 index.html + archive.html</div>
+          <div class="step-desc">在两个归档页面同步新增当次报告入口，不能遗漏</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">更新 MEMORY.md</div>
+          <div class="step-desc">在「已生成报告」表格补充记录，含链接和密码备注</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 七、填空区 -->
+  <div class="section" id="s7">
+    <div class="section-title"><span class="num">⭐</span>填空区（每次只填这些）</div>
+    <div class="fill-area">
+      <div class="fill-title">📝 基本信息</div>
+      <div class="fill-row">
+        <div class="fill-field">
+          <label>报告日期</label>
+          <input class="fill-input" id="f_date" type="text" placeholder="YYYY-MM-DD" />
+        </div>
+        <div class="fill-field">
+          <label>数据周期（开始）</label>
+          <input class="fill-input" id="f_start" type="text" placeholder="YYYY-MM-DD" />
+        </div>
+        <div class="fill-field">
+          <label>数据周期（结束）</label>
+          <input class="fill-input" id="f_end" type="text" placeholder="YYYY-MM-DD" />
+        </div>
+      </div>
+      <div class="fill-row">
+        <div class="fill-field">
+          <label>总 GMV（万）</label>
+          <input class="fill-input" id="f_gmv" type="text" placeholder="如：918.9" />
+        </div>
+        <div class="fill-field">
+          <label>总毛利额（万）</label>
+          <input class="fill-input" id="f_gp" type="text" placeholder="如：87.7" />
+        </div>
+        <div class="fill-field">
+          <label>综合毛利率</label>
+          <input class="fill-input" id="f_gm" type="text" placeholder="如：9.55%" />
+        </div>
+      </div>
+      <div class="fill-row">
+        <div class="fill-field">
+          <label>总顾客数</label>
+          <input class="fill-input" id="f_cust" type="text" placeholder="如：111040" />
+        </div>
+        <div class="fill-field">
+          <label>总新客数</label>
+          <input class="fill-input" id="f_new" type="text" placeholder="如：30728" />
+        </div>
+        <div class="fill-field">
+          <label>新客率</label>
+          <input class="fill-input" id="f_nr" type="text" placeholder="如：27.7%" />
+        </div>
+      </div>
+
+      <div class="fill-title" style="margin-top:20px">📊 每日明细（日期 | GMV | 毛利额 | 顾客数 | 新客数，每行一天）</div>
+      <textarea class="fill-textarea" id="f_daily" placeholder="2026-03-23 | 114.3 | 10.97 | 13869 | 3847&#10;2026-03-24 | 107.6 | 10.00 | 12465 | 3651&#10;..."></textarea>
+
+      <div class="fill-title" style="margin-top:16px">🌐 渠道数据（渠道 | GMV | 毛利额 | 毛利率 | 顾客 | 新客）</div>
+      <textarea class="fill-textarea" id="f_channel" placeholder="官网/APP | 498.8 | 34.8 | 7.0% | 66216 | 6874&#10;三方平台 | 309.2 | 30.3 | 9.8% | 36225 | 22240&#10;官网/H5 | 82.2 | 11.5 | 14.0% | 7453 | 1566&#10;官网/PC | 28.7 | 11.1 | 38.7% | 1146 | 48"></textarea>
+
+      <div class="fill-title" style="margin-top:16px">🏥 科室 Top10（科室 | GMV | 毛利额 | 毛利率 | 顾客 | 新客 | 新客率）</div>
+      <textarea class="fill-textarea" id="f_dept" placeholder="心脑血管 | 173.4 | 14.0 | 8.1% | 15946 | 4548 | 28.5%&#10;男科疾病 | 109.1 | 17.0 | 15.5% | 8576 | 1698 | 19.8%&#10;..."></textarea>
+
+      <div class="fill-title" style="margin-top:16px">💊 商品 Top10（商品名 | GMV万）</div>
+      <textarea class="fill-textarea" id="f_prod" style="min-height:80px" placeholder="可定 瑞舒伐他汀钙片 | 33.1&#10;润众 恩替卡韦分散片 | 21.9&#10;..."></textarea>
+
+      <div class="fill-title" style="margin-top:16px">🗺️ 省份 Top10（省份 | GMV万）</div>
+      <textarea class="fill-textarea" id="f_geo" style="min-height:80px" placeholder="广东 | 101.9&#10;江苏 | 74.4&#10;..."></textarea>
+
+      <button class="copy-btn" id="copyBtn" onclick="generateAndCopy()">📋 生成提示词并复制</button>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <strong>💡 使用方法：</strong>
+      <ol style="margin-top:10px">
+        <li>填好上方所有字段</li>
+        <li>点「生成提示词并复制」</li>
+        <li>粘贴给 AI（或直接发给我），我会按规范生成看板并部署</li>
+      </ol>
+    </div>
+  </div>
+
+</div><!-- /container -->
+</div><!-- /main-content -->
+
+<script>
+function checkPwd(){
+  var i=document.getElementById('pwd-input').value;
+  if(i==='1212'){
+    document.getElementById('pwd-overlay').style.display='none';
+    document.getElementById('main-content').style.display='block';
+  } else {
+    document.getElementById('pwd-error').style.display='block';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function generateAndCopy(){
+  var date = document.getElementById('f_date').value || '【填写日期】';
+  var start = document.getElementById('f_start').value || '【开始】';
+  var end = document.getElementById('f_end').value || '【结束】';
+  var gmv = document.getElementById('f_gmv').value || '___';
+  var gp = document.getElementById('f_gp').value || '___';
+  var gm = document.getElementById('f_gm').value || '___';
+  var cust = document.getElementById('f_cust').value || '___';
+  var newc = document.getElementById('f_new').value || '___';
+  var nr = document.getElementById('f_nr').value || '___';
+  var daily = document.getElementById('f_daily').value || '（未填写）';
+  var channel = document.getElementById('f_channel').value || '（未填写）';
+  var dept = document.getElementById('f_dept').value || '（未填写）';
+  var prod = document.getElementById('f_prod').value || '（未填写）';
+  var geo = document.getElementById('f_geo').value || '（未填写）';
+
+  var prompt = `你是一个数据分析助手，请按照以下数据和规范，生成一个完整的 dashboard.html，保存到 /tmp/gh-openclaw/dashboard.html，然后按三步规范部署到 GitHub Pages。
+
+==================================================
+报告日期：${date}
+数据周期：${start} ~ ${end}
+==================================================
+
+## 核心 KPI
+- 总GMV：${gmv} 万
+- 总毛利额：${gp} 万 | 综合毛利率：${gm}
+- 总顾客数：${cust} | 总新客数：${newc} | 新客率：${nr}
+
+## 每日明细（日期 | GMV万 | 毛利额万 | 顾客数 | 新客数）
+${daily}
+
+## 渠道数据（渠道 | GMV万 | 毛利额万 | 毛利率 | 顾客 | 新客）
+${channel}
+
+## 科室 Top10（科室 | GMV万 | 毛利额万 | 毛利率 | 顾客数 | 新客数 | 新客率）
+${dept}
+
+## 商品 Top10
+${prod}
+
+## 省份 Top10
+${geo}
+
+==================================================
+技术规范：
+- 深色主题 #0f1117，Chart.js 4.4.0
+- 密码保护：1212
+- 6个Tab：经营总览 / 经营趋势 / 渠道分析 / 科室分析 / 商品&地域 / 风险预警
+- 每个Tab含洞察区
+- 部署后同步更新 index.html、archive.html、MEMORY.md（三步规范）
+==================================================`;
+
+  navigator.clipboard.writeText(prompt).then(function(){
+    var btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ 已复制！';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = '📋 生成提示词并复制'; btn.classList.remove('copied'); }, 2000);
+  }).catch(function(){
+    alert('复制失败，请手动选中文本复制');
+  });
+}
+</script>
+</body>
+</html>
