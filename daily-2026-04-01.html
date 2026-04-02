@@ -391,11 +391,14 @@ document.getElementById('pi').focus();
 </div><!-- /content -->
 
 <script>
+const tabInited = {};
 function st(id,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
+  // Lazy-init charts for this tab
+  if(!tabInited[id]){ tabInited[id]=true; initTab(id); }
 }
 
 // ===== DATA =====
@@ -439,129 +442,131 @@ const GEO_D = [
 
 const CC = ['#6c8ef5','#4fc3f7','#43e97b','#f9a825','#f06292','#b39ddb','#80cbc4','#ffcc02','#ff7043','#a5d6a7','#ce93d8','#90caf9'];
 
-let inited = false;
-function init(){
-  if(inited)return;inited=true;
-  Chart.defaults.color='#8892b0';
-  Chart.defaults.font={family:"'PingFang SC','Microsoft YaHei',sans-serif"};
+Chart.defaults.color='#8892b0';
+Chart.defaults.font={family:"'PingFang SC','Microsoft YaHei',sans-serif"};
 
-  // plat pie (summary tab)
-  const platPieOpts = (id)=>new Chart(document.getElementById(id),{
-    type:'doughnut',
-    data:{labels:PLAT_L,datasets:[{data:PLAT_GMV,backgroundColor:CC.slice(0,4),borderWidth:0,hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8892b0',padding:10}}}}
-  });
-  platPieOpts('c-plat-pie');
-  platPieOpts('c-plat-pie2');
-
-  // dept bar (summary tab)
-  const deptBarOpts = (id)=>new Chart(document.getElementById(id),{
-    type:'bar',
-    data:{labels:DEPT_L.slice(0,8),datasets:[{label:'GMV',data:DEPT_GMV.slice(0,8),backgroundColor:CC.map(c=>c+'bb'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(0)+'万'}},y:{grid:{display:false}}}}
-  });
-  deptBarOpts('c-dept-bar');
-  deptBarOpts('c-dept-bar2');
-
-  // GMV trend
-  new Chart(document.getElementById('c-gmv-trend'),{
-    type:'bar',
-    data:{labels:DATES10,datasets:[{
-      label:'GMV',data:GMV10,backgroundColor:GMV10.map((v,i)=>i===9?'#6c8ef5':'#6c8ef577'),
-      borderColor:GMV10.map((v,i)=>i===9?'#6c8ef5':'#6c8ef5'),borderWidth:1,borderRadius:4
-    }]},
-    options:{responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'GMV: ¥'+ctx.raw.toLocaleString()}}},
-      scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(0)+'万'}}}}
-  });
-
-  // margin trend
-  new Chart(document.getElementById('c-margin-trend'),{
-    type:'bar',
-    data:{labels:DATES10,datasets:[
-      {label:'毛利额',data:GAAP10,backgroundColor:'#43e97b88',borderColor:'#43e97b',borderWidth:1,borderRadius:3,yAxisID:'y'},
-      {label:'毛利率%',data:MG10,type:'line',borderColor:'#f9a825',backgroundColor:'transparent',tension:0.4,yAxisID:'y1',pointRadius:4,pointBackgroundColor:'#f9a825'}
-    ]},
-    options:{responsive:true,maintainAspectRatio:true,
-      plugins:{legend:{labels:{color:'#8892b0'}}},
-      scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}},
-              y1:{position:'right',grid:{display:false},min:12,max:19,ticks:{callback:v=>v+'%'}}}}
-  });
-
-  // qty trend
-  new Chart(document.getElementById('c-qty-trend'),{
-    type:'line',
-    data:{labels:DATES10,datasets:[{label:'销量',data:QTY10,borderColor:'#4fc3f7',backgroundColor:'#4fc3f722',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#4fc3f7'}]},
-    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
-  });
-
-  // plat margin
-  new Chart(document.getElementById('c-plat-margin'),{
-    type:'bar',
-    data:{labels:PLAT_L,datasets:[{label:'毛利率%',data:PLAT_MG,backgroundColor:CC.slice(0,4),borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}
-  });
-
-  // dept margin
-  new Chart(document.getElementById('c-dept-margin'),{
-    type:'bar',
-    data:{labels:DEPT_L,datasets:[{label:'毛利率%',data:DEPT_MG,
-      backgroundColor:DEPT_MG.map(v=>v>25?'#43e97bbb':v>15?'#f9a825bb':v>8?'#6c8ef5bb':'#f06292bb'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
-      scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
-  });
-
-  // dept pie
-  new Chart(document.getElementById('c-dept-pie'),{
-    type:'doughnut',
-    data:{labels:DEPT_L.slice(0,8),datasets:[{data:DEPT_GMV.slice(0,8),backgroundColor:CC.slice(0,8),borderWidth:0,hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8892b0',padding:8,font:{size:11}}}}}
-  });
-
-  // prod bar
-  new Chart(document.getElementById('c-prod-bar'),{
-    type:'bar',
-    data:{labels:PROD_D.map(p=>p[0]),
-      datasets:[{label:'GMV',data:PROD_D.map(p=>p[1]),
-        backgroundColor:PROD_D.map(p=>p[3]<0?'#f0629288':p[3]<5?'#f9a82588':'#6c8ef5bb'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:35}},
-              y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
-  });
-
-  // prod table
-  const tb = document.getElementById('pt');
-  PROD_D.forEach((p,i)=>{
-    const m=p[3],mc=m<0?'t-red':m<5?'t-orange':m<10?'t-blue':'t-green',mt=m<0?'⚠️亏损':m<5?'极低':m<10?'偏低':'正常';
-    const warn = m < 0 ? 'style="background:rgba(240,98,146,0.05)"' : '';
-    tb.innerHTML+=`<tr ${warn}><td style="color:var(--muted)">${i+1}</td><td style="font-size:.8rem">${p[0]}</td>
-      <td><span class="tag t-purple">${p[4]}</span></td>
-      <td class="num"><b>${p[1].toLocaleString()}</b></td><td class="num">${p[2].toLocaleString()}</td>
-      <td class="num">${p[3]}%</td><td><span class="tag ${mc}">${mt}</span></td></tr>`;
-  });
-
-  // geo bar
-  new Chart(document.getElementById('c-geo-bar'),{
-    type:'bar',
-    data:{labels:GEO_D.map(g=>g[0]),datasets:[{label:'GMV',data:GEO_D.map(g=>g[1]),
-      backgroundColor:CC.map(c=>c+'cc'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
-  });
-
-  // geo table
-  const gt = document.getElementById('gt');
-  GEO_D.forEach(g=>{
-    const bw=(g[1]/GEO_D[0][1]*100).toFixed(0);
-    gt.innerHTML+=`<tr><td><b>${g[0]}</b></td><td class="num">${g[1].toLocaleString()}</td>
-      <td class="num">${g[2]}%</td><td class="num">—</td>
-      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${bw}%"></div></div><span style="font-size:.73rem;color:var(--muted);min-width:32px">${g[2]}%</span></div></td></tr>`;
-  });
+function initTab(id){
+  if(id==='sum'){
+    new Chart(document.getElementById('c-plat-pie'),{
+      type:'doughnut',
+      data:{labels:PLAT_L,datasets:[{data:PLAT_GMV,backgroundColor:CC.slice(0,4),borderWidth:0,hoverOffset:8}]},
+      options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8892b0',padding:10}}}}
+    });
+    new Chart(document.getElementById('c-dept-bar'),{
+      type:'bar',
+      data:{labels:DEPT_L.slice(0,8),datasets:[{label:'GMV',data:DEPT_GMV.slice(0,8),backgroundColor:CC.map(c=>c+'bb'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(0)+'万'}},y:{grid:{display:false}}}}
+    });
+  }
+  if(id==='trend'){
+    new Chart(document.getElementById('c-gmv-trend'),{
+      type:'bar',
+      data:{labels:DATES10,datasets:[{
+        label:'GMV',data:GMV10,backgroundColor:GMV10.map((v,i)=>i===9?'#6c8ef5':'#6c8ef577'),
+        borderColor:GMV10.map(()=>'#6c8ef5'),borderWidth:1,borderRadius:4
+      }]},
+      options:{responsive:true,maintainAspectRatio:true,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'GMV: ¥'+ctx.raw.toLocaleString()}}},
+        scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(0)+'万'}}}}
+    });
+    new Chart(document.getElementById('c-margin-trend'),{
+      type:'bar',
+      data:{labels:DATES10,datasets:[
+        {label:'毛利额',data:GAAP10,backgroundColor:'#43e97b88',borderColor:'#43e97b',borderWidth:1,borderRadius:3,yAxisID:'y'},
+        {label:'毛利率%',data:MG10,type:'line',borderColor:'#f9a825',backgroundColor:'transparent',tension:0.4,yAxisID:'y1',pointRadius:4,pointBackgroundColor:'#f9a825'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:true,
+        plugins:{legend:{labels:{color:'#8892b0'}}},
+        scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}},
+                y1:{position:'right',grid:{display:false},min:12,max:19,ticks:{callback:v=>v+'%'}}}}
+    });
+    new Chart(document.getElementById('c-qty-trend'),{
+      type:'line',
+      data:{labels:DATES10,datasets:[{label:'销量',data:QTY10,borderColor:'#4fc3f7',backgroundColor:'#4fc3f722',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#4fc3f7'}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#2d3150'}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
+    });
+  }
+  if(id==='plat'){
+    new Chart(document.getElementById('c-plat-pie2'),{
+      type:'doughnut',
+      data:{labels:PLAT_L,datasets:[{data:PLAT_GMV,backgroundColor:CC.slice(0,4),borderWidth:0,hoverOffset:8}]},
+      options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8892b0',padding:10}}}}
+    });
+    new Chart(document.getElementById('c-plat-margin'),{
+      type:'bar',
+      data:{labels:PLAT_L,datasets:[{label:'毛利率%',data:PLAT_MG,backgroundColor:CC.slice(0,4),borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}
+    });
+  }
+  if(id==='dept'){
+    new Chart(document.getElementById('c-dept-bar2'),{
+      type:'bar',
+      data:{labels:DEPT_L,datasets:[{label:'GMV',data:DEPT_GMV,backgroundColor:CC.map(c=>c+'bb'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(0)+'万'}},y:{grid:{display:false}}}}
+    });
+    new Chart(document.getElementById('c-dept-margin'),{
+      type:'bar',
+      data:{labels:DEPT_L,datasets:[{label:'毛利率%',data:DEPT_MG,
+        backgroundColor:DEPT_MG.map(v=>v>25?'#43e97bbb':v>15?'#f9a825bb':v>8?'#6c8ef5bb':'#f06292bb'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#2d3150'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+    });
+    new Chart(document.getElementById('c-dept-pie'),{
+      type:'doughnut',
+      data:{labels:DEPT_L.slice(0,8),datasets:[{data:DEPT_GMV.slice(0,8),backgroundColor:CC.slice(0,8),borderWidth:0,hoverOffset:8}]},
+      options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8892b0',padding:8,font:{size:11}}}}}
+    });
+  }
+  if(id==='prod'){
+    new Chart(document.getElementById('c-prod-bar'),{
+      type:'bar',
+      data:{labels:PROD_D.map(p=>p[0]),
+        datasets:[{label:'GMV',data:PROD_D.map(p=>p[1]),
+          backgroundColor:PROD_D.map(p=>p[3]<0?'#f0629288':p[3]<5?'#f9a82588':'#6c8ef5bb'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:35}},
+                y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
+    });
+    const tb = document.getElementById('pt');
+    if(!tb.children.length){
+      PROD_D.forEach((p,i)=>{
+        const m=p[3],mc=m<0?'t-red':m<5?'t-orange':m<10?'t-blue':'t-green',mt=m<0?'⚠️亏损':m<5?'极低':m<10?'偏低':'正常';
+        const warn=m<0?'style="background:rgba(240,98,146,0.05)"':'';
+        tb.innerHTML+=`<tr ${warn}><td style="color:var(--muted)">${i+1}</td><td style="font-size:.8rem">${p[0]}</td>
+          <td><span class="tag t-purple">${p[4]}</span></td>
+          <td class="num"><b>${p[1].toLocaleString()}</b></td><td class="num">${p[2].toLocaleString()}</td>
+          <td class="num">${p[3]}%</td><td><span class="tag ${mc}">${mt}</span></td></tr>`;
+      });
+    }
+  }
+  if(id==='geo'){
+    new Chart(document.getElementById('c-geo-bar'),{
+      type:'bar',
+      data:{labels:GEO_D.map(g=>g[0]),datasets:[{label:'GMV',data:GEO_D.map(g=>g[1]),
+        backgroundColor:CC.map(c=>c+'cc'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3150'},ticks:{callback:v=>(v/10000).toFixed(1)+'万'}}}}
+    });
+    const gt=document.getElementById('gt');
+    if(!gt.children.length){
+      GEO_D.forEach(g=>{
+        const bw=(g[1]/GEO_D[0][1]*100).toFixed(0);
+        gt.innerHTML+=`<tr><td><b>${g[0]}</b></td><td class="num">${g[1].toLocaleString()}</td>
+          <td class="num">${g[2]}%</td><td class="num">—</td>
+          <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${bw}%"></div></div><span style="font-size:.73rem;color:var(--muted);min-width:32px">${g[2]}%</span></div></td></tr>`;
+      });
+    }
+  }
 }
+
+// Init first visible tab on load
+function init(){ initTab('sum'); tabInited['sum']=true; }
 </script>
 </body>
 </html>
+
