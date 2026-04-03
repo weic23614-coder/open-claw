@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1药网 出库日报 | 2026-04-02</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system,'PingFang SC','Microsoft YaHei',sans-serif; background:#0f1117; color:#e2e8f0; }
+
+/* Password */
+#pwd-overlay { position:fixed; inset:0; background:#0f1117; display:flex; align-items:center; justify-content:center; z-index:9999; }
+.pwd-box { background:#1a1d27; border:1px solid #2d3748; border-radius:16px; padding:40px; text-align:center; width:340px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+.pwd-box h2 { font-size:20px; color:#60a5fa; margin-bottom:6px; }
+.pwd-box p { color:#94a3b8; font-size:13px; margin-bottom:22px; }
+.pwd-box input { width:100%; padding:12px 16px; border-radius:8px; border:1px solid #374151; background:#111827; color:#e2e8f0; font-size:20px; text-align:center; letter-spacing:5px; margin-bottom:14px; }
+.pwd-box input:focus { outline:none; border-color:#60a5fa; }
+.pwd-box button { width:100%; padding:12px; border-radius:8px; border:none; background:#2563eb; color:#fff; font-size:15px; cursor:pointer; }
+.pwd-box button:hover { background:#1d4ed8; }
+.pwd-err { color:#f87171; font-size:13px; margin-top:8px; display:none; }
+
+/* Layout */
+.header { background:linear-gradient(135deg,#1e2535 0%,#0f1117 100%); border-bottom:1px solid #2d3748; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; }
+.header h1 { font-size:20px; color:#60a5fa; font-weight:700; }
+.header p { font-size:12px; color:#64748b; margin-top:4px; }
+.badge { background:#1e3a5f; color:#60a5fa; padding:5px 12px; border-radius:16px; font-size:12px; border:1px solid #2563eb; }
+
+.content { padding:24px 32px; max-width:1200px; }
+
+/* KPI */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+.kpi { background:#1a1d27; border:1px solid #2d3748; border-radius:10px; padding:18px; text-align:center; }
+.kpi.hl { border-color:#2563eb; background:#1e2535; }
+.kpi .lbl { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; margin-bottom:7px; }
+.kpi .val { font-size:24px; font-weight:700; color:#e2e8f0; }
+.kpi.hl .val { color:#60a5fa; }
+.kpi .dod { font-size:12px; margin-top:4px; }
+.up { color:#34d399; } .dn { color:#f87171; } .neu { color:#94a3b8; }
+
+/* Two/three col */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px; }
+.three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:20px; }
+@media(max-width:860px) { .two-col,.three-col { grid-template-columns:1fr; } }
+
+.section-ttl { font-size:14px; font-weight:600; color:#94a3b8; margin-bottom:14px; padding-bottom:7px; border-bottom:1px solid #2d3748; display:flex; align-items:center; gap:6px; }
+.section-ttl span { font-size:16px; }
+
+.card { background:#1a1d27; border:1px solid #2d3748; border-radius:10px; padding:18px; }
+.card h3 { font-size:13px; color:#94a3b8; margin-bottom:14px; }
+
+/* Table */
+.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+.tbl th { background:#1e2535; color:#94a3b8; padding:9px 12px; text-align:left; border-bottom:1px solid #2d3748; font-weight:500; }
+.tbl td { padding:8px 12px; border-bottom:1px solid #1e2535; color:#cbd5e1; }
+.tbl tr:hover td { background:#1e2535; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.tbl-wrap { overflow-x:auto; border-radius:10px; border:1px solid #2d3748; }
+
+/* Badge */
+.tag { display:inline-block; padding:2px 7px; border-radius:8px; font-size:11px; font-weight:500; }
+.tag-blue { background:#1e3a5f; color:#60a5fa; }
+.tag-green { background:#064e3b; color:#34d399; }
+.tag-yellow { background:#451a03; color:#fbbf24; }
+.tag-red { background:#450a0a; color:#f87171; }
+
+/* Progress */
+.prog-item { margin-bottom:10px; }
+.prog-lbl { display:flex; justify-content:space-between; font-size:12px; color:#94a3b8; margin-bottom:4px; }
+.prog-bar { height:7px; background:#2d3748; border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:3px; }
+
+/* Insight */
+.insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.insight { background:#1a1d27; padding:15px; border-radius:8px; font-size:13px; line-height:1.7; color:#cbd5e1; border-left:3px solid #2563eb; }
+.insight.warn { border-left-color:#f59e0b; }
+.insight.ok { border-left-color:#10b981; }
+.insight.danger { border-left-color:#ef4444; }
+.insight .ico { font-size:18px; margin-bottom:6px; }
+
+/* Plat comparison table */
+.plat-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+.plat-tbl th { background:#1e2535; color:#94a3b8; padding:9px 12px; text-align:left; border-bottom:1px solid #2d3748; }
+.plat-tbl td { padding:9px 12px; border-bottom:1px solid #1e2535; color:#cbd5e1; }
+
+.footer { text-align:center; padding:20px; color:#374151; font-size:12px; border-top:1px solid #1e2535; margin-top:20px; }
+</style>
+</head>
+<body>
+
+<!-- Password -->
+<div id="pwd-overlay">
+  <div class="pwd-box">
+    <h2>🔒 出库日报</h2>
+    <p>2026-04-02 · 请输入访问密码</p>
+    <input type="password" id="pi" placeholder="••••" maxlength="8" onkeydown="if(event.key==='Enter')cp()">
+    <button onclick="cp()">进 入</button>
+    <div class="pwd-err" id="pe">密码错误</div>
+  </div>
+</div>
+
+<div id="mc" style="display:none">
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <h1>📦 1药网 出库日报 · 2026-04-02（周三）</h1>
+    <p>数据范围：2026-04-02 单日 &nbsp;|&nbsp; 环比昨日(04-01) &nbsp;|&nbsp; 同比上周同天(03-26)</p>
+  </div>
+  <div class="badge">🔒 内部数据</div>
+</div>
+
+<div class="content">
+
+<!-- KPI -->
+<div class="kpi-grid">
+  <div class="kpi hl">
+    <div class="lbl">今日 GMV</div>
+    <div class="val">98.3万</div>
+    <div class="dod"><span class="dn">DoD -4.8%</span> &nbsp; <span class="dn">WoW -1.0%</span></div>
+  </div>
+  <div class="kpi hl">
+    <div class="lbl">毛利额 GM</div>
+    <div class="val">8.3万</div>
+    <div class="dod"><span class="up">DoD -1.3%</span> &nbsp; <span class="up">WoW -0.3%</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">毛利率 GM%</div>
+    <div class="val" style="color:#34d399">14.0%</div>
+    <div class="dod"><span class="up">DoD +0.9pp</span> &nbsp; <span class="up">WoW +0.3pp</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">销量</div>
+    <div class="val">31,214</div>
+    <div class="dod"><span class="dn">DoD -6.8%</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">顾客数</div>
+    <div class="val">11,488</div>
+    <div class="dod"><span class="dn">DoD -5.5%</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">新客数</div>
+    <div class="val">3,108</div>
+    <div class="dod"><span class="dn">DoD -9.0%</span> &nbsp; <span class="neu">占比27.1%</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">vs 9日均值</div>
+    <div class="val" style="color:#fbbf24">-0.2%</div>
+    <div class="dod"><span class="neu">均值 98.4万</span></div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">客单价</div>
+    <div class="val">85.6元</div>
+    <div class="dod"><span class="neu">GMV/顾客数</span></div>
+  </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="two-col">
+  <div class="card">
+    <h3>📈 近9日 GMV 趋势（万元）</h3>
+    <canvas id="trendChart" height="180"></canvas>
+  </div>
+  <div class="card">
+    <h3>📊 近9日 GM% 趋势</h3>
+    <canvas id="gmPctChart" height="180"></canvas>
+  </div>
+</div>
+
+<!-- Platform -->
+<div class="section-ttl"><span>🏪</span> 平台拆解（今日）</div>
+<div class="two-col">
+  <div class="card">
+    <h3>平台 GMV 占比</h3>
+    <canvas id="platPie" height="190"></canvas>
+  </div>
+  <div>
+    <div class="tbl-wrap">
+      <table class="plat-tbl">
+        <thead>
+          <tr>
+            <th>平台</th><th class="num">GMV</th><th class="num">占比</th><th class="num">GM%</th><th class="num">新客</th><th class="num">DoD GMV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>官网/APP</td>
+            <td class="num">54.2万</td><td class="num">55.2%</td>
+            <td class="num" style="color:#34d399">16.9%</td>
+            <td class="num">625</td>
+            <td class="num"><span class="up">+1.4%</span></td>
+          </tr>
+          <tr>
+            <td>三方平台</td>
+            <td class="num">34.1万</td><td class="num">34.7%</td>
+            <td class="num" style="color:#fbbf24">11.3%</td>
+            <td class="num">2,338</td>
+            <td class="num"><span class="dn">-10.6%</span></td>
+          </tr>
+          <tr>
+            <td>官网/H5</td>
+            <td class="num">8.0万</td><td class="num">8.1%</td>
+            <td class="num" style="color:#60a5fa">16.4%</td>
+            <td class="num">140</td>
+            <td class="num"><span class="dn">-17.8%</span></td>
+          </tr>
+          <tr>
+            <td>官网/PC</td>
+            <td class="num">2.0万</td><td class="num">2.0%</td>
+            <td class="num" style="color:#fbbf24">14.7%</td>
+            <td class="num">5</td>
+            <td class="num"><span class="up">+4.3%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="section-ttl"><span>🔧</span> 业务模式</div>
+      <div class="tbl-wrap">
+        <table class="plat-tbl">
+          <thead><tr><th>模式</th><th class="num">GMV</th><th class="num">占比</th><th class="num">GM%</th></tr></thead>
+          <tbody>
+            <tr><td>自营备货</td><td class="num">54.5万</td><td class="num">55.5%</td><td class="num" style="color:#fbbf24">10.2%</td></tr>
+            <tr><td>MP（佣金）</td><td class="num">33.4万</td><td class="num">33.9%</td><td class="num" style="color:#34d399">100%*</td></tr>
+            <tr><td>自营JBP</td><td class="num">10.4万</td><td class="num">10.6%</td><td class="num" style="color:#60a5fa">14.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:#64748b;margin-top:6px">*MP毛利为佣金收入，REV=GM</p>
+    </div>
+  </div>
+</div>
+
+<!-- Dept -->
+<div class="section-ttl"><span>💊</span> 科室拆解（今日）</div>
+<div class="two-col">
+  <div class="card">
+    <h3>科室 GMV 分布（Top 8）</h3>
+    <canvas id="deptBar" height="220"></canvas>
+  </div>
+  <div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>科室</th><th class="num">GMV</th><th class="num">占比</th><th class="num">GM%</th><th class="num">销量</th><th class="num">顾客</th></tr>
+        </thead>
+        <tbody id="dept-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Province + Customer -->
+<div class="two-col">
+  <div>
+    <div class="section-ttl"><span>🗺️</span> 省份 TOP 8</div>
+    <div id="prov-prog"></div>
+  </div>
+  <div class="card">
+    <h3>👥 顾客结构 & 近9日新客趋势</h3>
+    <canvas id="custChart" height="200"></canvas>
+  </div>
+</div>
+
+<!-- Insights -->
+<div class="section-ttl" style="margin-top:8px"><span>💡</span> 今日关键洞察</div>
+<div class="insight-grid">
+  <div class="insight warn">
+    <div class="ico">📉</div>
+    <strong>总GMV环比下滑4.8%</strong><br>
+    三方平台(-10.6%)和官网H5(-17.8%)是拖累主因。官网APP逆势小涨+1.4%，结构持续改善。
+  </div>
+  <div class="insight ok">
+    <div class="ico">✅</div>
+    <strong>毛利率逆势提升至14.0%</strong><br>
+    GMV下滑但GM%环比+0.9pp，说明高毛利品类出库占比提升。医疗器械GM%高达47.6%，贡献突出。
+  </div>
+  <div class="insight">
+    <div class="ico">📌</div>
+    <strong>心脑血管&男科疾病占21%GMV</strong><br>
+    心脑血管19.8%、男科11.5%，合计超1/3。男科GM%16.1%优于均值，是重要利润来源。
+  </div>
+  <div class="insight warn">
+    <div class="ico">⚠️</div>
+    <strong>新客下滑9%，需关注获客效率</strong><br>
+    新客3,108人，较昨日少312人(-9%)，三方平台仍是新客主渠道（新客2,338/75%）。
+  </div>
+  <div class="insight ok">
+    <div class="ico">🌟</div>
+    <strong>营养保健&医疗器械高毛利</strong><br>
+    医疗器械GM%47.6%、营养保健40.6%，是今日最优盈利品类，建议持续加大推广资源。
+  </div>
+  <div class="insight">
+    <div class="ico">📦</div>
+    <strong>可定他汀连续第一</strong><br>
+    "可定 瑞舒伐他汀钙片"今日GMV 4.0万排名首位，销量2002件，心脑血管核心SKU稳定。
+  </div>
+</div>
+
+<!-- Product Table -->
+<div class="section-ttl" style="margin-top:20px"><span>📋</span> 今日 TOP 15 商品（GMV）</div>
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr><th>#</th><th>商品名称</th><th>科室</th><th class="num">GMV</th><th class="num">GM</th><th class="num">GM%</th><th class="num">销量</th></tr>
+    </thead>
+    <tbody id="prod-tbody"></tbody>
+  </table>
+</div>
+
+</div><!-- /content -->
+<div class="footer" id="footer">
+  © 1药网内部日报 · 2026-04-02 · 请勿外传 &nbsp;|&nbsp; <a href="2026-04-02.html" style="color:#60a5fa;text-decoration:none">查看完整9日看板</a>
+</div>
+</div><!-- /mc -->
+
+<script>
+function cp() {
+  if (document.getElementById('pi').value === '1212') {
+    document.getElementById('pwd-overlay').style.display='none';
+    document.getElementById('mc').style.display='block';
+    init();
+  } else {
+    document.getElementById('pe').style.display='block';
+    document.getElementById('pi').value='';
+  }
+}
+
+const dates9 = ['03-25','03-26','03-27','03-28','03-29','03-30','03-31','04-01','04-02'];
+const gmvs9  = [104.9, 99.2, 93.2, 85.4, 89.8, 107.5, 104.3, 103.3, 98.3];
+const gmPcts9= [13.9, 13.7, 12.9, 14.7, 13.8, 13.8, 13.2, 13.1, 14.0];
+const custs9 = [12660,12503,12176,10554,11034,13183,12392,12158,11488];
+const newCs9 = [3810,3650,3090,2677,2970,3513,3540,3415,3108];
+
+const deptData = [
+  {dept:'心脑血管',gmv:194775,pct:19.8,gm_pct:12.7,sales:7671,cust:1798},
+  {dept:'神经系统',gmv:107467,pct:10.9,gm_pct:10.7,sales:2411,cust:865},
+  {dept:'男科疾病',gmv:98465,pct:10.0,gm_pct:16.1,sales:1932,cust:864},
+  {dept:'内分泌',gmv:83407,pct:8.5,gm_pct:8.3,sales:1935,cust:669},
+  {dept:'风湿骨科',gmv:67581,pct:6.9,gm_pct:13.3,sales:2008,cust:720},
+  {dept:'皮肤病',gmv:61136,pct:6.2,gm_pct:14.7,sales:2899,cust:1202},
+  {dept:'滋补调养',gmv:60033,pct:6.1,gm_pct:18.6,sales:1918,cust:718},
+  {dept:'肝病科',gmv:58622,pct:6.0,gm_pct:11.1,sales:1168,cust:324},
+  {dept:'呼吸道疾病',gmv:53664,pct:5.5,gm_pct:15.0,sales:2251,cust:1083},
+  {dept:'医疗器械',gmv:37885,pct:3.9,gm_pct:47.6,sales:892,cust:438},
+  {dept:'消化系统疾病',gmv:36201,pct:3.7,gm_pct:18.1,sales:1743,cust:679},
+  {dept:'营养保健',gmv:34167,pct:3.5,gm_pct:40.6,sales:754,cust:371},
+];
+
+const provData = [
+  {p:'广东',gmv:115593,pct:11.8,cust:1364,new:300},
+  {p:'江苏',gmv:82815,pct:8.4,cust:899,new:279},
+  {p:'浙江',gmv:63462,pct:6.5,cust:857,new:264},
+  {p:'上海',gmv:58146,pct:5.9,cust:671,new:232},
+  {p:'山东',gmv:55804,pct:5.7,cust:685,new:200},
+  {p:'黑龙江',gmv:44634,pct:4.5,cust:429,new:105},
+  {p:'辽宁',gmv:44582,pct:4.5,cust:495,new:160},
+  {p:'四川',gmv:43290,pct:4.4,cust:503,new:121},
+];
+
+const prodData = [
+  {name:'可定 瑞舒伐他汀钙片 5mg*7片',dept:'心脑血管',gmv:40381,gm:5167,gm_pct:14.46,sales:2002},
+  {name:'安达释 达格列净二甲双胍缓释片(Ⅰ) 10mg/1000mg*28片',dept:'内分泌',gmv:35291,gm:2687,gm_pct:8.6,sales:307},
+  {name:'普米克令舒 吸入用布地奈德混悬液 2ml:0.5mg*5支',dept:'呼吸道疾病',gmv:14544,gm:2016,gm_pct:15.66,sales:396},
+  {name:'海默尼/美时玉 盐酸曲唑酮片 50mg*20片',dept:'神经系统',gmv:14212,gm:1138,gm_pct:9.05,sales:303},
+  {name:'络活喜 苯磺酸氨氯地平片 5mg*7片',dept:'心脑血管',gmv:13061,gm:651,gm_pct:5.63,sales:594},
+  {name:'喜格迈 尼可地尔片 5mg*10片*10板',dept:'心脑血管',gmv:12883,gm:921,gm_pct:8.08,sales:71},
+  {name:'润众 恩替卡韦分散片 0.5mg*14片*2板',dept:'肝病科',gmv:10666,gm:1025,gm_pct:10.86,sales:91},
+  {name:'白云山/金戈 枸橼酸西地那非片 50mg*20片',dept:'男科疾病',gmv:9926,gm:715,gm_pct:8.14,sales:40},
+  {name:'瑞复舒 吗替麦考酚酯胶囊 0.25g*10粒*4板',dept:'风湿骨科',gmv:9125,gm:956,gm_pct:11.84,sales:241},
+  {name:'博路定 恩替卡韦片 0.5mg*28片',dept:'肝病科',gmv:9006,gm:147,gm_pct:2.24,sales:18},
+  {name:'安立格 沙格列汀二甲双胍缓释片 5mg/1000mg*14片',dept:'内分泌',gmv:8431,gm:191,gm_pct:2.56,sales:61},
+  {name:'喜格迈 尼可地尔片 5mg*10片*3板',dept:'心脑血管',gmv:8337,gm:632,gm_pct:8.57,sales:151},
+  {name:'妙纳 盐酸乙哌立松片 50mg*10片*2板',dept:'神经系统',gmv:8103,gm:729,gm_pct:10.16,sales:326},
+  {name:'西乐葆/CELEBREX 塞来昔布胶囊 0.2g*18粒',dept:'风湿骨科',gmv:8051,gm:469,gm_pct:6.58,sales:103},
+  {name:'希爱力/Cialis 他达拉非片 5mg*28片',dept:'男科疾病',gmv:6690,gm:50,gm_pct:0.84,sales:17},
+];
+
+function fmt(n) { return n>=10000?(n/10000).toFixed(1)+'万':n.toLocaleString(); }
+function rc(p) { if(p>=25)return'#34d399'; if(p>=15)return'#60a5fa'; if(p>=8)return'#fbbf24'; if(p<0)return'#f87171'; return'#94a3b8'; }
+const co = { x:{ticks:{color:'#64748b'},grid:{color:'#1e2535'}}, y:{ticks:{color:'#64748b'},grid:{color:'#1e2535'}} };
+
+function init() {
+  // Trend GMV
+  new Chart(document.getElementById('trendChart'),{
+    type:'line',
+    data:{labels:dates9,datasets:[{
+      label:'GMV(万)',data:gmvs9,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.3,pointRadius:4,
+      pointBackgroundColor:dates9.map((_,i)=>i===8?'#f87171':'#60a5fa'),
+      pointRadius:dates9.map((_,i)=>i===8?7:4)
+    }]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:co}
+  });
+
+  // GM% trend
+  new Chart(document.getElementById('gmPctChart'),{
+    type:'line',
+    data:{labels:dates9,datasets:[{
+      label:'GM%',data:gmPcts9,borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.1)',fill:true,tension:.3,
+      pointBackgroundColor:dates9.map((_,i)=>i===8?'#f87171':'#34d399'),
+      pointRadius:dates9.map((_,i)=>i===8?7:4)
+    }]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:co}
+  });
+
+  // Plat pie
+  new Chart(document.getElementById('platPie'),{
+    type:'doughnut',
+    data:{
+      labels:['官网/APP 55.2%','三方平台 34.7%','官网/H5 8.1%','官网/PC 2.0%'],
+      datasets:[{data:[542335,340957,79872,19610],backgroundColor:['#2563eb','#7c3aed','#059669','#d97706'],borderColor:'#0f1117',borderWidth:3}]
+    },
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}}}}
+  });
+
+  // Dept bar
+  const top8 = deptData.slice(0,8);
+  new Chart(document.getElementById('deptBar'),{
+    type:'bar',
+    data:{labels:top8.map(d=>d.dept),datasets:[{label:'GMV(万)',data:top8.map(d=>(d.gmv/10000).toFixed(1)),backgroundColor:'#2563eb'}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:co}
+  });
+
+  // Dept table
+  const dtb = document.getElementById('dept-tbody');
+  deptData.forEach(d=>{
+    dtb.innerHTML+=`<tr>
+      <td>${d.dept}</td><td class="num">${fmt(d.gmv)}</td><td class="num">${d.pct}%</td>
+      <td class="num" style="color:${rc(d.gm_pct)}">${d.gm_pct}%</td>
+      <td class="num">${d.sales.toLocaleString()}</td><td class="num">${d.cust.toLocaleString()}</td>
+    </tr>`;
+  });
+
+  // Province progress
+  const pw = document.getElementById('prov-prog');
+  const colors=['#2563eb','#7c3aed','#059669','#d97706','#dc2626','#0891b2','#db2777','#65a30d'];
+  provData.forEach((p,i)=>{
+    pw.innerHTML+=`<div class="prog-item">
+      <div class="prog-lbl"><span>${p.p} &nbsp;<span style="color:#64748b;font-size:11px">顾客${p.cust} 新客${p.new}</span></span><span style="color:#60a5fa">${fmt(p.gmv)} (${p.pct}%)</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${p.pct/11.8*100}%;background:${colors[i]}"></div></div>
+    </div>`;
+  });
+
+  // Cust chart
+  new Chart(document.getElementById('custChart'),{
+    type:'bar',
+    data:{labels:dates9,datasets:[
+      {label:'顾客数',data:custs9,backgroundColor:'rgba(96,165,250,.7)',yAxisID:'y'},
+      {label:'新客数',data:newCs9,backgroundColor:'rgba(251,191,36,.7)',yAxisID:'y'},
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{
+      x:{ticks:{color:'#64748b'},grid:{color:'#1e2535'}},
+      y:{ticks:{color:'#64748b'},grid:{color:'#1e2535'}}
+    }}
+  });
+
+  // Product table
+  const ptb = document.getElementById('prod-tbody');
+  prodData.forEach((p,i)=>{
+    ptb.innerHTML+=`<tr>
+      <td>${i+1}</td>
+      <td style="max-width:260px;word-break:break-all;font-size:12px">${p.name}</td>
+      <td><span class="tag tag-blue">${p.dept}</span></td>
+      <td class="num">${fmt(p.gmv)}</td>
+      <td class="num">${fmt(p.gm)}</td>
+      <td class="num" style="color:${rc(p.gm_pct)}">${p.gm_pct}%</td>
+      <td class="num">${p.sales.toLocaleString()}</td>
+    </tr>`;
+  });
+}
+</script>
+</body>
+</html>
