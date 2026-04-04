@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>买保健品别再被骗了 | 消费者避坑指南</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0d0d14;
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== SLIDE CONTAINER ===== */
+.slide-deck {
+  position: relative;
+  width: 100%;
+}
+.slide {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.slide.active { display: flex; }
+
+/* ===== BACKGROUNDS ===== */
+.bg-dark { background: linear-gradient(135deg, #0d0d14 0%, #1a1230 100%); }
+.bg-red { background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 100%); }
+.bg-blue { background: linear-gradient(135deg, #0a1628 0%, #0f2547 100%); }
+.bg-green { background: linear-gradient(135deg, #051a10 0%, #0d2b1a 100%); }
+.bg-purple { background: linear-gradient(135deg, #120a28 0%, #1e1040 100%); }
+.bg-orange { background: linear-gradient(135deg, #1a1205 0%, #2d2010 100%); }
+.bg-teal { background: linear-gradient(135deg, #05181a 0%, #0d2c30 100%); }
+.bg-indigo { background: linear-gradient(135deg, #080f28 0%, #111b45 100%); }
+
+/* ===== DECORATIVE ===== */
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.06;
+}
+.deco-1 { width: 400px; height: 400px; background: #8b5cf6; top: -100px; right: -100px; }
+.deco-2 { width: 300px; height: 300px; background: #3b82f6; bottom: -80px; left: -80px; }
+.deco-3 { width: 200px; height: 200px; background: #10b981; top: 30%; left: -60px; }
+
+/* ===== SLIDE 1: TITLE ===== */
+.title-slide .logo-tag {
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.4);
+  color: #60a5fa;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  margin-bottom: 28px;
+  letter-spacing: 2px;
+}
+.title-slide h1 {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.title-slide h1 .red { color: #f87171; }
+.title-slide h1 .white { color: #ffffff; }
+.title-slide .subtitle {
+  font-size: clamp(14px, 2.5vw, 20px);
+  color: #94a3b8;
+  text-align: center;
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+.stat-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+.stat-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 20px 28px;
+  text-align: center;
+}
+.stat-box .num { font-size: 32px; font-weight: 800; color: #f87171; }
+.stat-box .label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.brand-tag {
+  display: flex; align-items: center; gap: 8px;
+  color: #64748b; font-size: 13px; margin-top: 12px;
+}
+.brand-tag span { color: #3b82f6; font-weight: 600; }
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.section-num {
+  font-size: 13px;
+  color: #64748b;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title-main {
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+.section-desc {
+  font-size: 15px;
+  color: #94a3b8;
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ===== CARD GRID ===== */
+.card-grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+}
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+.card {
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.card-blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.3); }
+.card-blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.card-green { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); }
+.card-green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.card-orange { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+.card-orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.card-red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); }
+.card-red::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.card-purple { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.3); }
+.card-purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.card-teal { background: rgba(20,184,166,0.08); border-color: rgba(20,184,166,0.3); }
+.card-teal::before { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+
+.card .card-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+.card .card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #f1f5f9; }
+.card .card-desc { font-size: 13px; color: #94a3b8; line-height: 1.7; }
+.card .card-tag {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  color: #cbd5e1;
+}
+.card .card-highlight { color: #fbbf24; font-weight: 600; }
+
+/* ===== STEP FLOW ===== */
+.step-list { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 14px; }
+.step-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.step-item:hover { border-color: rgba(96,165,250,0.4); }
+.step-num {
+  min-width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 800;
+  flex-shrink: 0;
+}
+.step-num-blue { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); }
+.step-num-green { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
+.step-num-orange { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+.step-body {}
+.step-title { font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+.step-code {
+  margin-top: 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #60a5fa;
+  font-family: monospace;
+  border: 1px solid rgba(96,165,250,0.2);
+}
+
+/* ===== COMPARISON ===== */
+.compare-table { width: 100%; max-width: 820px; border-collapse: collapse; }
+.compare-table th {
+  padding: 14px 18px; font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.compare-table td {
+  padding: 14px 18px; font-size: 14px; line-height: 1.6;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+.th-bad { background: rgba(239,68,68,0.15); color: #f87171; border-radius: 8px 0 0 0; }
+.th-good { background: rgba(16,185,129,0.15); color: #34d399; }
+.td-bad { color: #fca5a5; }
+.td-good { color: #6ee7b7; }
+.badge-bad { background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+.badge-good { background: rgba(16,185,129,0.15); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+
+/* ===== WARNING BOX ===== */
+.warn-box {
+  width: 100%; max-width: 780px;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.warn-red { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); }
+.warn-green { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); }
+.warn-blue { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.3); }
+.warn-yellow { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+.warn-box .wi { font-size: 26px; flex-shrink: 0; }
+.warn-box .wt { font-size: 14px; line-height: 1.8; }
+.warn-red .wt { color: #fca5a5; }
+.warn-green .wt { color: #a7f3d0; }
+.warn-blue .wt { color: #bfdbfe; }
+.warn-yellow .wt { color: #fde68a; }
+.warn-box .wt strong { font-weight: 700; font-size: 15px; }
+
+/* ===== CHECKLIST ===== */
+.checklist { width: 100%; max-width: 680px; }
+.check-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 14px; color: #cbd5e1; line-height: 1.6;
+}
+.check-item:last-child { border-bottom: none; }
+.check-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ===== FINAL SLIDE ===== */
+.final-logo {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+.final-title {
+  font-size: clamp(22px, 3.5vw, 36px);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.final-sub {
+  font-size: 16px; color: #94a3b8;
+  text-align: center; max-width: 500px; line-height: 1.7;
+  margin-bottom: 36px;
+}
+.cta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 780px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+.cta-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+.cta-card .ci { font-size: 28px; margin-bottom: 8px; }
+.cta-card .ct { font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+.cta-card .cd { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+/* ===== NAVIGATION ===== */
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(13,13,20,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 999;
+}
+.nav-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-dot.active { background: #60a5fa; width: 18px; border-radius: 3px; }
+.nav-btn {
+  padding: 8px 20px; border-radius: 8px; border: none;
+  cursor: pointer; font-size: 14px; font-weight: 600;
+  transition: all 0.2s;
+}
+.nav-prev { background: rgba(255,255,255,0.1); color: #94a3b8; }
+.nav-prev:hover { background: rgba(255,255,255,0.15); color: #e2e8f0; }
+.nav-next { background: #2563eb; color: white; }
+.nav-next:hover { background: #1d4ed8; }
+.nav-info { font-size: 12px; color: #64748b; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .slide { padding: 28px 16px 80px; }
+  .stat-box .num { font-size: 24px; }
+  .compare-table { font-size: 12px; }
+  .compare-table th, .compare-table td { padding: 10px 12px; }
+}
+
+/* ===== PILL TAG ===== */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  margin: 3px;
+}
+.pill-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.pill-red { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+.pill-green { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+.pill-yellow { background: rgba(245,158,11,0.2); color: #fde68a; border: 1px solid rgba(245,158,11,0.3); }
+
+/* Highlight text */
+.hl-red { color: #f87171; font-weight: 700; }
+.hl-green { color: #34d399; font-weight: 700; }
+.hl-blue { color: #60a5fa; font-weight: 700; }
+.hl-yellow { color: #fbbf24; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ==================== SLIDE 1: 封面 ==================== -->
+<div class="slide bg-dark active title-slide" id="slide-1">
+  <div class="deco-circle deco-1"></div>
+  <div class="deco-circle deco-2"></div>
+
+  <div class="logo-tag">💊 医药消费者保护指南</div>
+
+  <h1>
+    <span class="red">买保健品</span><br>
+    <span class="white">别再被骗了</span>
+  </h1>
+
+  <p class="subtitle">
+    年销十亿的"假洋牌"告诉我们——<br>
+    包装光鲜、口碑满分、销量第一，<br>
+    不等于产品安全、不等于国家认证
+  </p>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="num">10亿+</div>
+      <div class="label">假洋牌年销售额</div>
+    </div>
+    <div class="stat-box">
+      <div class="num">90%</div>
+      <div class="label">消费者不会查认证</div>
+    </div>
+    <div class="stat-box">
+      <div class="num">30秒</div>
+      <div class="label">查清真假的时间</div>
+    </div>
+  </div>
+
+  <div class="brand-tag">
+    由 <span>1药网</span> 出品 · 专业医药平台科普内容
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: 你买的是什么? ==================== -->
+<div class="slide bg-red" id="slide-2">
+  <div class="deco-circle deco-1" style="background:#ef4444"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 01</div>
+    <div class="section-title-main">你以为在买这些<br>其实买到的是这些</div>
+    <p class="section-desc">保健品市场三大"套路产品"，每年坑害数千万消费者</p>
+  </div>
+
+  <div class="card-grid grid-3" style="max-width:860px">
+    <div class="card card-red">
+      <span class="card-icon">🌍</span>
+      <div class="card-title">假洋牌</div>
+      <div class="card-desc">
+        注册地在国内，工厂在国内，却起一个英文名，标注"德国品质""美国原装"，营造进口感。
+      </div>
+      <span class="card-tag">代表特征：英文名 + 洋logo + 国内厂址</span>
+    </div>
+
+    <div class="card card-orange">
+      <span class="card-icon">🏷️</span>
+      <div class="card-title">无证产品</div>
+      <div class="card-desc">
+        没有国家批准文号，以"食品"或"内部渠道""海外代购"名义销售，却宣传保健甚至治疗功效。
+      </div>
+      <span class="card-tag">代表特征：无批号 + 夸大宣传 + 私域销售</span>
+    </div>
+
+    <div class="card card-purple">
+      <span class="card-icon">📣</span>
+      <div class="card-title">违规宣传</div>
+      <div class="card-desc">
+        产品本身可能合法，但广告、评论、达人种草内容使用了"治愈""根治""临床验证"等违禁语言。
+      </div>
+      <span class="card-tag">代表特征：无广审批号 + 治疗性语言</span>
+    </div>
+  </div>
+
+  <div class="warn-box warn-red" style="margin-top:24px">
+    <span class="wi">⚠️</span>
+    <div class="wt">
+      <strong>关键问题：</strong>上述三类产品，在电商平台上可以获得"正规外观"——精美图片、大量好评、达人推荐，
+      外观与正规产品毫无差异。<span class="hl-red">仅靠眼睛看，根本无法分辨。</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: 核心认证体系 ==================== -->
+<div class="slide bg-blue" id="slide-3">
+  <div class="deco-circle deco-2" style="background:#3b82f6"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 02</div>
+    <div class="section-title-main">国家认证体系<br>只需记住这三个</div>
+    <p class="section-desc">买药品和保健品，看这三个证号，缺一个都要警惕</p>
+  </div>
+
+  <div class="card-grid grid-3" style="max-width:860px">
+    <div class="card card-blue">
+      <span class="card-icon">🔵</span>
+      <div class="card-title">小蓝帽</div>
+      <div class="card-desc">
+        保健食品专属标志。包装上必须有<span class="card-highlight">天蓝色帽形图案</span>。<br><br>
+        <strong>批准文号格式：</strong><br>
+        国食健字 G+年份+4位数 <br>
+        （如：国食健字G20180012）
+      </div>
+      <span class="card-tag">适用：维生素、鱼油、益生菌等保健品</span>
+    </div>
+
+    <div class="card card-green">
+      <span class="card-icon">🟢</span>
+      <div class="card-title">国药准字</div>
+      <div class="card-desc">
+        药品专属批准文号，分字母区分类型：<br><br>
+        H=化学药 · Z=中成药<br>
+        S=生物制品 · J=进口药<br><br>
+        格式：国药准字H+年份+6位数
+      </div>
+      <span class="card-tag">适用：OTC药品、处方药</span>
+    </div>
+
+    <div class="card card-orange">
+      <span class="card-icon">🟠</span>
+      <div class="card-title">医疗器械证</div>
+      <div class="card-desc">
+        医疗器械有注册证（三类）或备案凭证（一二类）<br><br>
+        格式：<br>
+        国械注准/备+年份+编号<br>
+        （进口：国械注进）
+      </div>
+      <span class="card-tag">适用：血糖仪、血压计、医用口罩等</span>
+    </div>
+  </div>
+
+  <div class="warn-box warn-yellow" style="margin-top:24px">
+    <span class="wi">💡</span>
+    <div class="wt">
+      <strong>记住核心原则：</strong>保健品≠药品。小蓝帽产品<span class="hl-yellow">只能辅助调节身体机能，不能治病</span>。
+      凡是保健品宣传"治疗""治愈""根治"，必然违法。
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: 6步辨别法 ==================== -->
+<div class="slide bg-dark" id="slide-4">
+  <div class="deco-circle deco-1" style="background:#10b981; opacity:0.05"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 03</div>
+    <div class="section-title-main">30秒辨别真假<br>6步操作法</div>
+    <p class="section-desc">买之前花30秒做这6步，避免90%的被坑风险</p>
+  </div>
+
+  <div class="step-list">
+    <div class="step-item">
+      <div class="step-num step-num-blue">1</div>
+      <div class="step-body">
+        <div class="step-title">🔍 查批准文号</div>
+        <div class="step-desc">包装上找"国食健字""国药准字"或"国械注准"，没有批号→直接放弃购买</div>
+        <div class="step-code">📱 进入：国家药监局官网(nmpa.gov.cn) → 药品/器械/保健食品查询</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num step-num-blue">2</div>
+      <div class="step-body">
+        <div class="step-title">🏭 查生产企业</div>
+        <div class="step-desc">把品牌名或生产商名字输入天眼查/企查查，查注册地、成立时间、股东信息</div>
+        <div class="step-code">⚠️ 宣称"英国百年品牌"但工商注册时间只有3年→假洋牌</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num step-num-blue">3</div>
+      <div class="step-body">
+        <div class="step-title">📋 看包装必备内容</div>
+        <div class="step-desc">保健品包装必须有：批准文号、保健功能声称、适宜人群、不适宜人群、用法用量、注意事项，缺一不可</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num step-num-green">4</div>
+      <div class="step-body">
+        <div class="step-title">🚫 识别违禁话术</div>
+        <div class="step-desc">宣传内容中出现以下词语→违规，慎购</div>
+        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px">
+          <span class="pill pill-red">❌ 治愈/根治</span>
+          <span class="pill pill-red">❌ 临床验证</span>
+          <span class="pill pill-red">❌ 专家推荐</span>
+          <span class="pill pill-red">❌ 无副作用</span>
+          <span class="pill pill-red">❌ 祖传秘方</span>
+          <span class="pill pill-red">❌ 百年品牌</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num step-num-green">5</div>
+      <div class="step-body">
+        <div class="step-title">📺 查广告批号</div>
+        <div class="step-desc">药品广告需有"X药广审(文)第xxx号"，保健食品广告需有"X食健广审(文)第xxx号"</div>
+        <div class="step-code">没有广审批号的广告→违规广告，平台展示本身违法</div>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num step-num-orange">6</div>
+      <div class="step-body">
+        <div class="step-title">✅ 选择正规渠道</div>
+        <div class="step-desc">优先在持有<strong>互联网药品信息服务资质</strong>的平台购买，平台会对商家资质进行审核</div>
+        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px">
+          <span class="pill pill-green">✅ 实体药店</span>
+          <span class="pill pill-green">✅ 有资质的电商平台</span>
+          <span class="pill pill-green">✅ 正规医院药房</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: FDA备案≠认证 ==================== -->
+<div class="slide bg-purple" id="slide-5">
+  <div class="deco-circle deco-1" style="background:#8b5cf6"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 04</div>
+    <div class="section-title-main">这5个"认证"<br>其实毫无意义</div>
+    <p class="section-desc">假洋牌最常用的话术，了解之后再也不上当</p>
+  </div>
+
+  <div style="width:100%; max-width:780px">
+    <div class="warn-box warn-red">
+      <span class="wi">❌</span>
+      <div class="wt">
+        <strong>"FDA备案/注册"</strong>——美国FDA备案（Facility Registration）门槛极低，任何工厂花几百美元就能完成，
+        不代表产品经过审查和认证。<span class="hl-red">备案≠认证，不等于FDA批准。</span>
+      </div>
+    </div>
+
+    <div class="warn-box warn-red">
+      <span class="wi">❌</span>
+      <div class="wt">
+        <strong>"ISO认证"</strong>——ISO是管理体系认证（如质量管理），是对企业流程的认证，
+        <span class="hl-red">不是对产品安全性和有效性的认证</span>，跟你吃了有没有效果毫无关系。
+      </div>
+    </div>
+
+    <div class="warn-box warn-red">
+      <span class="wi">❌</span>
+      <div class="wt">
+        <strong>"国际认证机构认证"</strong>——很多"SGS认证""TÜV认证"只针对特定检测项目，
+        不代表整体产品合规，且<span class="hl-red">这类机构的认证是企业自己委托检测的</span>，不具备监管效力。
+      </div>
+    </div>
+
+    <div class="warn-box warn-red">
+      <span class="wi">❌</span>
+      <div class="wt">
+        <strong>"XX国家热销/原装进口"</strong>——在国外某平台有销售不代表在国内合法销售，
+        中国对进口保健食品有单独的备案/注册要求。<span class="hl-red">没有中国批准文号，就是违规销售。</span>
+      </div>
+    </div>
+
+    <div class="warn-box warn-yellow">
+      <span class="wi">💡</span>
+      <div class="wt">
+        <strong>一致性评价（仿制药）</strong>——这个是真实有意义的：通过一致性评价的仿制药，
+        代表药效与原研药等同，值得信赖。买仿制药时可以关注包装上是否注明"通过一致性评价"。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: 对比表 ==================== -->
+<div class="slide bg-teal" id="slide-6">
+  <div class="deco-circle deco-3" style="background:#14b8a6"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 05</div>
+    <div class="section-title-main">正规品 vs 问题品<br>对比一眼看懂</div>
+  </div>
+
+  <div style="width:100%; max-width:820px; overflow-x:auto">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="background:rgba(255,255,255,0.05); color:#94a3b8; border-radius:8px 0 0 0; min-width:120px">对比项</th>
+          <th class="th-bad">⚠️ 问题产品特征</th>
+          <th class="th-good">✅ 正规产品特征</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">批准文号</td>
+          <td class="td-bad">无批号 / 批号无法查询 / 格式不符</td>
+          <td class="td-good">国食健字 / 国药准字 / 国械注准，官网可查</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">品牌来源</td>
+          <td class="td-bad">宣传"德国/美国"但工商注册在国内、成立不足5年</td>
+          <td class="td-good">品牌来源清晰，工商信息与宣传一致</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">功效宣传</td>
+          <td class="td-bad">治愈、根治、百分百有效、无副作用</td>
+          <td class="td-good">只描述27种法定保健功能 / 适应症</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">广告合规</td>
+          <td class="td-bad">无广告审查批号、KOL种草内容无声明</td>
+          <td class="td-good">广告有审查批号，代言内容有资质声明</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">包装信息</td>
+          <td class="td-bad">信息不全、无中文标签、无注意事项</td>
+          <td class="td-good">六项必备信息完整，字体清晰可读</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">销售渠道</td>
+          <td class="td-bad">私域微商、朋友圈、不知名小平台</td>
+          <td class="td-good">有互联网药品经营资质的正规平台</td>
+        </tr>
+        <tr>
+          <td style="color:#94a3b8; font-size:13px">价格逻辑</td>
+          <td class="td-bad">高价无依据 / 低价"内部渠道"引诱</td>
+          <td class="td-good">价格与成分、工艺有合理对应</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: 法定保健功能 ==================== -->
+<div class="slide bg-indigo" id="slide-7">
+  <div class="deco-circle deco-2" style="background:#6366f1"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 06</div>
+    <div class="section-title-main">保健食品只有<br>这27种法定功能</div>
+    <p class="section-desc">超出这27种声称的，要么是药品，要么是违规宣传</p>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:820px; margin-bottom:24px">
+    <span class="pill pill-blue">增强免疫力</span>
+    <span class="pill pill-blue">辅助降血脂</span>
+    <span class="pill pill-blue">辅助降血糖</span>
+    <span class="pill pill-blue">抗氧化</span>
+    <span class="pill pill-blue">辅助改善记忆</span>
+    <span class="pill pill-blue">缓解视疲劳</span>
+    <span class="pill pill-blue">促进排铅</span>
+    <span class="pill pill-blue">清咽</span>
+    <span class="pill pill-blue">辅助降血压</span>
+    <span class="pill pill-blue">改善睡眠</span>
+    <span class="pill pill-blue">促进泌乳</span>
+    <span class="pill pill-blue">缓解体力疲劳</span>
+    <span class="pill pill-blue">提高缺氧耐受力</span>
+    <span class="pill pill-blue">对辐射有辅助保护</span>
+    <span class="pill pill-blue">减肥</span>
+    <span class="pill pill-blue">改善生长发育</span>
+    <span class="pill pill-blue">增加骨密度</span>
+    <span class="pill pill-blue">改善营养性贫血</span>
+    <span class="pill pill-blue">对化学性肝损伤有辅助保护</span>
+    <span class="pill pill-blue">祛痤疮</span>
+    <span class="pill pill-blue">祛黄褐斑</span>
+    <span class="pill pill-blue">改善皮肤水分</span>
+    <span class="pill pill-blue">改善皮肤油分</span>
+    <span class="pill pill-blue">调节肠道菌群</span>
+    <span class="pill pill-blue">促进消化</span>
+    <span class="pill pill-blue">通便</span>
+    <span class="pill pill-blue">对胃黏膜有辅助保护</span>
+  </div>
+
+  <div class="warn-box warn-green" style="max-width:780px">
+    <span class="wi">✅</span>
+    <div class="wt">
+      <strong>快速判断法：</strong>看到保健品宣传功效，在上面27条里找。
+      找不到对应的 → 要么是违规，要么拿药品充保健品卖。
+      找得到的 → 再去官网验证批号是否真实。
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: 消费者行动指南 ==================== -->
+<div class="slide bg-green" id="slide-8">
+  <div class="deco-circle deco-1" style="background:#10b981"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 07</div>
+    <div class="section-title-main">买药/保健品前<br>必做检查清单</div>
+    <p class="section-desc">收藏这一页，下次购买前对照检查</p>
+  </div>
+
+  <div class="checklist">
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>包装上是否有 <strong style="color:#34d399">小蓝帽/国药准字/器械证号</strong> 之一</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>打开 <strong style="color:#34d399">国家药监局官网</strong>，输入批准文号，核实是否真实存在</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>品牌宣传的"进口/外国"信息，与 <strong style="color:#34d399">工商注册信息</strong> 是否一致（天眼查）</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>宣传内容是否出现 <strong style="color:#f87171">治愈/根治/专家推荐/临床证明</strong> 等违禁词</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>广告或种草内容是否有 <strong style="color:#34d399">广审批号</strong>（没有即违规广告）</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>购买渠道是否为 <strong style="color:#34d399">持有互联网药品经营资质</strong> 的平台</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>价格是否异常低廉（可能是假冒伪劣）或异常高昂（可能是噱头营销）</span>
+    </div>
+    <div class="check-item">
+      <span class="check-icon">☑️</span>
+      <span>产品若真的有效，是否可能已有 <strong style="color:#34d399">国药准字</strong> 版本，价格更低且更安全</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: 发现问题怎么办 ==================== -->
+<div class="slide bg-orange" id="slide-9">
+  <div class="deco-circle deco-2" style="background:#f59e0b"></div>
+  <div class="section-header">
+    <div class="section-num">CHAPTER 08</div>
+    <div class="section-title-main">发现问题产品<br>这样维权举报</div>
+    <p class="section-desc">每一次举报都在净化市场，保护更多消费者</p>
+  </div>
+
+  <div class="card-grid grid-2" style="max-width:760px">
+    <div class="card card-orange">
+      <span class="card-icon">📱</span>
+      <div class="card-title">12331 投诉举报</div>
+      <div class="card-desc">
+        国家市场监管总局食品药品投诉举报热线<br><br>
+        可举报：<br>
+        · 无证保健食品<br>
+        · 虚假宣传药品<br>
+        · 假冒医疗器械<br>
+        · 违规广告内容
+      </div>
+    </div>
+
+    <div class="card card-blue">
+      <span class="card-icon">🌐</span>
+      <div class="card-title">平台投诉机制</div>
+      <div class="card-desc">
+        在购买平台发起投诉：<br><br>
+        · 商品页面 → 举报商品<br>
+        · 订单页面 → 申请退款<br>
+        · 客服渠道 → 反馈虚假宣传<br><br>
+        正规平台有义务下架违规商品
+      </div>
+    </div>
+
+    <div class="card card-green">
+      <span class="card-icon">⚖️</span>
+      <div class="card-title">消费者权益保护</div>
+      <div class="card-desc">
+        · 12315 消费者投诉热线<br>
+        · 保留购买凭证、聊天记录<br>
+        · 保健食品虚假宣传可要求 <strong style="color:#34d399">退一赔三</strong><br>
+        · 药品质量问题可要求 <strong style="color:#34d399">退一赔十</strong>
+      </div>
+    </div>
+
+    <div class="card card-purple">
+      <span class="card-icon">📢</span>
+      <div class="card-title">扩散提醒周边</div>
+      <div class="card-desc">
+        · 截图保存证据后分享给家人<br>
+        · 在购买页面留下真实评价<br>
+        · 社交平台曝光时附上查询截图<br><br>
+        <strong style="color:#a78bfa">让更多人知道如何识别，是最好的保护</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 10: 结尾/品牌背书 ==================== -->
+<div class="slide bg-dark" id="slide-10">
+  <div class="deco-circle deco-1" style="background:#3b82f6; opacity:0.08"></div>
+  <div class="deco-circle deco-2" style="background:#10b981; opacity:0.06"></div>
+
+  <div class="final-logo">💊</div>
+  <div class="final-title">买得明白，用得放心</div>
+  <p class="final-sub">
+    面对眼花缭乱的保健品市场<br>
+    记住三个字：<strong style="color:#60a5fa">查批号</strong>
+  </p>
+
+  <div class="cta-grid">
+    <div class="cta-card">
+      <div class="ci">🔍</div>
+      <div class="ct">查批号</div>
+      <div class="cd">nmpa.gov.cn<br>国家药监局官网<br>免费查询所有认证</div>
+    </div>
+    <div class="cta-card">
+      <div class="ci">🏢</div>
+      <div class="ct">查企业</div>
+      <div class="cd">天眼查 / 企查查<br>核实品牌真实背景<br>识别假洋牌</div>
+    </div>
+    <div class="cta-card">
+      <div class="ci">✅</div>
+      <div class="ct">选平台</div>
+      <div class="cd">选择有互联网药品经营<br>资质的正规平台购买<br>保障安全有据可查</div>
+    </div>
+    <div class="cta-card">
+      <div class="ci">📞</div>
+      <div class="ct">敢举报</div>
+      <div class="cd">12331 / 12315<br>发现问题不沉默<br>每次举报都有意义</div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:8px">
+    <div style="font-size:13px; color:#64748b; margin-bottom:8px">本内容由</div>
+    <div style="font-size:18px; font-weight:800; color:#3b82f6">1药网</div>
+    <div style="font-size:12px; color:#475569; margin-top:6px">持有互联网药品信息服务资质 · 商家准入严格审核<br>关注我们，持续获取医药消费者保护内容</div>
+  </div>
+</div>
+
+<!-- ==================== NAV BAR ==================== -->
+<div class="nav-bar">
+  <button class="nav-btn nav-prev" onclick="prevSlide()">← 上一页</button>
+  <div>
+    <div class="nav-dots" id="dots"></div>
+    <div class="nav-info" id="slideInfo" style="text-align:center; margin-top:4px; font-size:11px">1 / 10</div>
+  </div>
+  <button class="nav-btn nav-next" onclick="nextSlide()">下一页 →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dotsContainer = document.getElementById('dots');
+let current = 0;
+
+// Build dots
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsContainer.appendChild(d);
+});
+
+function goTo(idx) {
+  slides[current].classList.remove('active');
+  dotsContainer.children[current].classList.remove('active');
+  current = Math.max(0, Math.min(idx, slides.length - 1));
+  slides[current].classList.add('active');
+  dotsContainer.children[current].classList.add('active');
+  document.getElementById('slideInfo').textContent = (current + 1) + ' / ' + slides.length;
+  window.scrollTo(0, 0);
+}
+
+function nextSlide() { goTo(current + 1); }
+function prevSlide() { goTo(current - 1); }
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+});
+
+// Touch swipe
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+});
+</script>
+
+</body>
+</html>
