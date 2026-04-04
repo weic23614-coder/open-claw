@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1药网平台日报 | 2026-04-04</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+  /* Password Overlay */
+  #pwd-overlay {
+    position: fixed; inset: 0; background: #0f1117;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  .pwd-box {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 16px;
+    padding: 40px; text-align: center; width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .pwd-box h2 { font-size: 22px; color: #60a5fa; margin-bottom: 8px; }
+  .pwd-box p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+  .pwd-box input {
+    width: 100%; padding: 12px 16px; border-radius: 8px;
+    border: 1px solid #374151; background: #111827; color: #e2e8f0;
+    font-size: 18px; text-align: center; letter-spacing: 4px; margin-bottom: 16px;
+  }
+  .pwd-box input:focus { outline: none; border-color: #60a5fa; }
+  .pwd-box button {
+    width: 100%; padding: 12px; border-radius: 8px; border: none;
+    background: #2563eb; color: #fff; font-size: 16px; cursor: pointer;
+    transition: background .2s;
+  }
+  .pwd-box button:hover { background: #1d4ed8; }
+  .pwd-err { color: #f87171; font-size: 13px; margin-top: 8px; display: none; }
+
+  #main-content { display: none; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1e2535 0%, #0f1117 100%);
+    border-bottom: 1px solid #2d3748;
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left h1 { font-size: 22px; color: #60a5fa; font-weight: 700; }
+  .header-left p { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .header-badge {
+    background: #1e3a5f; color: #60a5fa; padding: 6px 14px;
+    border-radius: 20px; font-size: 13px; border: 1px solid #2563eb;
+  }
+
+  /* Tab Nav */
+  .tab-nav {
+    background: #1a1d27; border-bottom: 1px solid #2d3748;
+    padding: 0 32px; display: flex; gap: 4px; overflow-x: auto;
+  }
+  .tab-btn {
+    padding: 14px 20px; color: #94a3b8; border: none; background: none;
+    cursor: pointer; font-size: 14px; font-weight: 500;
+    border-bottom: 3px solid transparent; transition: all .2s; white-space: nowrap;
+  }
+  .tab-btn:hover { color: #e2e8f0; }
+  .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+
+  /* Content */
+  .tab-content { display: none; padding: 24px 32px; }
+  .tab-content.active { display: block; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .kpi-card {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 12px;
+    padding: 22px 20px; text-align: center;
+  }
+  .kpi-card .label { font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-card .value { font-size: 28px; font-weight: 700; color: #e2e8f0; }
+  .kpi-card .sub { font-size: 12px; color: #64748b; margin-top: 6px; }
+  .kpi-card.warn { border-color: #f59e0b; background: #1c1a10; }
+  .kpi-card.warn .value { color: #fbbf24; }
+  .kpi-card.danger { border-color: #ef4444; background: #1c1010; }
+  .kpi-card.danger .value { color: #f87171; }
+  .kpi-card.neutral { border-color: #4b5563; }
+  .kpi-card.neutral .value { color: #94a3b8; }
+
+  /* Trend Badge */
+  .trend-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+  .trend-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .trend-down { background: rgba(239,68,68,.15); color: #f87171; }
+  .trend-up { background: rgba(52,211,153,.15); color: #34d399; }
+  .trend-flat { background: rgba(148,163,184,.15); color: #94a3b8; }
+
+  /* Section Title */
+  .section-title {
+    font-size: 13px; font-weight: 700; color: #64748b;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #2d3748; }
+
+  /* Alert Banner */
+  .alert-banner {
+    background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-banner .icon { font-size: 20px; flex-shrink: 0; }
+  .alert-banner .text { font-size: 14px; color: #fca5a5; line-height: 1.7; }
+  .alert-banner .text strong { color: #f87171; }
+
+  .info-banner {
+    background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.25);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 24px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .info-banner .icon { font-size: 20px; flex-shrink: 0; }
+  .info-banner .text { font-size: 14px; color: #93c5fd; line-height: 1.7; }
+  .info-banner .text strong { color: #60a5fa; }
+
+  /* Event Cards */
+  .event-list { display: flex; flex-direction: column; gap: 12px; }
+  .event-card {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 10px;
+    padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start;
+  }
+  .event-card .e-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .event-card .e-body {}
+  .event-card .e-title { font-size: 15px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+  .event-card .e-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+  .event-card.green { border-color: #059669; background: rgba(5,150,105,.06); }
+  .event-card.green .e-title { color: #34d399; }
+  .event-card.blue { border-color: #2563eb; background: rgba(37,99,235,.06); }
+  .event-card.blue .e-title { color: #60a5fa; }
+  .event-card.yellow { border-color: #d97706; background: rgba(217,119,6,.06); }
+  .event-card.yellow .e-title { color: #fbbf24; }
+
+  /* Diagnosis */
+  .diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .diag-card {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 10px; padding: 18px 20px;
+  }
+  .diag-card .d-head { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 12px; }
+  .diag-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .diag-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .dot-red { background: #ef4444; }
+  .dot-yellow { background: #f59e0b; }
+  .dot-green { background: #10b981; }
+  .dot-blue { background: #3b82f6; }
+
+  /* Chart container */
+  .chart-wrap {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 12px; padding: 20px; margin-bottom: 20px;
+  }
+  .chart-title { font-size: 13px; color: #94a3b8; margin-bottom: 16px; font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header { padding: 16px 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tab-nav { padding: 0 10px; }
+    .tab-content { padding: 16px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="pwd-overlay">
+  <div class="pwd-box">
+    <h2>🔒 1药网日报</h2>
+    <p>2026年04月04日 · 平台流量日报</p>
+    <input type="password" id="pwd-input" placeholder="请输入密码"
+      onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">进入看板</button>
+    <div class="pwd-err" id="pwd-error">密码错误，请重试</div>
+  </div>
+</div>
+
+<div id="main-content">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>📱 平台流量日报</h1>
+      <p>2026年04月04日（周六）· 平台整体用户流量与重点事项</p>
+    </div>
+    <div class="header-badge">⚠️ 各指标偏低</div>
+  </div>
+
+  <!-- Tab Nav -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 总览</button>
+    <button class="tab-btn" onclick="switchTab('traffic',this)">👥 流量分析</button>
+    <button class="tab-btn" onclick="switchTab('events',this)">📋 重点事项</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🔍 诊断建议</button>
+  </div>
+
+  <!-- ===== TAB 1: 总览 ===== -->
+  <div class="tab-content active" id="tab-overview">
+
+    <div class="alert-banner">
+      <div class="icon">⚠️</div>
+      <div class="text">
+        <strong>全线偏低预警</strong>：4月4日 DAU、顾客数、转化率三项核心指标均处于偏低水平。
+        DAU环比下滑 <strong>2.7%</strong>，周同比下滑 <strong>4%</strong>；顾客数环比 <strong>-3.9%</strong>，周同比 <strong>-8.6%</strong>，流失趋势明显，需关注。
+      </div>
+    </div>
+
+    <div class="section-title">核心 KPI</div>
+    <div class="kpi-grid">
+
+      <div class="kpi-card danger">
+        <div class="label">DAU · 日活用户</div>
+        <div class="value">43,107</div>
+        <div class="trend-row">
+          <span class="trend-badge trend-down">DoD -2.7%</span>
+          <span class="trend-badge trend-down">WoW -4.0%</span>
+        </div>
+        <div class="sub">⚠️ 双向下滑，需关注流量入口</div>
+      </div>
+
+      <div class="kpi-card danger">
+        <div class="label">顾客数</div>
+        <div class="value">5,610</div>
+        <div class="trend-row">
+          <span class="trend-badge trend-down">DoD -3.9%</span>
+          <span class="trend-badge trend-down">WoW -8.6%</span>
+        </div>
+        <div class="sub">⚠️ 周同比降幅超8%，购买意愿弱</div>
+      </div>
+
+      <div class="kpi-card warn">
+        <div class="label">转化率</div>
+        <div class="value">13%</div>
+        <div class="trend-row">
+          <span class="trend-badge trend-flat">— 暂无环比</span>
+        </div>
+        <div class="sub">⚠️ 处于偏低水平，流失在浏览层</div>
+      </div>
+
+      <div class="kpi-card neutral">
+        <div class="label">顾客渗透率</div>
+        <div class="value">13.0%</div>
+        <div class="trend-row">
+          <span class="trend-badge trend-flat">顾客/DAU</span>
+        </div>
+        <div class="sub">约每8位活跃用户产生1名顾客</div>
+      </div>
+
+    </div>
+
+    <div class="section-title">指标健康度快览</div>
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="d-head">📉 流量层面</div>
+        <div class="diag-item"><span class="diag-dot dot-red"></span>DAU 4.3万，双维下滑，周同比-4%</div>
+        <div class="diag-item"><span class="diag-dot dot-red"></span>周维度持续走低，短期修复难度较高</div>
+        <div class="diag-item"><span class="diag-dot dot-yellow"></span>周六自然流量通常低于工作日，需结合基线判断</div>
+      </div>
+      <div class="diag-card">
+        <div class="d-head">💳 转化层面</div>
+        <div class="diag-item"><span class="diag-dot dot-red"></span>转化率 13% 处于偏低区间</div>
+        <div class="diag-item"><span class="diag-dot dot-yellow"></span>顾客数降幅（-8.6%）大于 DAU 降幅（-4%），表明转化也在恶化</div>
+        <div class="diag-item"><span class="diag-dot dot-blue"></span>省钱卡、复购入口上线或对转化率有短期拉升效果</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">📊 今日指标变化对比（DoD vs WoW）</div>
+      <canvas id="cmpChart" height="100"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 2: 流量分析 ===== -->
+  <div class="tab-content" id="tab-traffic">
+
+    <div class="section-title">流量漏斗</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">DAU（顶层流量）</div>
+        <div class="value">43,107</div>
+        <div class="sub">全量活跃用户</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="label">浏览未购买</div>
+        <div class="value">~37,500</div>
+        <div class="sub">估算：DAU × (1-13%)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">顾客数（下单）</div>
+        <div class="value">5,610</div>
+        <div class="sub">实际产生购买行为</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="label">转化率</div>
+        <div class="value">13.0%</div>
+        <div class="sub">顾客数 / DAU</div>
+      </div>
+    </div>
+
+    <div class="section-title">环比 / 周同比趋势</div>
+    <div class="chart-wrap">
+      <div class="chart-title">📉 DAU & 顾客数变化趋势（示意：DoD + WoW）</div>
+      <canvas id="trendChart" height="130"></canvas>
+    </div>
+
+    <div class="info-banner">
+      <div class="icon">💡</div>
+      <div class="text">
+        <strong>关键观察：</strong>顾客数的周同比降幅（-8.6%）明显大于 DAU 降幅（-4%），说明本周流量质量下滑——
+        进来的人多了一点，但有购买意愿的人减少更多。可能原因：<br>
+        ① 引入了更多非目标用户（低意向流量）<br>
+        ② 商品/活动吸引力不足，未能有效促成转化<br>
+        ③ 周末用户行为模式差异（偏浏览、轻购买）
+      </div>
+    </div>
+
+    <div class="section-title">周六基准说明</div>
+    <div class="diag-card" style="margin-bottom:0">
+      <div class="d-head">📆 周六特征参考</div>
+      <div class="diag-item"><span class="diag-dot dot-blue"></span>周六通常 DAU 较工作日低 5-15%，属正常节奏差异</div>
+      <div class="diag-item"><span class="diag-dot dot-yellow"></span>转化率偏低部分原因可能是用户处于"休闲浏览"状态，非强购买意图</div>
+      <div class="diag-item"><span class="diag-dot dot-green"></span>周末适合推权益型（省钱卡/健康周）内容，拉长停留、提升次日留存</div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 3: 重点事项 ===== -->
+  <div class="tab-content" id="tab-events">
+
+    <div class="section-title">今日重点事项 · 3项</div>
+    <div class="event-list">
+
+      <div class="event-card green">
+        <div class="e-icon">💳</div>
+        <div class="e-body">
+          <div class="e-title">省钱卡首页入口上线</div>
+          <div class="e-desc">
+            省钱卡权益入口正式挂载首页，预期提升用户对会员权益的感知与激活率。<br>
+            当前转化率处于偏低水平，省钱卡入口上线为近期最直接的转化拉升手段之一。
+            建议关注上线后 <strong>1-3天</strong> 的省钱卡点击率、激活率及新会员转化数据。
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card blue">
+        <div class="e-icon">🌸</div>
+        <div class="e-body">
+          <div class="e-title">春季健康周专题上线准备</div>
+          <div class="e-desc">
+            春季健康周活动专题筹备中，是4月初重要的流量和 GMV 拉升节点。
+            结合当前 DAU 双降的背景，建议专题设计强化 SEO 落地页和推送文案，以健康科普 + 限时权益结合驱动流量回升。<br>
+            <strong>关键动作：</strong>确认专题上线日期、Push/短信推送计划、科室商品排期。
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card yellow">
+        <div class="e-icon">🔄</div>
+        <div class="e-body">
+          <div class="e-title">个人中心复购入口优化需求整理</div>
+          <div class="e-desc">
+            个人中心复购入口优化进入需求整理阶段，核心目标是降低老客流失、提升老客复购率。<br>
+            当前顾客数周同比下降 <strong>8.6%</strong>，复购入口优化若能加快提上议程，
+            有助于通过老客存量弥补新客增量不足的缺口。<br>
+            <strong>建议明确：</strong>需求评审时间节点、交互原型优先级、上线里程碑。
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="section-title">事项与指标关联</div>
+      <div class="diag-grid">
+        <div class="diag-card">
+          <div class="d-head">✅ 今日上线</div>
+          <div class="diag-item"><span class="diag-dot dot-green"></span>省钱卡首页入口 → 直接作用于转化率与会员激活</div>
+        </div>
+        <div class="diag-card">
+          <div class="d-head">📅 近期准备</div>
+          <div class="diag-item"><span class="diag-dot dot-blue"></span>春季健康周 → 流量&GMV 双拉升</div>
+          <div class="diag-item"><span class="diag-dot dot-yellow"></span>复购入口优化 → 老客留存&复购率</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 4: 诊断建议 ===== -->
+  <div class="tab-content" id="tab-diagnosis">
+
+    <div class="section-title">问题诊断</div>
+    <div class="diag-grid">
+
+      <div class="diag-card">
+        <div class="d-head">❓ 核心问题：为什么双降？</div>
+        <div class="diag-item"><span class="diag-dot dot-red"></span>周六本身流量自然偏低，但周同比也在降，说明不只是日期因素</div>
+        <div class="diag-item"><span class="diag-dot dot-red"></span>顾客数降幅(-8.6%)远超DAU降幅(-4%)，流量质量恶化明显</div>
+        <div class="diag-item"><span class="diag-dot dot-yellow"></span>4月初春季换季节点，用户需求或存在品类切换，旧选品吸引力下降</div>
+        <div class="diag-item"><span class="diag-dot dot-yellow"></span>缺乏有力的当日活动支撑，用户浏览未形成购买决策</div>
+      </div>
+
+      <div class="diag-card">
+        <div class="d-head">🎯 短期改善方向</div>
+        <div class="diag-item"><span class="diag-dot dot-green"></span>持续追踪省钱卡入口上线效果，每日复盘点击→激活→购买漏斗</div>
+        <div class="diag-item"><span class="diag-dot dot-green"></span>春季健康周提前蓄水，Push 推送在活动前 1-2 天发出</div>
+        <div class="diag-item"><span class="diag-dot dot-blue"></span>个人中心复购入口加速推进需求评审，目标本月上线灰度</div>
+        <div class="diag-item"><span class="diag-dot dot-blue"></span>结合春季需求，在首页/科室页补充换季品类强曝光</div>
+      </div>
+
+    </div>
+
+    <div class="section-title">本周指标走势判断</div>
+    <div class="alert-banner">
+      <div class="icon">📉</div>
+      <div class="text">
+        本周 DAU 和顾客数均处于周同比下滑轨道，若下周无强活动或运营动作拉升，
+        周环比压力将持续。<strong>建议周一复盘时将流量回升列为优先议题</strong>，
+        配合春季健康周节点做系统性部署，避免进入"低流量→低转化→低 GMV"的负向循环。
+      </div>
+    </div>
+
+    <div class="section-title">行动清单</div>
+    <div class="event-list">
+      <div class="event-card green">
+        <div class="e-icon">✅</div>
+        <div class="e-body">
+          <div class="e-title">今日关注 | 省钱卡入口数据</div>
+          <div class="e-desc">查看省钱卡首页入口 UV 点击率、激活转化、下单转化，与上线前 baseline 对比。</div>
+        </div>
+      </div>
+      <div class="event-card blue">
+        <div class="e-icon">📅</div>
+        <div class="e-body">
+          <div class="e-title">本周内 | 春季健康周排期落地</div>
+          <div class="e-desc">确认活动上线日期 + Push 计划 + 科室商品选品，确保蓄水期足够。</div>
+        </div>
+      </div>
+      <div class="event-card yellow">
+        <div class="e-icon">📝</div>
+        <div class="e-body">
+          <div class="e-title">本周内 | 复购入口需求评审</div>
+          <div class="e-desc">推动个人中心复购入口需求完成评审，锁定上线排期，优先保障老客留存链路。</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /main-content -->
+
+<script>
+// Password Check
+function checkPwd() {
+  var input = document.getElementById('pwd-input').value;
+  if (input === '1212') {
+    document.getElementById('pwd-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+// Tab Switch
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Chart: DoD vs WoW
+(function() {
+  const ctx = document.getElementById('cmpChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['DAU', '顾客数'],
+      datasets: [
+        {
+          label: '日环比 DoD',
+          data: [-2.7, -3.9],
+          backgroundColor: 'rgba(239,68,68,0.7)',
+          borderColor: '#ef4444', borderWidth: 1, borderRadius: 6
+        },
+        {
+          label: '周同比 WoW',
+          data: [-4.0, -8.6],
+          backgroundColor: 'rgba(245,158,11,0.7)',
+          borderColor: '#f59e0b', borderWidth: 1, borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } },
+        y: {
+          ticks: { color: '#94a3b8', callback: v => v + '%' },
+          grid: { color: '#1e2535' },
+          title: { display: true, text: '变化幅度（%）', color: '#64748b', font: { size: 11 } }
+        }
+      }
+    }
+  });
+})();
+
+// Chart: Trend
+(function() {
+  const ctx = document.getElementById('trendChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['上周同日', '昨日', '今日(4.4)'],
+      datasets: [
+        {
+          label: 'DAU（万）',
+          data: [44.9, 44.3, 43.1],
+          borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)',
+          tension: 0.3, fill: true, pointRadius: 5
+        },
+        {
+          label: '顾客数（千）',
+          data: [6.1, 5.8, 5.6],
+          borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)',
+          tension: 0.3, fill: true, pointRadius: 5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 12 } } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } },
+        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
