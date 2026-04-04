@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1药网·药企服务平台 Demo改版</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f4f8; color: #1e293b; }
+
+/* ── 侧栏 ── */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 220px;
+  background: #0f172a; display: flex; flex-direction: column;
+}
+.sidebar-logo {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo .brand { font-size: 16px; font-weight: 700; color: #fff; }
+.sidebar-logo .sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+.nav-section { padding: 16px 12px 4px; font-size: 10px; color: #475569; letter-spacing: 1px; text-transform: uppercase; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 8px; margin: 1px 8px;
+  font-size: 14px; color: #94a3b8; cursor: pointer; transition: all .15s;
+  text-decoration: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+.nav-item.active { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+/* ── 主区 ── */
+.main { margin-left: 220px; min-height: 100vh; }
+
+/* ── 顶栏 ── */
+.topbar {
+  background: #fff; border-bottom: 1px solid #e2e8f0;
+  padding: 0 32px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-left { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748b; }
+.topbar-left .sep { color: #cbd5e1; }
+.topbar-left .current { color: #1e293b; font-weight: 600; }
+.topbar-actions { display: flex; gap: 10px; }
+.btn {
+  padding: 7px 16px; border-radius: 7px; font-size: 13px;
+  cursor: pointer; border: none; font-weight: 500; transition: all .15s;
+}
+.btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #475569; }
+.btn-outline:hover { border-color: #94a3b8; color: #1e293b; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-green { background: #059669; color: #fff; }
+.btn-green:hover { background: #047857; }
+
+/* ── 内容区 ── */
+.content { padding: 28px 32px 48px; max-width: 1100px; }
+
+/* ── 方案头部 ── */
+.plan-header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+  border-radius: 14px; padding: 28px 32px; margin-bottom: 24px;
+  color: #fff; display: flex; justify-content: space-between; align-items: flex-start;
+}
+.plan-header-left .drug-name { font-size: 26px; font-weight: 800; }
+.plan-header-left .drug-meta { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+.meta-tag {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  padding: 3px 12px; border-radius: 20px; font-size: 12px; color: #bfdbfe;
+}
+.plan-header-left .plan-goal { margin-top: 14px; font-size: 14px; color: #93c5fd; line-height: 1.6; }
+.plan-header-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+.status-badge {
+  background: #059669; color: #fff; padding: 4px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+
+/* ── KPI卡片行 ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi-card {
+  background: #fff; border-radius: 12px; padding: 18px 20px;
+  border: 1px solid #e2e8f0; position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-blue::before { background: #2563eb; }
+.kpi-green::before { background: #059669; }
+.kpi-orange::before { background: #d97706; }
+.kpi-purple::before { background: #7c3aed; }
+.kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-value { font-size: 28px; font-weight: 800; margin: 6px 0 4px; color: #0f172a; }
+.kpi-blue .kpi-value { color: #2563eb; }
+.kpi-green .kpi-value { color: #059669; }
+.kpi-orange .kpi-value { color: #d97706; }
+.kpi-purple .kpi-value { color: #7c3aed; }
+.kpi-sub { font-size: 12px; color: #94a3b8; }
+
+/* ── 二列布局 ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+
+/* ── 卡片通用 ── */
+.card {
+  background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+.card-header {
+  padding: 14px 20px 12px; border-bottom: 1px solid #f1f5f9;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 7px; }
+.card-body { padding: 16px 20px; }
+
+/* ── 内容策略 ── */
+.strategy-layer {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid #f1f5f9;
+}
+.strategy-layer:last-child { border-bottom: none; }
+.layer-badge {
+  min-width: 52px; padding: 4px 8px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; text-align: center;
+}
+.badge-blue { background: #dbeafe; color: #1d4ed8; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-orange { background: #fef3c7; color: #92400e; }
+.layer-content .layer-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+.layer-content .layer-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
+.layer-kpi { margin-left: auto; text-align: right; min-width: 80px; }
+.layer-kpi .kv { font-size: 18px; font-weight: 700; color: #2563eb; }
+.layer-kpi .kl { font-size: 11px; color: #94a3b8; }
+
+/* ── 平台卡片 ── */
+.platform-card {
+  border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;
+}
+.platform-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.platform-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.icon-xhs { background: #fff0f0; }
+.icon-dy  { background: #f0f0ff; }
+.icon-sph { background: #f0fff4; }
+.icon-bili{ background: #fff5f0; }
+.platform-name { font-size: 14px; font-weight: 700; color: #1e293b; }
+.platform-cert { font-size: 11px; color: #059669; }
+.platform-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.ptag {
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 11px;
+}
+.ptag-green { background: #d1fae5; color: #065f46; }
+.ptag-blue  { background: #dbeafe; color: #1d4ed8; }
+.ptag-gray  { background: #f1f5f9; color: #475569; }
+.platform-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
+
+/* ── 节奏甘特 ── */
+.gantt { width: 100%; }
+.gantt-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.gantt-label { width: 70px; font-size: 12px; color: #64748b; flex-shrink: 0; }
+.gantt-bar-wrap { flex: 1; background: #f1f5f9; border-radius: 6px; height: 28px; overflow: hidden; }
+.gantt-bar {
+  height: 100%; border-radius: 6px;
+  display: flex; align-items: center; padding: 0 10px;
+  font-size: 11px; font-weight: 600; color: #fff;
+  transition: width .3s;
+}
+.bar-phase1 { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.bar-phase2 { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+.bar-phase3 { background: linear-gradient(90deg, #059669, #10b981); }
+.gantt-meta { width: 90px; font-size: 12px; color: #94a3b8; flex-shrink: 0; text-align: right; }
+
+/* ── 合规红线 ── */
+.compliance-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+}
+.compliance-item:last-child { border-bottom: none; }
+.comp-level {
+  padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;
+  min-width: 44px; text-align: center; flex-shrink: 0; margin-top: 1px;
+}
+.level-red { background: #fee2e2; color: #dc2626; }
+.level-yellow { background: #fef3c7; color: #d97706; }
+.level-blue { background: #dbeafe; color: #2563eb; }
+.comp-body .comp-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
+.comp-body .comp-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+/* ── 方案中心（tab示意） ── */
+.plan-list-section { margin-bottom: 24px; }
+.section-title {
+  font-size: 13px; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+.plan-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.plan-card {
+  background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
+  padding: 18px 20px; cursor: pointer; transition: all .15s;
+}
+.plan-card:hover { border-color: #93c5fd; box-shadow: 0 4px 16px rgba(37,99,235,0.1); transform: translateY(-1px); }
+.pc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.pc-name { font-size: 16px; font-weight: 700; color: #0f172a; }
+.pc-company { font-size: 12px; color: #64748b; margin-top: 2px; }
+.pc-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-otc { background: #d1fae5; color: #065f46; }
+.badge-rx  { background: #fee2e2; color: #dc2626; }
+.pc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.pc-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #f1f5f9; color: #475569; }
+.pc-platforms { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+.pc-platform { font-size: 18px; }
+.pc-platform-name { font-size: 12px; color: #94a3b8; }
+.pc-footer { display: flex; justify-content: space-between; align-items: center; }
+.pc-date { font-size: 12px; color: #94a3b8; }
+.pc-action { font-size: 13px; color: #2563eb; font-weight: 600; }
+
+/* ── Tab切换 ── */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; }
+.tab {
+  padding: 12px 20px; font-size: 14px; font-weight: 500;
+  color: #64748b; cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: all .15s;
+}
+.tab:hover { color: #2563eb; }
+.tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+
+/* 当前显示页 */
+.page { display: none; }
+.page.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ── 侧栏 ── -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">💊 1药网</div>
+    <div class="sub">药企服务平台</div>
+  </div>
+  <div class="nav-section">工作区</div>
+  <a class="nav-item" onclick="showPage('home')">
+    <span class="icon">🏠</span> 工作台
+  </a>
+  <a class="nav-item active" onclick="showPage('plans')">
+    <span class="icon">📋</span> 方案中心
+  </a>
+  <a class="nav-item" onclick="showPage('detail')">
+    <span class="icon">📄</span> 方案详情
+  </a>
+  <div class="nav-section">资源</div>
+  <a class="nav-item">
+    <span class="icon">📚</span> 合规知识库
+  </a>
+  <a class="nav-item">
+    <span class="icon">🖼️</span> 素材库
+  </a>
+  <div class="nav-section">对接</div>
+  <a class="nav-item">
+    <span class="icon">🔗</span> 平台对接
+  </a>
+</div>
+
+<!-- ── 主区 ── -->
+<div class="main">
+
+<!-- ===== 方案中心页 ===== -->
+<div class="page active" id="page-plans">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span>方案中心</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline">载入示例</button>
+      <button class="btn btn-primary" onclick="showPage('detail')">＋ 新建方案</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active">全部方案 <span style="background:#f1f5f9;color:#64748b;padding:1px 7px;border-radius:10px;font-size:11px;margin-left:6px">2</span></div>
+      <div class="tab">进行中</div>
+      <div class="tab">已归档</div>
+    </div>
+
+    <div class="plan-cards">
+
+      <div class="plan-card" onclick="showPage('detail')">
+        <div class="pc-header">
+          <div>
+            <div class="pc-name">全氟己基辛烷滴眼液</div>
+            <div class="pc-company">恒沁·演示药企A</div>
+          </div>
+          <span class="pc-badge badge-otc">OTC</span>
+        </div>
+        <div class="pc-tags">
+          <span class="pc-tag">患者教育</span>
+          <span class="pc-tag">内容种草</span>
+          <span class="pc-tag">品牌认知</span>
+        </div>
+        <div class="pc-platforms">
+          <span class="pc-platform" title="小红书">📕</span>
+          <span class="pc-platform" title="抖音">🎵</span>
+          <span class="pc-platform" title="视频号">📹</span>
+          <span class="pc-platform-name">3个平台</span>
+        </div>
+        <div class="pc-footer">
+          <span class="pc-date">📅 更新于 2026-04-04</span>
+          <span class="pc-action">查看策略 →</span>
+        </div>
+      </div>
+
+      <div class="plan-card" onclick="showPage('detail')">
+        <div class="pc-header">
+          <div>
+            <div class="pc-name">复方降糖片（瑞乐唐）</div>
+            <div class="pc-company">瑞乐医药·演示药企B</div>
+          </div>
+          <span class="pc-badge badge-rx">处方药</span>
+        </div>
+        <div class="pc-tags">
+          <span class="pc-tag">慢病管理</span>
+          <span class="pc-tag">患教内容</span>
+          <span class="pc-tag">KOL合作</span>
+        </div>
+        <div class="pc-platforms">
+          <span class="pc-platform" title="小红书">📕</span>
+          <span class="pc-platform" title="视频号">📹</span>
+          <span class="pc-platform" title="B站">🅱️</span>
+          <span class="pc-platform-name">3个平台</span>
+        </div>
+        <div class="pc-footer">
+          <span class="pc-date">📅 更新于 2026-04-04</span>
+          <span class="pc-action">查看策略 →</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== 方案详情页 ===== -->
+<div class="page" id="page-detail">
+  <div class="topbar">
+    <div class="topbar-left">
+      <a onclick="showPage('plans')" style="cursor:pointer;color:#2563eb">方案中心</a>
+      <span class="sep">›</span>
+      <span class="current">全氟己基辛烷滴眼液 · 恒沁</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline">🖨️ 导出PDF</button>
+      <button class="btn btn-green">📊 导出PPT</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 方案头 -->
+    <div class="plan-header">
+      <div class="plan-header-left">
+        <div class="drug-name">全氟己基辛烷滴眼液</div>
+        <div class="drug-meta">
+          <span class="meta-tag">恒沁 · 演示药企A</span>
+          <span class="meta-tag">OTC / 消费健康</span>
+          <span class="meta-tag">患者教育 + 内容种草</span>
+          <span class="meta-tag">预算 8-15万</span>
+        </div>
+        <div class="plan-goal">核心诉求：通过平台内容建立干眼症用户的认知与信任，促进线上购买转化<br>目标人群：25-45岁都市白领，用眼过度，有购买意愿</div>
+      </div>
+      <div class="plan-header-right">
+        <span class="status-badge">✓ 方案已生成</span>
+        <div style="font-size:12px;color:#93c5fd;margin-top:4px">2026-04-04 生成</div>
+      </div>
+    </div>
+
+    <!-- KPI卡片 -->
+    <div class="kpi-row">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-label">执行周期</div>
+        <div class="kpi-value">12周</div>
+        <div class="kpi-sub">4+4+4 三阶段</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-label">目标曝光量</div>
+        <div class="kpi-value">50万</div>
+        <div class="kpi-sub">三平台合计</div>
+      </div>
+      <div class="kpi-card kpi-orange">
+        <div class="kpi-label">预算区间</div>
+        <div class="kpi-value">8-15万</div>
+        <div class="kpi-sub">含内容+投流</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-label">KOL合作</div>
+        <div class="kpi-value">可接受</div>
+        <div class="kpi-sub">医生/达人均可</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- 内容策略 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📐 内容策略分层</div>
+          <span style="font-size:12px;color:#94a3b8">基于问卷偏好生成</span>
+        </div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="strategy-layer">
+            <div class="layer-badge badge-blue">认知层</div>
+            <div class="layer-content">
+              <div class="layer-title">干眼症科普 · 场景唤醒</div>
+              <div class="layer-desc">针对用眼过度场景制作科普内容，建立"干眼=需要干预"的认知</div>
+            </div>
+            <div class="layer-kpi">
+              <div class="kv">20篇</div>
+              <div class="kl">内容量</div>
+            </div>
+          </div>
+          <div class="strategy-layer">
+            <div class="layer-badge badge-green">信任层</div>
+            <div class="layer-content">
+              <div class="layer-title">成分解析 · 专业背书</div>
+              <div class="layer-desc">全氟己基辛烷成分科普、眼科医生背书、用户真实反馈</div>
+            </div>
+            <div class="layer-kpi">
+              <div class="kv">15篇</div>
+              <div class="kl">内容量</div>
+            </div>
+          </div>
+          <div class="strategy-layer">
+            <div class="layer-badge badge-orange">转化层</div>
+            <div class="layer-content">
+              <div class="layer-title">比较种草 · 购买引导</div>
+              <div class="layer-desc">对比评测、使用体验分享，引导至1药网平台购买</div>
+            </div>
+            <div class="layer-kpi">
+              <div class="kv">10篇</div>
+              <div class="kl">内容量</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 合规红线 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚠️ 合规要点</div>
+          <span style="font-size:11px;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:4px;font-weight:600">OTC适用</span>
+        </div>
+        <div class="card-body" style="padding-top:8px">
+          <div class="compliance-item">
+            <span class="comp-level level-red">禁止</span>
+            <div class="comp-body">
+              <div class="comp-title">外链引流至三方购买页</div>
+              <div class="comp-desc">小红书/抖音严禁在内容中插入第三方链接，违规将下架内容</div>
+            </div>
+          </div>
+          <div class="compliance-item">
+            <span class="comp-level level-red">禁止</span>
+            <div class="comp-body">
+              <div class="comp-title">使用"治疗/治愈/根治"等词</div>
+              <div class="comp-desc">OTC产品不得宣传治疗功效，仅可描述辅助改善作用</div>
+            </div>
+          </div>
+          <div class="compliance-item">
+            <span class="comp-level level-yellow">注意</span>
+            <div class="comp-body">
+              <div class="comp-title">KOL合作需明示商业合作</div>
+              <div class="comp-desc">达人种草内容须标注#广告/#商业合作，否则视为违规</div>
+            </div>
+          </div>
+          <div class="compliance-item">
+            <span class="comp-level level-blue">建议</span>
+            <div class="comp-body">
+              <div class="comp-title">发布前完成医学部内容审核</div>
+              <div class="comp-desc">建议预留5-7个工作日审核期，避免内容延期</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 平台组合 -->
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-header">
+        <div class="card-title">🌐 平台组合策略</div>
+        <span style="font-size:12px;color:#94a3b8">已选3个平台</span>
+      </div>
+      <div class="card-body">
+        <div class="three-col" style="margin-bottom:0">
+          <div class="platform-card">
+            <div class="platform-header">
+              <div class="platform-icon icon-xhs">📕</div>
+              <div>
+                <div class="platform-name">小红书</div>
+                <div class="platform-cert">✓ 可认证健康号</div>
+              </div>
+            </div>
+            <div class="platform-tags">
+              <span class="ptag ptag-green">图文种草</span>
+              <span class="ptag ptag-blue">25-35岁女性为主</span>
+              <span class="ptag ptag-gray">内容权重高</span>
+            </div>
+            <div class="platform-desc">干眼症话题月均搜索量超100万，适合认知建立期主战场。建议图文+短视频组合。</div>
+          </div>
+          <div class="platform-card">
+            <div class="platform-header">
+              <div class="platform-icon icon-dy">🎵</div>
+              <div>
+                <div class="platform-name">抖音</div>
+                <div class="platform-cert">✓ 可认证健康账号</div>
+              </div>
+            </div>
+            <div class="platform-tags">
+              <span class="ptag ptag-green">短视频</span>
+              <span class="ptag ptag-blue">全年龄覆盖</span>
+              <span class="ptag ptag-gray">信息流投放</span>
+            </div>
+            <div class="platform-desc">DOU+信息流投放精准触达用眼疲劳人群。注意医疗类内容审核较严，需提前送审。</div>
+          </div>
+          <div class="platform-card">
+            <div class="platform-header">
+              <div class="platform-icon icon-sph">📹</div>
+              <div>
+                <div class="platform-name">视频号</div>
+                <div class="platform-cert">✓ 企业认证可用</div>
+              </div>
+            </div>
+            <div class="platform-tags">
+              <span class="ptag ptag-green">中视频</span>
+              <span class="ptag ptag-blue">微信生态闭环</span>
+              <span class="ptag ptag-gray">私域导流</span>
+            </div>
+            <div class="platform-desc">微信生态内形成完整闭环：视频号→公众号→小程序购买。适合信任层与转化层内容。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 投放节奏 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 投放节奏 · 4+4+4周</div>
+        <span style="font-size:12px;color:#94a3b8">12周全周期</span>
+      </div>
+      <div class="card-body">
+        <div class="gantt">
+          <div class="gantt-row">
+            <div class="gantt-label">第1-4周</div>
+            <div class="gantt-bar-wrap">
+              <div class="gantt-bar bar-phase1" style="width:33%">认知建立期 · 科普内容铺量</div>
+            </div>
+            <div class="gantt-meta">目标曝光 10万</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-label">第5-8周</div>
+            <div class="gantt-bar-wrap">
+              <div class="gantt-bar bar-phase2" style="width:66%;margin-left:33%">信任强化期 · KOL背书 + 成分科普</div>
+            </div>
+            <div class="gantt-meta">目标曝光 25万</div>
+          </div>
+          <div class="gantt-row">
+            <div class="gantt-label">第9-12周</div>
+            <div class="gantt-bar-wrap">
+              <div class="gantt-bar bar-phase3" style="width:34%;margin-left:66%">转化收割期 · 促销+复购</div>
+            </div>
+            <div class="gantt-meta">目标曝光 15万</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+          <div style="background:#eff6ff;border-radius:8px;padding:10px 16px;flex:1;min-width:180px">
+            <div style="font-size:11px;color:#64748b">阶段一 KPI</div>
+            <div style="font-size:16px;font-weight:700;color:#2563eb;margin-top:4px">品牌词搜索量 +30%</div>
+          </div>
+          <div style="background:#f0fdf4;border-radius:8px;padding:10px 16px;flex:1;min-width:180px">
+            <div style="font-size:11px;color:#64748b">阶段二 KPI</div>
+            <div style="font-size:16px;font-weight:700;color:#059669;margin-top:4px">互动率 >3%，收藏率 >2%</div>
+          </div>
+          <div style="background:#fffbeb;border-radius:8px;padding:10px 16px;flex:1;min-width:180px">
+            <div style="font-size:11px;color:#64748b">阶段三 KPI</div>
+            <div style="font-size:16px;font-weight:700;color:#d97706;margin-top:4px">转化率 >1.5%，ROI >3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 工作台页（占位） ===== -->
+<div class="page" id="page-home">
+  <div class="topbar">
+    <div class="topbar-left"><span class="current">工作台</span></div>
+  </div>
+  <div class="content">
+    <div style="text-align:center;padding:80px 0;color:#94a3b8">
+      <div style="font-size:48px;margin-bottom:16px">💊</div>
+      <div style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px">1药网 · 药企服务平台</div>
+      <div style="font-size:14px;margin-bottom:28px">患者教育 · 合规投放 · 运营打法一站式服务</div>
+      <button class="btn btn-primary" onclick="showPage('plans')">进入方案中心 →</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+}
+</script>
+</body>
+</html>
