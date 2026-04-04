@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1药网经营日报 | 2026-04-03</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+  #pwd-overlay {
+    position: fixed; inset: 0; background: #0f1117;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  .pwd-box {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 16px;
+    padding: 40px; text-align: center; width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .pwd-box h2 { font-size: 22px; color: #60a5fa; margin-bottom: 8px; }
+  .pwd-box p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+  .pwd-box input {
+    width: 100%; padding: 12px 16px; border-radius: 8px;
+    border: 1px solid #374151; background: #111827; color: #e2e8f0;
+    font-size: 18px; text-align: center; letter-spacing: 4px; margin-bottom: 16px;
+  }
+  .pwd-box input:focus { outline: none; border-color: #60a5fa; }
+  .pwd-box button {
+    width: 100%; padding: 12px; border-radius: 8px; border: none;
+    background: #2563eb; color: #fff; font-size: 16px; cursor: pointer;
+  }
+  .pwd-box button:hover { background: #1d4ed8; }
+  .pwd-err { color: #f87171; font-size: 13px; margin-top: 8px; display: none; }
+  #main-content { display: none; }
+
+  .header {
+    background: linear-gradient(135deg, #1e2535 0%, #0f1117 100%);
+    border-bottom: 1px solid #2d3748;
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left h1 { font-size: 22px; color: #60a5fa; font-weight: 700; }
+  .header-left p { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .header-badge { background: #14532d; color: #34d399; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid #166534; }
+
+  .tab-nav {
+    background: #1a1d27; border-bottom: 1px solid #2d3748;
+    padding: 0 32px; display: flex; gap: 4px; overflow-x: auto;
+  }
+  .tab-btn {
+    padding: 14px 20px; color: #94a3b8; border: none; background: none;
+    cursor: pointer; font-size: 14px; font-weight: 500;
+    border-bottom: 3px solid transparent; transition: all .2s; white-space: nowrap;
+  }
+  .tab-btn:hover { color: #e2e8f0; }
+  .tab-btn.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+
+  .tab-content { display: none; padding: 24px 32px; }
+  .tab-content.active { display: block; }
+
+  /* KPI Grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .kpi-card {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 12px;
+    padding: 18px 16px; text-align: center;
+  }
+  .kpi-card .label { font-size: 11px; color: #64748b; margin-bottom: 8px; letter-spacing: .5px; }
+  .kpi-card .value { font-size: 24px; font-weight: 700; }
+  .kpi-card .sub { font-size: 12px; color: #64748b; margin-top: 6px; }
+  .kpi-card.green { border-color: #059669; background: rgba(5,150,105,.06); }
+  .kpi-card.green .value { color: #34d399; }
+  .kpi-card.red { border-color: #dc2626; background: rgba(220,38,38,.06); }
+  .kpi-card.red .value { color: #f87171; }
+  .kpi-card.yellow { border-color: #d97706; background: rgba(217,119,6,.06); }
+  .kpi-card.yellow .value { color: #fbbf24; }
+  .kpi-card.blue { border-color: #2563eb; background: rgba(37,99,235,.06); }
+  .kpi-card.blue .value { color: #60a5fa; }
+
+  .trend-row { display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+  .badge { padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-up { background: rgba(52,211,153,.15); color: #34d399; }
+  .badge-down { background: rgba(239,68,68,.15); color: #f87171; }
+  .badge-flat { background: rgba(148,163,184,.15); color: #94a3b8; }
+
+  .section-title {
+    font-size: 13px; font-weight: 700; color: #64748b;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #2d3748; }
+
+  .insight-banner {
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .insight-green { background: rgba(5,150,105,.08); border: 1px solid rgba(5,150,105,.3); }
+  .insight-yellow { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3); }
+  .insight-red { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); }
+  .insight-blue { background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.25); }
+  .insight-banner .icon { font-size: 20px; flex-shrink: 0; }
+  .insight-banner .text { font-size: 14px; line-height: 1.7; }
+  .insight-green .text { color: #6ee7b7; }
+  .insight-yellow .text { color: #fde68a; }
+  .insight-red .text { color: #fca5a5; }
+  .insight-blue .text { color: #93c5fd; }
+  .insight-banner .text strong { font-weight: 700; }
+
+  .chart-wrap {
+    background: #1a1d27; border: 1px solid #2d3748; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .chart-title { font-size: 13px; color: #94a3b8; margin-bottom: 14px; font-weight: 600; }
+
+  .diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .diag-card { background: #1a1d27; border: 1px solid #2d3748; border-radius: 10px; padding: 16px 18px; }
+  .diag-card .d-head { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; }
+  .diag-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .dot-g { background: #10b981; }
+  .dot-r { background: #ef4444; }
+  .dot-y { background: #f59e0b; }
+  .dot-b { background: #3b82f6; }
+
+  @media (max-width: 600px) {
+    .header { padding: 16px 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tab-nav { padding: 0 10px; }
+    .tab-content { padding: 16px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="pwd-overlay">
+  <div class="pwd-box">
+    <h2>🔒 1药网日报</h2>
+    <p>2026年04月03日 · 全网整体经营日报</p>
+    <input type="password" id="pwd-input" placeholder="请输入密码"
+      onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">进入看板</button>
+    <div class="pwd-err" id="pwd-error">密码错误，请重试</div>
+  </div>
+</div>
+
+<div id="main-content">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>📊 全网整体经营日报</h1>
+      <p>2026年04月03日（周五）· 全网 / 整体 / 日维度</p>
+    </div>
+    <div class="header-badge">📈 GMV +2.97% WoW</div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 总览</button>
+    <button class="tab-btn" onclick="switchTab('gmv',this)">💰 GMV & 毛利</button>
+    <button class="tab-btn" onclick="switchTab('customer',this)">👥 顾客结构</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🔍 诊断建议</button>
+  </div>
+
+  <!-- ===== TAB 1: 总览 ===== -->
+  <div class="tab-content active" id="tab-overview">
+
+    <div class="insight-green insight-banner">
+      <div class="icon">✅</div>
+      <div class="text">
+        <strong>GMV 周同比正增长：</strong>4月3日全网 GMV 97.9万，周同比 <strong>+2.97%</strong>；GAAP毛利额 8.9万，毛利率 <strong>14.82%</strong>，整体经营质量稳健。新客数周同比 <strong>+7.70%</strong>，新客拉新表现突出。
+      </div>
+    </div>
+    <div class="insight-yellow insight-banner">
+      <div class="icon">⚠️</div>
+      <div class="text">
+        <strong>结构性隐忧：</strong>顾客数 WoW <strong>-1.20%</strong>、订单数 WoW <strong>-2.62%</strong>，结合客均采购宽度 WoW <strong>-5.65%</strong>，说明顾客单次购买品类数收窄——老客黏性或消费深度有所下滑。
+      </div>
+    </div>
+
+    <div class="section-title">核心 KPI 一览</div>
+    <div class="kpi-grid">
+
+      <div class="kpi-card red">
+        <div class="label">顾客数</div>
+        <div class="value">9,627</div>
+        <div class="trend-row"><span class="badge badge-down">WoW -1.20%</span></div>
+        <div class="sub">有购买行为的用户</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="label">新客数</div>
+        <div class="value">3,050</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +7.70%</span></div>
+        <div class="sub">新客占比 31.7%</div>
+      </div>
+
+      <div class="kpi-card red">
+        <div class="label">订单数</div>
+        <div class="value">10,471</div>
+        <div class="trend-row"><span class="badge badge-down">WoW -2.62%</span></div>
+        <div class="sub">单均价 ¥94（+5.75%）</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="label">GMV</div>
+        <div class="value">97.9万</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +2.97%</span></div>
+        <div class="sub">979,481 元</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="label">GAAP毛利额</div>
+        <div class="value">8.9万</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +1.74%</span></div>
+        <div class="sub">89,377 元</div>
+      </div>
+
+      <div class="kpi-card blue">
+        <div class="label">GAAP毛利率</div>
+        <div class="value">14.82%</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +0.02%</span></div>
+        <div class="sub">质量基本持平</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="label">前毛利额</div>
+        <div class="value">4.3万</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +15.72%</span></div>
+        <div class="sub">42,749 元 ↑显著</div>
+      </div>
+
+      <div class="kpi-card yellow">
+        <div class="label">前毛利率</div>
+        <div class="value">7.09%</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +0.87%</span></div>
+        <div class="sub">前台盈利能力提升</div>
+      </div>
+
+      <div class="kpi-card red">
+        <div class="label">客均采购宽度</div>
+        <div class="value">1.2</div>
+        <div class="trend-row"><span class="badge badge-down">WoW -5.65%</span></div>
+        <div class="sub">⚠️ 品类购买深度下滑</div>
+      </div>
+
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">📊 关键指标周同比变化（WoW %）</div>
+      <canvas id="wowChart" height="110"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 2: GMV & 毛利 ===== -->
+  <div class="tab-content" id="tab-gmv">
+
+    <div class="section-title">GMV 结构</div>
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="label">GMV</div>
+        <div class="value">97.9万</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +2.97%</span></div>
+        <div class="sub">全网整体</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="label">Revenue</div>
+        <div class="value">60.3万</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +1.58%</span></div>
+        <div class="sub">603,083 元 · GMV占比 61.6%</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="label">单均价</div>
+        <div class="value">¥94</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +5.75%</span></div>
+        <div class="sub">客单价拉升主因</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="label">客均价</div>
+        <div class="value">¥102</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +4.23%</span></div>
+        <div class="sub">每位顾客贡献 GMV</div>
+      </div>
+    </div>
+
+    <div class="insight-blue insight-banner">
+      <div class="icon">💡</div>
+      <div class="text">
+        <strong>GMV 增长逻辑：</strong>订单数下降 2.62%，但单均价上升 5.75%，说明 GMV 增长是由<strong>客单价拉升</strong>驱动，而非订单量扩张。
+        这是典型的"少而贵"结构——高客单价商品占比提升，有益于毛利，但若持续缺乏订单量增长，长期 GMV 天花板会受限。
+      </div>
+    </div>
+
+    <div class="section-title">毛利结构</div>
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="label">GAAP毛利额</div>
+        <div class="value">89,377</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +1.74%</span></div>
+        <div class="sub">含后台费用的真实毛利</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">GAAP毛利率</div>
+        <div class="value">14.82%</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +0.02%</span></div>
+        <div class="sub">基本持平，质量稳</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">前毛利额</div>
+        <div class="value">42,749</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +15.72% 🔥</span></div>
+        <div class="sub">前台毛利大幅改善</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">前毛利率</div>
+        <div class="value">7.09%</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +0.87%</span></div>
+        <div class="sub">前台定价/促销优化见效</div>
+      </div>
+    </div>
+
+    <div class="insight-green insight-banner">
+      <div class="icon">🌟</div>
+      <div class="text">
+        <strong>前毛利额 WoW +15.72%</strong> 是今日最亮眼数据，远超 GMV 增速（+2.97%）。
+        说明本周前台促销费用收窄或毛利率品类占比改善，前台运营效率显著提升。
+        建议复盘具体科室/商品的毛利率变化，找到拉升的核心品类，在下周强化排期。
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">💰 GMV vs 毛利额对比</div>
+      <canvas id="profitChart" height="100"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 3: 顾客结构 ===== -->
+  <div class="tab-content" id="tab-customer">
+
+    <div class="section-title">顾客数据</div>
+    <div class="kpi-grid">
+      <div class="kpi-card red">
+        <div class="label">顾客数（总）</div>
+        <div class="value">9,627</div>
+        <div class="trend-row"><span class="badge badge-down">WoW -1.20%</span></div>
+        <div class="sub">有购买的活跃顾客</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="label">新客数</div>
+        <div class="value">3,050</div>
+        <div class="trend-row"><span class="badge badge-up">WoW +7.70%</span></div>
+        <div class="sub">新客占比 31.7%</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="label">老客数（估算）</div>
+        <div class="value">6,577</div>
+        <div class="trend-row"><span class="badge badge-down">总客 - 新客</span></div>
+        <div class="sub">老客占比 68.3%</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="label">客均采购宽度</div>
+        <div class="value">1.2</div>
+        <div class="trend-row"><span class="badge badge-down">WoW -5.65%</span></div>
+        <div class="sub">⚠️ 跨品类购买减少</div>
+      </div>
+    </div>
+
+    <div class="insight-yellow insight-banner">
+      <div class="icon">⚠️</div>
+      <div class="text">
+        <strong>顾客结构分裂信号：</strong>新客拉新强劲（+7.70%），但总顾客数仍在下滑（-1.20%），
+        意味着<strong>老客流失速度 > 新客补充速度</strong>。
+        客均采购宽度 -5.65%（仅 1.2 个品类）进一步印证老客活跃度不足，
+        购买行为趋于单一。复购入口优化需加速推进。
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">👥 新客 vs 老客结构（估算）</div>
+      <canvas id="customerChart" height="120"></canvas>
+    </div>
+
+    <div class="diag-grid">
+      <div class="diag-card">
+        <div class="d-head">✅ 新客拉新亮点</div>
+        <div class="diag-item"><span class="dot dot-g"></span>新客 WoW +7.70%，拉新效率在改善</div>
+        <div class="diag-item"><span class="dot dot-g"></span>新客占比 31.7%，结构健康</div>
+        <div class="diag-item"><span class="dot dot-b"></span>建议追踪新客首单品类，优化首购转化路径</div>
+      </div>
+      <div class="diag-card">
+        <div class="d-head">⚠️ 老客流失风险</div>
+        <div class="diag-item"><span class="dot dot-r"></span>总顾客数 -1.20%，老客贡献收缩</div>
+        <div class="diag-item"><span class="dot dot-r"></span>采购宽度 -5.65%，老客只买 1 个品类，黏性弱</div>
+        <div class="diag-item"><span class="dot dot-y"></span>个人中心复购入口优化需尽快上线</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB 4: 诊断建议 ===== -->
+  <div class="tab-content" id="tab-diagnosis">
+
+    <div class="section-title">综合诊断</div>
+    <div class="diag-grid">
+
+      <div class="diag-card">
+        <div class="d-head">💪 今日优势</div>
+        <div class="diag-item"><span class="dot dot-g"></span>GMV WoW +2.97%，周环比正增长</div>
+        <div class="diag-item"><span class="dot dot-g"></span>前毛利额 WoW +15.72%，前台效率大幅改善</div>
+        <div class="diag-item"><span class="dot dot-g"></span>新客数 WoW +7.70%，拉新效果好</div>
+        <div class="diag-item"><span class="dot dot-g"></span>客均价 ¥102 WoW +4.23%，消费能力提升</div>
+      </div>
+
+      <div class="diag-card">
+        <div class="d-head">⚠️ 风险点</div>
+        <div class="diag-item"><span class="dot dot-r"></span>顾客数 -1.20%、订单数 -2.62%，老客流失</div>
+        <div class="diag-item"><span class="dot dot-r"></span>采购宽度仅 1.2，跨品类连带购买极低</div>
+        <div class="diag-item"><span class="dot dot-y"></span>GMV 增长靠客单价而非订单量，量的扩张仍待突破</div>
+        <div class="diag-item"><span class="dot dot-y"></span>GAAP毛利率 14.82% 小幅波动，持续关注</div>
+      </div>
+
+    </div>
+
+    <div class="section-title">行动建议</div>
+
+    <div class="insight-green insight-banner">
+      <div class="icon">🔥</div>
+      <div class="text">
+        <strong>复盘前毛利大涨（+15.72%）的原因：</strong>定位是哪个科室/商品组合带来的毛利改善，
+        作为下周选品排期和首页资源位的参考依据。
+      </div>
+    </div>
+
+    <div class="insight-yellow insight-banner">
+      <div class="icon">🔁</div>
+      <div class="text">
+        <strong>加速老客复购链路建设：</strong>采购宽度下滑是长期隐患，建议在个人中心复购入口上线前，
+        通过 Push 推送"你可能还需要"的关联品类，短期弥补连带购买的缺口。
+      </div>
+    </div>
+
+    <div class="insight-blue insight-banner">
+      <div class="icon">🌱</div>
+      <div class="text">
+        <strong>新客首单转化承接：</strong>新客数高增长是好信号，但需确保首单体验和次日召回机制到位，
+        避免新客注册后一次购买即流失，拉升新客 30天留存率。
+      </div>
+    </div>
+
+    <div class="insight-red insight-banner" style="background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3);">
+      <div class="icon">⚡</div>
+      <div class="text" style="color:#fca5a5">
+        <strong>关注次日（4/4）数据：</strong>今日（4/3）数据整体 OK，但结合 4/4 早报（DAU -2.7%/-4%，顾客数 -3.9%/-8.6%），
+        周末流量质量明显恶化，<strong>省钱卡入口上线的短期拉升效果需重点追踪。</strong>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function checkPwd() {
+  var input = document.getElementById('pwd-input').value;
+  if (input === '1212') {
+    document.getElementById('pwd-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('pwd-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// WoW Chart
+(function() {
+  const ctx = document.getElementById('wowChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['顾客数', '新客数', '订单数', 'GMV', '前毛利额', 'GAAP毛利额', '单均价', '客均价', '采购宽度'],
+      datasets: [{
+        label: 'WoW 变化 %',
+        data: [-1.20, 7.70, -2.62, 2.97, 15.72, 1.74, 5.75, 4.23, -5.65],
+        backgroundColor: [
+          'rgba(239,68,68,0.7)', 'rgba(52,211,153,0.7)', 'rgba(239,68,68,0.7)',
+          'rgba(52,211,153,0.7)', 'rgba(52,211,153,0.9)', 'rgba(52,211,153,0.7)',
+          'rgba(96,165,250,0.7)', 'rgba(96,165,250,0.7)', 'rgba(239,68,68,0.7)'
+        ],
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.parsed.y}%` } }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#1e2535' } },
+        y: {
+          ticks: { color: '#94a3b8', callback: v => v + '%' },
+          grid: { color: '#1e2535' },
+          title: { display: true, text: 'WoW %', color: '#64748b', font: { size: 11 } }
+        }
+      }
+    }
+  });
+})();
+
+// Profit Chart
+(function() {
+  const ctx = document.getElementById('profitChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['GMV', 'Revenue', 'GAAP毛利额', '前毛利额'],
+      datasets: [{
+        label: '金额（元）',
+        data: [979481, 603083, 89377, 42749],
+        backgroundColor: ['rgba(96,165,250,0.7)', 'rgba(52,211,153,0.7)', 'rgba(245,158,11,0.7)', 'rgba(167,139,250,0.7)'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ¥${c.parsed.y.toLocaleString()}` } }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } },
+        y: { ticks: { color: '#94a3b8', callback: v => '¥'+(v/10000).toFixed(0)+'万' }, grid: { color: '#1e2535' } }
+      }
+    }
+  });
+})();
+
+// Customer Chart
+(function() {
+  const ctx = document.getElementById('customerChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['新客 (31.7%)', '老客 (68.3%)'],
+      datasets: [{
+        data: [3050, 6577],
+        backgroundColor: ['rgba(52,211,153,0.8)', 'rgba(96,165,250,0.6)'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 13 } } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed.toLocaleString()}人` } }
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
