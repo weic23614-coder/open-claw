@@ -258,23 +258,133 @@ document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='
     <div class="chart-wrap">
       <div class="section-title">Top15 商品明细</div>
       <table class="data-table">
-        <thead><tr><th>排名</th><th>商品名称</th><th>生产厂商</th><th>GMV</th><th>毛利率</th><th>销量</th><th>均价</th></tr></thead>
+        <thead><tr>
+          <th>排名</th><th>商品名称</th><th>生产厂商</th>
+          <th>W14 GMV</th><th>W13 GMV</th><th>GMV WoW</th>
+          <th>W14 GM率</th><th>W13 GM率</th>
+          <th>销量</th><th>均价</th>
+        </tr></thead>
         <tbody>
-          <tr><td><span class="rank r1">1</span></td><td>可定 瑞舒伐他汀钙片 5mg*7片</td><td style="color:#a0aec0;font-size:12px">阿斯利康药业(中国)</td><td>27.2万</td><td>9.1%</td><td>13,473</td><td>20.2元</td></tr>
-          <tr><td><span class="rank r2">2</span></td><td>安达释 达格列净二甲双胍缓释片 10mg/1000mg</td><td style="color:#a0aec0;font-size:12px">阿斯利康制药有限公司</td><td>19.7万</td><td>7.7%</td><td>1,711</td><td>115.1元</td></tr>
-          <tr><td><span class="rank r3">3</span></td><td style="color:#fc8181">⚠️ 希爱力/Cialis 他达拉非片 5mg*28片</td><td style="color:#a0aec0;font-size:12px">礼来制药（进口）</td><td>11.3万</td><td style="color:#fc8181">1.4%</td><td>291</td><td>387.7元</td></tr>
-          <tr><td><span class="rank rn">4</span></td><td>普米克令舒 吸入用布地奈德混悬液</td><td style="color:#a0aec0;font-size:12px">阿斯利康（进口）</td><td>10.3万</td><td>12.9%</td><td>2,851</td><td>36.3元</td></tr>
-          <tr><td><span class="rank rn">5</span></td><td>海默尼/美时玉 盐酸曲唑酮片 50mg*20片</td><td style="color:#a0aec0;font-size:12px">重庆海默尼制药</td><td>10.1万</td><td>8.3%</td><td>2,148</td><td>47.1元</td></tr>
-          <tr><td><span class="rank rn">6</span></td><td>络活喜 苯磺酸氨氯地平片 5mg*7片</td><td style="color:#a0aec0;font-size:12px">辉瑞制药有限公司</td><td>9.7万</td><td>5.2%</td><td>4,405</td><td>22.1元</td></tr>
-          <tr><td><span class="rank rn">7</span></td><td>润众 恩替卡韦分散片 0.5mg*14片*2板</td><td style="color:#a0aec0;font-size:12px">正大天晴药业集团</td><td>9.4万</td><td>10.1%</td><td>796</td><td>118.2元</td></tr>
-          <tr><td><span class="rank rn">8</span></td><td>左洛复 盐酸舍曲林片 50mg*14片</td><td style="color:#a0aec0;font-size:12px">辉瑞制药有限公司</td><td>7.3万</td><td>5.0%</td><td>957</td><td>75.8元</td></tr>
-          <tr><td><span class="rank rn">9</span></td><td>白云山/金戈 枸橼酸西地那非片 50mg*20片</td><td style="color:#a0aec0;font-size:12px">广州白云山医药集团</td><td>7.1万</td><td>7.2%</td><td>286</td><td>248.1元</td></tr>
-          <tr><td><span class="rank rn">10</span></td><td>力平之 非诺贝特胶囊 200mg*10粒</td><td style="color:#a0aec0;font-size:12px">法国傅尼叶（进口）</td><td>7.0万</td><td>5.3%</td><td>2,159</td><td>32.6元</td></tr>
-          <tr><td><span class="rank rn">11</span></td><td>西乐葆/CELEBREX 塞来昔布胶囊 0.2g*18粒</td><td style="color:#a0aec0;font-size:12px">晖致制药(大连)</td><td>6.8万</td><td>7.1%</td><td>862</td><td>79.4元</td></tr>
-          <tr><td><span class="rank rn">12</span></td><td>瑞复舒 吗替麦考酚酯胶囊</td><td style="color:#a0aec0;font-size:12px">海南先声药业有限公司</td><td>6.4万</td><td>10.5%</td><td>1,696</td><td>37.9元</td></tr>
-          <tr><td><span class="rank rn">13</span></td><td>喜格迈 尼可地尔片 5mg*10片*10板</td><td style="color:#a0aec0;font-size:12px">日本Nipro（进口）</td><td>5.7万</td><td>7.2%</td><td>316</td><td>181.4元</td></tr>
-          <tr><td><span class="rank rn">14</span></td><td>妙纳 盐酸乙哌立松片 50mg*10片*2板</td><td style="color:#a0aec0;font-size:12px">卫材(中国)药业</td><td>5.7万</td><td>9.0%</td><td>2,282</td><td>24.8元</td></tr>
-          <tr><td><span class="rank rn">15</span></td><td>倍择瑞/令畅 布地格福吸入气雾剂 120揿</td><td style="color:#a0aec0;font-size:12px">阿斯利康（进口）</td><td>4.7万</td><td>4.0%</td><td>208</td><td>227.4元</td></tr>
+          <tr>
+            <td><span class="rank r1">1</span></td>
+            <td>可定 瑞舒伐他汀钙片 5mg*7片</td>
+            <td style="color:#a0aec0;font-size:12px">阿斯利康药业(中国)</td>
+            <td>27.2万</td><td style="color:#718096">24.5万</td><td><span class="tag tag-up">↑10.8%</span></td>
+            <td>9.1%</td><td style="color:#718096">11.6%</td>
+            <td>13,473</td><td>20.2元</td>
+          </tr>
+          <tr>
+            <td><span class="rank r2">2</span></td>
+            <td>安达释 达格列净二甲双胍缓释片 10mg/1000mg</td>
+            <td style="color:#a0aec0;font-size:12px">阿斯利康制药有限公司</td>
+            <td>19.7万</td><td style="color:#718096">16.4万</td><td><span class="tag tag-up">↑20.3%</span></td>
+            <td>7.7%</td><td style="color:#718096">7.4%</td>
+            <td>1,711</td><td>115.1元</td>
+          </tr>
+          <tr>
+            <td><span class="rank r3">3</span></td>
+            <td style="color:#fc8181">⚠️ 希爱力/Cialis 他达拉非片 5mg*28片</td>
+            <td style="color:#a0aec0;font-size:12px">礼来制药（进口）</td>
+            <td>11.3万</td><td style="color:#718096">9.8万</td><td><span class="tag tag-up">↑15.1%</span></td>
+            <td style="color:#fc8181">1.4%</td><td style="color:#718096">0.9%</td>
+            <td>291</td><td>387.7元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">4</span></td>
+            <td>普米克令舒 吸入用布地奈德混悬液</td>
+            <td style="color:#a0aec0;font-size:12px">阿斯利康（进口）</td>
+            <td>10.3万</td><td style="color:#718096">13.2万</td><td><span class="tag tag-down">↓21.7%</span></td>
+            <td>12.9%</td><td style="color:#718096">11.5%</td>
+            <td>2,851</td><td>36.3元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">5</span></td>
+            <td>海默尼/美时玉 盐酸曲唑酮片 50mg*20片</td>
+            <td style="color:#a0aec0;font-size:12px">重庆海默尼制药</td>
+            <td>10.1万</td><td style="color:#718096">10.0万</td><td><span class="tag tag-flat">↑1.3%</span></td>
+            <td>8.3%</td><td style="color:#718096">8.8%</td>
+            <td>2,148</td><td>47.1元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">6</span></td>
+            <td>络活喜 苯磺酸氨氯地平片 5mg*7片</td>
+            <td style="color:#a0aec0;font-size:12px">辉瑞制药有限公司</td>
+            <td>9.7万</td><td style="color:#718096">2.8万</td><td><span class="tag tag-up" style="background:rgba(72,187,120,.3)">↑245.8%🔥</span></td>
+            <td>5.2%</td><td style="color:#718096">7.3%</td>
+            <td>4,405</td><td>22.1元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">7</span></td>
+            <td>润众 恩替卡韦分散片 0.5mg*14片*2板</td>
+            <td style="color:#a0aec0;font-size:12px">正大天晴药业集团</td>
+            <td>9.4万</td><td style="color:#718096">17.1万</td><td><span class="tag tag-down">↓45.0%</span></td>
+            <td>10.1%</td><td style="color:#718096">9.7%</td>
+            <td>796</td><td>118.2元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">8</span></td>
+            <td>左洛复 盐酸舍曲林片 50mg*14片</td>
+            <td style="color:#a0aec0;font-size:12px">辉瑞制药有限公司</td>
+            <td>7.3万</td><td style="color:#718096">5.7万</td><td><span class="tag tag-up">↑27.1%</span></td>
+            <td>5.0%</td><td style="color:#718096">6.5%</td>
+            <td>957</td><td>75.8元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">9</span></td>
+            <td>白云山/金戈 枸橼酸西地那非片 50mg*20片</td>
+            <td style="color:#a0aec0;font-size:12px">广州白云山医药集团</td>
+            <td>7.1万</td><td style="color:#718096">9.3万</td><td><span class="tag tag-down">↓24.0%</span></td>
+            <td>7.2%</td><td style="color:#718096">5.7%</td>
+            <td>286</td><td>248.1元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">10</span></td>
+            <td>力平之 非诺贝特胶囊 200mg*10粒</td>
+            <td style="color:#a0aec0;font-size:12px">法国傅尼叶（进口）</td>
+            <td>7.0万</td><td style="color:#718096">3.8万</td><td><span class="tag tag-up">↑82.7%</span></td>
+            <td>5.3%</td><td style="color:#718096">5.7%</td>
+            <td>2,159</td><td>32.6元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">11</span></td>
+            <td>西乐葆/CELEBREX 塞来昔布胶囊 0.2g*18粒</td>
+            <td style="color:#a0aec0;font-size:12px">晖致制药(大连)</td>
+            <td>6.8万</td><td style="color:#718096">4.0万</td><td><span class="tag tag-up">↑71.0%</span></td>
+            <td>7.1%</td><td style="color:#718096">6.6%</td>
+            <td>862</td><td>79.4元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">12</span></td>
+            <td>瑞复舒 吗替麦考酚酯胶囊</td>
+            <td style="color:#a0aec0;font-size:12px">海南先声药业有限公司</td>
+            <td>6.4万</td><td style="color:#718096">4.6万</td><td><span class="tag tag-up">↑41.3%</span></td>
+            <td>10.5%</td><td style="color:#718096">11.1%</td>
+            <td>1,696</td><td>37.9元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">13</span></td>
+            <td>喜格迈 尼可地尔片 5mg*10片*10板</td>
+            <td style="color:#a0aec0;font-size:12px">日本Nipro（进口）</td>
+            <td>5.7万</td><td style="color:#718096">4.6万</td><td><span class="tag tag-up">↑24.3%</span></td>
+            <td>7.2%</td><td style="color:#718096">7.0%</td>
+            <td>316</td><td>181.4元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">14</span></td>
+            <td>妙纳 盐酸乙哌立松片 50mg*10片*2板</td>
+            <td style="color:#a0aec0;font-size:12px">卫材(中国)药业</td>
+            <td>5.7万</td><td style="color:#718096">4.2万</td><td><span class="tag tag-up">↑35.3%</span></td>
+            <td>9.0%</td><td style="color:#718096">10.7%</td>
+            <td>2,282</td><td>24.8元</td>
+          </tr>
+          <tr>
+            <td><span class="rank rn">15</span></td>
+            <td>倍择瑞/令畅 布地格福吸入气雾剂 120揿</td>
+            <td style="color:#a0aec0;font-size:12px">阿斯利康（进口）</td>
+            <td>4.7万</td><td style="color:#718096">5.5万</td><td><span class="tag tag-down">↓13.3%</span></td>
+            <td>4.0%</td><td style="color:#718096">2.9%</td>
+            <td>208</td><td>227.4元</td>
+          </tr>
         </tbody>
       </table>
     </div>
