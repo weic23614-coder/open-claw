@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平台日报 2026-04-09</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+/* Password Overlay */
+#pwd-overlay {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #0f3460, #16213e);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.pwd-box {
+  background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
+  padding: 48px 40px; text-align: center; width: 340px;
+}
+.pwd-box .lock { font-size: 44px; margin-bottom: 14px; }
+.pwd-box h2 { color: #fff; font-size: 20px; margin-bottom: 6px; }
+.pwd-box p { color: rgba(255,255,255,0.45); font-size: 12px; margin-bottom: 26px; }
+.pwd-box input {
+  width: 100%; padding: 13px 16px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+  color: #fff; font-size: 18px; text-align: center; letter-spacing: 6px; outline: none; margin-bottom: 14px;
+}
+.pwd-box input::placeholder { letter-spacing: 2px; color: rgba(255,255,255,0.3); font-size: 12px; }
+.pwd-box button {
+  width: 100%; padding: 13px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, #e94560, #c0392b);
+  color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.pwd-box button:hover { opacity: 0.85; }
+.pwd-error { color: #ff6b6b; font-size: 12px; margin-top: 8px; min-height: 16px; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+  padding: 28px 40px 24px; color: #fff;
+}
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.header .sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+.date-badge {
+  background: rgba(233,69,96,0.25); border: 1px solid rgba(233,69,96,0.5);
+  border-radius: 20px; padding: 5px 14px; font-size: 12px; color: #ff8fa0; white-space: nowrap;
+}
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 28px 40px 0; max-width: 960px; margin: 0 auto; }
+.kpi-card {
+  background: #fff; border-radius: 14px; padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-top: 4px solid #e94560;
+  transition: transform .2s, box-shadow .2s;
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.kpi-card.blue { border-top-color: #3498db; }
+.kpi-card.green { border-top-color: #2ecc71; }
+.kpi-label { font-size: 12px; color: #888; margin-bottom: 8px; font-weight: 500; }
+.kpi-value { font-size: 32px; font-weight: 700; color: #1a1a2e; line-height: 1; margin-bottom: 10px; }
+.kpi-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.trend-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.up { background: #e8f5e9; color: #27ae60; }
+.down { background: #fdecea; color: #e74c3c; }
+.neutral { background: #f0f2f5; color: #666; }
+
+/* Section */
+.content { padding: 20px 40px 40px; max-width: 960px; margin: 0 auto; }
+.section { background: #fff; border-radius: 14px; padding: 24px; margin-bottom: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.section-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f0f2f5; display: flex; align-items: center; gap: 8px; }
+
+/* Summary */
+.summary-text {
+  background: linear-gradient(135deg, #e3f2fd, #fce4ec20);
+  border: 1px solid #bbdefb; border-radius: 10px; padding: 16px 18px;
+  font-size: 14px; line-height: 1.8; color: #333;
+}
+.summary-text strong { color: #1565c0; }
+
+/* Checklist */
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; border-radius: 10px; background: #f8f9fa;
+  border-left: 4px solid #e94560; transition: background .2s;
+}
+.task-item:hover { background: #f0f2f5; }
+.task-item.blue { border-left-color: #3498db; }
+.task-item.green { border-left-color: #2ecc71; }
+.task-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.task-body h4 { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 3px; }
+.task-body p { font-size: 12px; color: #666; line-height: 1.5; }
+
+/* Gauge / Visual */
+.metric-row { display: flex; gap: 16px; margin-bottom: 8px; align-items: center; }
+.metric-label { font-size: 13px; color: #666; width: 80px; flex-shrink: 0; }
+.metric-bar-wrap { flex: 1; height: 8px; background: #f0f2f5; border-radius: 4px; overflow: hidden; }
+.metric-bar { height: 100%; border-radius: 4px; }
+.metric-val { font-size: 13px; font-weight: 600; color: #333; width: 70px; text-align: right; }
+
+.footer { text-align: center; padding: 28px; color: #aaa; font-size: 12px; }
+
+@media (max-width: 700px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; padding: 16px; }
+  .header { padding: 20px; }
+  .content { padding: 12px 16px 32px; }
+  .header-row { flex-direction: column; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Password Overlay -->
+<div id="pwd-overlay">
+  <div class="pwd-box">
+    <div class="lock">🔐</div>
+    <h2>平台日报</h2>
+    <p>请输入访问密码</p>
+    <input type="password" id="pwd-input" placeholder="请输入密码" maxlength="20" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">进入</button>
+    <div class="pwd-error" id="pwd-error"></div>
+  </div>
+</div>
+
+<div id="main-content" style="display:none">
+
+<!-- Header -->
+<div class="header">
+  <div class="header-row">
+    <div>
+      <h1>📱 平台日报</h1>
+      <div class="sub">官网 · 2026-04-09（周三）&nbsp;|&nbsp; 数据截至当日</div>
+    </div>
+    <div class="date-badge">04-09 日报</div>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">DAU（日活用户）</div>
+    <div class="kpi-value">46,372</div>
+    <div class="kpi-tags">
+      <span class="trend-badge up">▲ DoD +1.4%</span>
+      <span class="trend-badge up">▲ WoW +4.6%</span>
+    </div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="kpi-label">顾客数（成交）</div>
+    <div class="kpi-value">6,748</div>
+    <div class="kpi-tags">
+      <span class="trend-badge up">▲ DoD +4.9%</span>
+      <span class="trend-badge up">▲ WoW +11.6%</span>
+    </div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">转化率</div>
+    <div class="kpi-value">14.6%</div>
+    <div class="kpi-tags">
+      <span class="trend-badge neutral">流量稳步提升</span>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- 整体概况 -->
+  <div class="section" style="margin-top:20px">
+    <div class="section-title">📊 今日运营概况</div>
+    <div class="summary-text">
+      今日流量小幅上涨，DAU <strong>46,372</strong>，DoD +1.4%、WoW +4.6%，整体趋势健康向好。
+      转化率 <strong>14.6%</strong>，处于较高水平，顾客数 <strong>6,748</strong> 表现良好（WoW +11.6%）。
+      流量与成交双升，说明今日用户质量较高，运营动作有效。
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="metric-row">
+        <div class="metric-label">DAU</div>
+        <div class="metric-bar-wrap"><div class="metric-bar" style="width:77%;background:linear-gradient(90deg,#e94560,#e9456080)"></div></div>
+        <div class="metric-val">46,372</div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin:-4px 0 10px 96px">DoD +1.4% · WoW +4.6%</div>
+      <div class="metric-row">
+        <div class="metric-label">顾客数</div>
+        <div class="metric-bar-wrap"><div class="metric-bar" style="width:83%;background:linear-gradient(90deg,#3498db,#3498db80)"></div></div>
+        <div class="metric-val">6,748</div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin:-4px 0 10px 96px">DoD +4.9% · WoW +11.6%</div>
+      <div class="metric-row">
+        <div class="metric-label">转化率</div>
+        <div class="metric-bar-wrap"><div class="metric-bar" style="width:73%;background:linear-gradient(90deg,#2ecc71,#2ecc7180)"></div></div>
+        <div class="metric-val">14.6%</div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin:-4px 0 10px 96px">顾客数/DAU，水平较高</div>
+    </div>
+  </div>
+
+  <!-- 重点事项 -->
+  <div class="section">
+    <div class="section-title">⚡ 今日重点事项</div>
+    <div class="task-list">
+      <div class="task-item">
+        <div class="task-icon">💊</div>
+        <div class="task-body">
+          <h4>男科 DOT 活动 — 上线前准备</h4>
+          <p>确认活动页面、商品链接、促销规则及库存备货情况；协调运营、客服提前做好承接预案。</p>
+        </div>
+      </div>
+      <div class="task-item blue">
+        <div class="task-icon">💳</div>
+        <div class="task-body">
+          <h4>省钱卡 × 药师合作推广 — 方案沟通</h4>
+          <p>推进省钱卡与药师合作推广方案，明确合作形式、流量来源及转化路径，输出可落地方案。</p>
+        </div>
+      </div>
+      <div class="task-item green">
+        <div class="task-icon">📦</div>
+        <div class="task-body">
+          <h4>单品包邮功能 — 上线运营</h4>
+          <p>功能已上线，推进运营配置（包邮 SKU 选品、标签展示、活动关联），确认流量入口资源位落地。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 简评 -->
+  <div class="section">
+    <div class="section-title">💡 运营简评</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="padding:12px 16px;background:#e8f5e9;border-radius:10px;border-left:4px solid #27ae60;font-size:13px;color:#333;line-height:1.7">
+        <strong>✅ 正向信号</strong>：顾客数 WoW +11.6%，同比上周同期增长明显，说明近期流量质量持续改善，运营效果有效积累。转化率 14.6% 处于优良区间。
+      </div>
+      <div style="padding:12px 16px;background:#e3f2fd;border-radius:10px;border-left:4px solid #3498db;font-size:13px;color:#333;line-height:1.7">
+        <strong>📌 关注点</strong>：男科 DOT 活动是本周核心增量来源，建议今日完成上线前全链路验收（页面→加购→支付→物流），确保活动首日无卡点。
+      </div>
+      <div style="padding:12px 16px;background:#fff8e1;border-radius:10px;border-left:4px solid #f39c12;font-size:13px;color:#333;line-height:1.7">
+        <strong>⏰ 节奏建议</strong>：单品包邮功能上线后，建议 3 天内收集用户行为数据（加购率、包邮品转化率），验证功能有效性，为后续扩大适用范围提供数据支撑。
+      </div>
+    </div>
+  </div>
+
+</div><!-- end content -->
+<div class="footer">药网平台日报 · 2026-04-09 · 官网渠道</div>
+</div><!-- end main-content -->
+
+<script>
+function checkPwd() {
+  if (document.getElementById('pwd-input').value === '1212') {
+    document.getElementById('pwd-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('pwd-error').textContent = '密码错误，请重试';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+</script>
+</body>
+</html>
